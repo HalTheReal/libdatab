@@ -17,9 +17,9 @@ OBJPATH=obj
 LIBPATH=.
 BINPATH=bin
 
-INC=$(INCPATH)/Tabella.h $(INCPATH)/Data.h
-SRC=$(SRCPATH)/Tabella.cpp $(SRCPATH)/Data.cpp
-OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o
+INC=$(INCPATH)/Tabella.h $(INCPATH)/Data.h $(INCPATH)/Spettro.h
+SRC=$(SRCPATH)/Tabella.cpp $(SRCPATH)/Data.cpp $(SRCPATH)/Spettro.cpp
+OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o $(OBJPATH)/Spettro.o
 OUT=$(LIBPATH)/libdatab.a
 
 INCLUDES=-I ./$(INCPATH)
