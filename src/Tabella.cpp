@@ -1,10 +1,5 @@
 #include "Tabella.h"
 
-#define _T_SUCCESS 1;
-#define _T_FAILURE 0;
-#define _T_FILE_ERROR -1;
-#define _T_OUT_OF_RANGE -2;
-
 // Il costruttore necessita di un nome del file e di un carattere
 // separatore
 Tabella::Tabella(std::string nomeFile, char separator) {
@@ -119,11 +114,11 @@ bool Tabella::skipTo(int n) {
 
 int Tabella::readLine(std::string &str, int n) {
   if (!openFile()) {
-    return _T_FILE_ERROR;
+    return -1;
   }
   if (!skipTo(n)) {
     closeFile();
-    return _T_FILE_ERROR;
+    return -1;
   }
   return (std::getline(fp, str) ? 1 : 0);
 }
@@ -168,7 +163,7 @@ int Tabella::cacheFetch(int line, unsigned field, std::string &str) {
   if (cacheIdx[(line - 1) % cEnt] != line) {    // Cache MISS
     ret = cacheMiss(line);
   }
-  if (ret == 0) {
+  if (ret) {
     if (field <= cache[(line -1) % cEnt].size()) {
       str = cache[(line - 1) % cEnt][field - 1];
     }
@@ -182,24 +177,24 @@ int Tabella::cacheFetch(int line, unsigned field, std::string &str) {
 // Metodo privato di aggiornamento della cache
 int Tabella::cacheMiss(int line) {
   if(!contaRighe()) {                           // Conto righe totali
-    return _T_FILE_ERROR;
+    return -1;
   }
   
   std::string riga;
   if (!readLine(riga, line)) {
-    return _T_FILE_ERROR;
+    return -1;
   }
 
   cache[(line - 1) % cEnt].clear();
   cache[(line - 1) % cEnt] = split(riga, this->sep);
   cacheIdx[(line - 1) % cEnt] = line;
 
-  return 0;
+  return 1;
 }
 
 int Tabella::getLineNum() {
   if(!contaRighe()) {
-    return _T_FILE_ERROR;
+    return -1;
   }
   return nRighe;
 }
