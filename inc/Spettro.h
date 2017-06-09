@@ -8,40 +8,50 @@
 #include <vector>
 #include <iomanip>      //setw, setprecision
 #include "Data.h"
-#include "Tabella.h"
 
-class SpettroGS {
+class Spettro {
   private:
-  float dT;
-  int canali;
-  std::vector <int> eventE;
-  std::vector <long int> nsec;
-  Data dataSpt;
+    int readSPE(const char * nomeFile);
+    int readSPT(const char * nomeFile);
 
-  void readDate(std::string &token);
+  protected:
 
-  // Splitting delle stringhe
-  static std::vector <std::string> split(std::string toSplit, char c);
-  static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
+    float dT;
+    int canali;
+    double mCal;
+    double qCal;
+    std::vector <float> bin;
+    Data dataSpt;
+
+    int energyToBin(float en);
+
+    // Splitting delle stringhe
+    static std::vector <std::string> split(std::string toSplit, char c);
+    static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
 
   public:
-  SpettroGS();
-  SpettroGS(const char * nomeFile);
+    Spettro();
+    Spettro(const char * nomeFile);
 
-  SpettroGS& operator+=(const SpettroGS& rhs);
+    Spettro& operator+=(const Spettro& rhs);
+    Spettro& operator-=(const Spettro& rhs);
 
-  int readFile(const char * nomeFile);
-  void write(const char * nomeFile);
+    Spettro binCut(int from, int to);
+    Spettro energyCut(float from, float to);
 
-  SpettroGS cut(int from, int to);
-  SpettroGS cut(Data &from, Data &to);
-  
-  void printContent();
+    virtual int readFile(const char * nomeFile);
 
-  Data getDate();
-  float getdT();
+    void writeSPE(const char * nomeFile);
+    void writeSPT(const char * nomeFile);
+
+    double getCounts(int e1, int e2);
+    double getCps(int e1, int e2);
+    Data getDate();
+    float getdT();
+
+    void printContent();
 };
 
-SpettroGS operator+(SpettroGS lhs, const SpettroGS& rhs);
+Spettro operator+(Spettro lhs, const Spettro& rhs);
 
 #endif
