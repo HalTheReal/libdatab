@@ -119,7 +119,7 @@ Spettro operator+(Spettro lhs, const Spettro& rhs) {
 }
 
 Spettro Spettro::binCut(int from, int to) {
-  if (from < to) {
+  if (from > to) {
     int tmp = from;
     from = to;
     to = tmp;
@@ -142,9 +142,44 @@ int Spettro::energyToBin(float en) {
 }
 
 void Spettro::writeSPT(const char * nomeFile) {
+  using namespace std;
+  ofstream outfile;
+  outfile.open(nomeFile);
+  if (outfile) {
+    outfile << canali << " " << dT;
+    if (mCal != 1) {
+      outfile << " true ";
+    }
+    else {
+      outfile << " false ";
+    }
+    outfile << qCal << " " << mCal << endl;
+    outfile << "# S_TIME: 000 " << dataSpt.toString('-', ':', 'B') << endl;
+    outfile << "# " << dataSpt.toString('-', ':', 'B') << "# DET # Spettro.cpp" << endl;
+    for (int i = 0; i < canali; ++i) {
+      outfile << bin[i] << " ";
+      if (i % 8 == 7) {
+        outfile << endl;
+      }
+    }
+  }
+  outfile.close();
 }
 
 void Spettro::writeSPE(const char * nomeFile) {
+  using namespace std;
+  ofstream outfile;
+  outfile.open(nomeFile);
+  if (outfile) {
+    outfile << "$SPEC_ID:\nSpettro.cpp\n";
+    outfile << "$DATE_MEA:\n" << dataSpt.toString('-', ':', 'B') << endl;
+    outfile << "$MEAS_TIM:\n" << dT << " " << dT << endl;
+    outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
+    for (int i = 0; i < canali; ++i) {
+      outfile << bin[i] << endl;
+    }
+  }
+  outfile.close();
 }
 
 void Spettro::splitWhite(const std::string &toSplit, std::vector <std::string> &res) {
