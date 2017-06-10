@@ -106,10 +106,6 @@ Spettro& Spettro::operator+=(const Spettro& rhs) {
   for (int i = 0; i < canali; ++i) {
     bin[i] += rhs.bin[i];
   }
-  if (dataSpt > rhs.dataSpt) {
-    dataSpt = rhs.dataSpt;
-  }
-  dT += rhs.dT;
   return *this;
 }
 
@@ -118,22 +114,33 @@ Spettro operator+(Spettro lhs, const Spettro& rhs) {
   return lhs;
 }
 
-Spettro Spettro::binCut(int from, int to) {
+Spettro& Spettro::operator-=(const Spettro& rhs) {
+  for (int i = 0; i < canali; ++i) {
+    bin[i] -= rhs.bin[i];
+  }
+  return *this;
+}
+
+Spettro operator-(Spettro lhs, const Spettro& rhs) {
+  lhs -= rhs;
+  return lhs;
+}
+
+Spettro& Spettro::binCut(int from, int to) {
   if (from > to) {
     int tmp = from;
     from = to;
     to = tmp;
   }
-  Spettro spt = *this;
-  for (int i = 0; i < spt.canali; ++i) {
+  for (int i = 0; i < canali; ++i) {
     if (i < from || i > to) {
-      spt.bin[i] = 0;
+      bin[i] = 0;
     }
   }
-  return spt;
+  return *this;
 }
 
-Spettro Spettro::energyCut(float from, float to) {
+Spettro& Spettro::energyCut(float from, float to) {
   return binCut(energyToBin(from), energyToBin(to));
 }
 

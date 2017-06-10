@@ -36,8 +36,8 @@ class Spettro {
     Spettro& operator+=(const Spettro& rhs);
     Spettro& operator-=(const Spettro& rhs);
 
-    Spettro binCut(int from, int to);
-    Spettro energyCut(float from, float to);
+    Spettro& binCut(int from, int to);
+    Spettro& energyCut(float from, float to);
 
     virtual int readFile(const char * nomeFile);
 
@@ -53,5 +53,6 @@ class Spettro {
 };
 
 Spettro operator+(Spettro lhs, const Spettro& rhs);
+Spettro operator-(Spettro lhs, const Spettro& rhs);
 
 #endif
