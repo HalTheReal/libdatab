@@ -9,6 +9,7 @@ class SpettroGS : public Spettro {
     std::vector <int> event;
 
   protected:
+    int readLST(const char * nomeFile) override;
 
   public:
     SpettroGS();
