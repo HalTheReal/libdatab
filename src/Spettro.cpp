@@ -24,6 +24,9 @@ int Spettro::readFile(const char * nomeFile) {
     else if (extension.compare("spe") == 0) {
       return readSPE(nomeFile);
     }
+    else if (extension.compare("txt") == 0) {
+      return readLST(nomeFile);
+    }
   }
   else {
     std::cout << nomeFile << " is not a valid file!\n";
@@ -95,6 +98,32 @@ int Spettro::readSPT(const char * nomeFile) {
       for (int i = 0; i < 8; ++i) {
         bin.push_back(std::stof(toks[i]));
       }
+    }
+  }
+  file.close();
+  return 1;
+}
+
+int Spettro::readLST(const char * nomeFile) {
+  std::ifstream file(nomeFile);
+  if (!file) {
+    fprintf(stderr, "Impossibile aprire il file:\n%s\n", nomeFile);
+    return 0;
+  }
+  canali = 2048;
+  bin.clear();
+  bin.resize(canali, 0);
+  std::string riga;
+  while (std::getline(file,riga)) {
+    std::vector <std::string> toks;
+    splitWhite(riga, toks);
+    if (toks.size() == 3 && toks[0][0] != '#') {
+      dT = stol(toks[0]) * 16E-9;
+      ++bin[stoi(toks[1])];
+    }
+    else if (toks[0].compare("#StartTime:") == 0) {
+      std::vector <std::string> dateToks = split(toks[1], 'T');
+      dataSpt = Data(dateToks[0], dateToks[1], '-', ':', 'B');
     }
   }
   file.close();

@@ -23,6 +23,7 @@ class Spettro {
     std::vector <float> bin;
     Data dataSpt;
 
+    virtual int readLST(const char * nomeFile);
     int energyToBin(float en);
 
     // Splitting delle stringhe
