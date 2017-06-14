@@ -28,9 +28,7 @@ int Spettro::readFile(const char * nomeFile) {
       return readLST(nomeFile);
     }
   }
-  else {
-    std::cout << nomeFile << " is not a valid file!\n";
-  }
+  std::cout << nomeFile << " is not a valid file!\n";
   return 0;
 }
 
