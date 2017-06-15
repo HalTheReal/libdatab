@@ -175,6 +175,15 @@ int Spettro::energyToBin(float en) {
   return (en - qCal) / mCal;
 }
 
+Spettro& Spettro::append(const Spettro& toApp) {
+  *this += toApp;
+  if (dataSpt > toApp.dataSpt) {
+    dataSpt = toApp.dataSpt;
+  }
+  dT += toApp.dT;
+  return *this;
+}
+
 void Spettro::writeSPT(const char * nomeFile) {
   using namespace std;
   ofstream outfile;
