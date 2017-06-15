@@ -5,8 +5,9 @@
 
 class SpettroGS : public Spettro {
   private:
-    std::vector <long> clock;
+    std::vector <long> clk;
     std::vector <int> event;
+    SpettroGS& updateBin();
 
   protected:
     int readLST(const char * nomeFile) override;
@@ -17,6 +18,7 @@ class SpettroGS : public Spettro {
 
     int readFile(const char * nomeFile) override;
 
+    SpettroGS& append(const SpettroGS& toApp);
     SpettroGS& timeCut(int from, int to);
     SpettroGS& timeCut(Data &from, Data &to);
 
