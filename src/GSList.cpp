@@ -1,10 +1,11 @@
-#include "SpettroGS.h"
+#include "GSList.h"
 
-SpettroGS::SpettroGS()
-  : Spettro()
+GSList::GSList()
+  : dT(0)
+  , dataGS(0)
 {}
 
-int SpettroGS::readFile(const char * nomeFile) {
+int GSList::readFile(const char * nomeFile) {
   std::string filename(nomeFile);
   std::string::size_type idx;
 
@@ -21,7 +22,7 @@ int SpettroGS::readFile(const char * nomeFile) {
   return 0;
 }
 
-int SpettroGS::readLST(const char * nomeFile) {
+int GSList::readLST(const char * nomeFile) {
   std::ifstream file(nomeFile);
   if (!file) {
     fprintf(stderr, "Impossibile aprire il file:\n%s\n", nomeFile);
@@ -29,10 +30,6 @@ int SpettroGS::readLST(const char * nomeFile) {
   }
   clk.clear();
   event.clear();
-  bin.clear();
-
-  canali = 2048;
-  bin.resize(canali, 0);
 
   std::string riga;
   while (std::getline(file,riga)) {
@@ -40,28 +37,27 @@ int SpettroGS::readLST(const char * nomeFile) {
     splitWhite(riga, toks);
     if (toks.size() == 3 && toks[0][0] != '#') {
       dT = stol(toks[0]) * 16E-9;
-      ++bin[stoi(toks[1])];
       clk.push_back(stol(toks[0]));
       event.push_back(stod(toks[1]));
     }
     else if (toks[0].compare("#StartTime:") == 0) {
       std::vector <std::string> dateToks = split(toks[1], 'T');
-      dataSpt = Data(dateToks[0], dateToks[1], '-', ':', 'B');
+      dataGS = Data(dateToks[0], dateToks[1], '-', ':', 'B');
     }
   }
   file.close();
   return 1;
 }
 
-void SpettroGS::writeLST(const char * nomeFile) {
+void GSList::writeLST(const char * nomeFile) {
   using namespace std;
   ofstream outfile;
   outfile.open(nomeFile);
   if (outfile) {
     outfile << "#GammaStream 1.0 LIST\n";
     outfile << "#StartTime: ";
-    outfile << dataSpt.dateToString('-','B') << "T";
-    outfile << dataSpt.hourToString() << endl;
+    outfile << dataGS.dateToString('-','B') << "T";
+    outfile << dataGS.hourToString() << endl;
     outfile << "#Fields\tTime\tEnergy\tGain" << endl;
     for (unsigned i = 0; i < clk.size(); ++i) {
       outfile << right << setw(9) << clk[i] << '\t';
@@ -71,15 +67,7 @@ void SpettroGS::writeLST(const char * nomeFile) {
   }
 }
 
-SpettroGS& SpettroGS::updateBin() {
-  bin.resize(canali, 0);
-  for (int val : event) {
-    ++bin[val];
-  }
-  return *this;
-}
-
-SpettroGS& SpettroGS::timeCut(int from, int to) {
+GSList& GSList::timeCut(int from, int to) {
   std::vector <long> tClock;
   std::vector <int> tEvent;
   for (unsigned i = 0; i < clk.size(); i++) {
@@ -90,20 +78,19 @@ SpettroGS& SpettroGS::timeCut(int from, int to) {
   }
   event = tEvent;
   clk = tClock;
-  dataSpt.sum(from);
+  dataGS.sum(from);
   dT = (clk.back() - clk.front()) * 16E-9;
-  updateBin();
   return *this;
 }
 
-SpettroGS& SpettroGS::timeCut(Data &from, Data &to) {
-  int fromInt = from.toUnix() - dataSpt.toUnix();
+GSList& GSList::timeCut(Data &from, Data &to) {
+  int fromInt = from.toUnix() - dataGS.toUnix();
   int toInt = from.toUnix() - to.toUnix();
   return timeCut(fromInt, toInt);
 }
 
-SpettroGS& SpettroGS::append(const SpettroGS & toApp) {
-  if (dataSpt < toApp.dataSpt) {
+GSList& GSList::append(const GSList & toApp) {
+  if (dataGS < toApp.dataGS) {
     event.insert(event.end(), toApp.event.begin(), toApp.event.end());
     long last = clk.back();
     for (long val : toApp.clk) {
@@ -119,7 +106,47 @@ SpettroGS& SpettroGS::append(const SpettroGS & toApp) {
     for (long val : tmp) {
       clk.push_back(val + last);
     }
+    dataGS = toApp.dataGS;
   }
-  this->Spettro::append(toApp);
+  dT += toApp.dT;
   return *this;
 }
+
+void GSList::splitWhite(const std::string &toSplit, std::vector <std::string> &res) {
+  char sp = ' ';
+  char tb = '\t';
+  const char *str = toSplit.c_str();
+  do
+  {
+    const char *begin = str;
+    while ((*begin == sp || *begin == tb) && *begin) {
+      begin++;
+    }
+    str = begin;
+    while (*str != sp && *str != tb && *str) {
+      str++;
+    }
+    res.push_back(std::string(begin, str));
+  } while (0 != *str++);
+}
+
+// Splitta la stringa di input in base al carattere c di separazione fornito
+// in un vettore. Successioni di caratteri c saranno scartate
+std::vector <std::string> GSList::split(std::string toSplit, char c) {
+  std::vector <std::string> result;
+  const char *str = toSplit.c_str();
+  do
+  {
+    const char *begin = str;
+    while (*begin == c && *begin) {
+      begin++;
+    }
+    str = begin;
+    while (*str != c && *str) {
+      str++;
+    }
+    result.push_back(std::string(begin, str));
+  } while (0 != *str++);
+  return result;
+}
+
