@@ -27,8 +27,8 @@ class Tabella {
   bool contaRighe();
 
   void cacheInvalidation();
-  int cacheMiss(int line);
-  int cacheFetch(int line, unsigned field, std::string &str);
+  bool cacheFetch(int line);
+  int readCache(int line, int field, std::string &str);
   int readLine(std::string &str, int n = 0);
 
   protected:
@@ -41,8 +41,8 @@ class Tabella {
   Tabella& operator = (const Tabella & src);
   int getLineNum();
   int getLine(int riga, std::string& str);
-  int getField(int riga, unsigned field, std::string& str);
-  double readDouble(int riga, unsigned field);
+  int getField(int riga, int field, std::string& str);
+  double readDouble(int riga, int field);
   std::string getTabName();
   static std::vector <std::string> split(std::string toSplit, char c);
 };

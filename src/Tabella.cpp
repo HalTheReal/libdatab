@@ -138,15 +138,15 @@ int Tabella::readLine(std::string &str, int n) {
 //  return 1;
 //}
 
-int Tabella::getField(int line, unsigned field, std::string& str) {
-  int cacheRet = cacheFetch(line, field, str);
+int Tabella::getField(int line, int field, std::string& str) {
+  int cacheRet = readCache(line, field, str);
   if (cacheRet == -3) {
     std::cout << "Requested field is out of range!\n";
   }
   return cacheRet;
 }
 
-double Tabella::readDouble(int line, unsigned field) {
+double Tabella::readDouble(int line, int field) {
   std::string tmp;
   getField(line, field, tmp);
   return stod(tmp);
@@ -158,38 +158,38 @@ void Tabella::cacheInvalidation() {
   }
 }
 
-int Tabella::cacheFetch(int line, unsigned field, std::string &str) {
-  int ret = 1;
-  if (cacheIdx[(line - 1) % cEnt] != line) {    // Cache MISS
-    ret = cacheMiss(line);
-  }
-  if (ret) {
-    if (field <= cache[(line -1) % cEnt].size()) {
+int Tabella::readCache(int line, int field, std::string &str) {
+  if (cacheFetch(line)) {
+    int lineSize = cache[(line -1) % cEnt].size();
+    if (field < 0) {
+      field += lineSize + 1;
+    }
+    if (field > 0 && field <= lineSize) {
       str = cache[(line - 1) % cEnt][field - 1];
+      return 1;     // tutto ok
     }
     else {
-      return -3;
+      return -3;    // out of range
     }
   }
-  return ret;
+  return -1;        // impossibile leggere file
 }
 
 // Metodo privato di aggiornamento della cache
-int Tabella::cacheMiss(int line) {
-  if(!contaRighe()) {                           // Conto righe totali
-    return -1;
+bool Tabella::cacheFetch(int line) {
+  if (cacheIdx[(line - 1) % cEnt] != line) {      // Cache MISS
+    if(!contaRighe()) {                           // Conto righe totali
+      return false;
+    }
+    std::string riga;
+    if (!readLine(riga, line)) {
+      return false;
+    }
+    cache[(line - 1) % cEnt].clear();
+    cache[(line - 1) % cEnt] = split(riga, this->sep);
+    cacheIdx[(line - 1) % cEnt] = line;
   }
-  
-  std::string riga;
-  if (!readLine(riga, line)) {
-    return -1;
-  }
-
-  cache[(line - 1) % cEnt].clear();
-  cache[(line - 1) % cEnt] = split(riga, this->sep);
-  cacheIdx[(line - 1) % cEnt] = line;
-
-  return 1;
+  return true;
 }
 
 int Tabella::getLineNum() {
