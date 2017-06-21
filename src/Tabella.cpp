@@ -159,7 +159,7 @@ void Tabella::cacheInvalidation() {
 }
 
 int Tabella::cacheFetch(int line, unsigned field, std::string &str) {
-  int ret = 0;
+  int ret = 1;
   if (cacheIdx[(line - 1) % cEnt] != line) {    // Cache MISS
     ret = cacheMiss(line);
   }
