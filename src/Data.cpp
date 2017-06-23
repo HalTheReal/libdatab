@@ -337,6 +337,7 @@ Data& Data::print() {
 
 std::string Data::hourToString(char sep) {
   std::string str;
+  if (ora < 10) { str += "0"; }
   str += std::to_string(ora) + sep;
   if (minuti < 10) { str += "0"; }
   str += std::to_string(minuti) + sep;
