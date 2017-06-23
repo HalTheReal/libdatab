@@ -1,33 +1,24 @@
 #include "Data.h"
 
-Data::Data(std::string data, std::string ora, char dataSep, char oraSep, char style) {
+Data::Data(std::string data, std::string ora, char dataSep, char oraSep, char style)
+  : giorno(0)
+  , mese(0)
+  , anno(0)
+  , ora(0)
+  , minuti(0)
+  , secondi(0)
+  , millisecondi(0)
+{
   std::vector <std::string> partiData = split(data, dataSep);
   std::vector <std::string> partiOra = split(ora, oraSep);
   if (partiData.size() != 3 || partiOra.size() != 3) {
     fprintf(stderr, "Invalid date/hour. Init to default...\n");
-    std::cout << "Data size: " << partiData.size() << " Ora size: " << partiOra.size() << '\n';
     defaultInit();
   }
   else {
-  sortDate(partiData, style);
+    sortDate(partiData, style);
     try {
-      this->giorno = std::stod(partiData[0]);
-      this->mese = std::stod(partiData[1]);
-      this->anno = std::stod(partiData[2]);
-      if (this->anno <= 99 ) {
-        this->anno += 2000;
-      }
-      this->ora = std::stod(partiOra[0]);
-      this->minuti = std::stod(partiOra[1]);
-      this->secondi = round(std::stof(partiOra[2]));
-      if (this->secondi == 60) {
-        this->secondi = 0;
-        this->minuti++;
-        if (this->minuti == 60) {
-          this->minuti = 0;
-          this->ora++;
-        }
-      }
+      init(partiData, partiOra);
     }
     catch (std::invalid_argument& e) {
       fprintf(stderr, "Invalid argument exception. Init to default...\n");
@@ -40,7 +31,15 @@ Data::Data(std::string data, std::string ora, char dataSep, char oraSep, char st
   }
 }
 
-Data::Data(const char * data, const char * ora, char dataSep, char oraSep, char style) {
+Data::Data(const char * data, const char * ora, char dataSep, char oraSep, char style)
+  : giorno(0)
+  , mese(0)
+  , anno(0)
+  , ora(0)
+  , minuti(0)
+  , secondi(0)
+  , millisecondi(0)
+{
   std::string dataStr(data);
   std::string oraStr(ora);
   std::vector <std::string> partiData = split(dataStr, dataSep);
@@ -50,25 +49,9 @@ Data::Data(const char * data, const char * ora, char dataSep, char oraSep, char 
     defaultInit();
   }
   else {
-  sortDate(partiData, style);
+    sortDate(partiData, style);
     try {
-      this->giorno = std::stod(partiData[0]);
-      this->mese = std::stod(partiData[1]);
-      this->anno = std::stod(partiData[2]);
-      if (this->anno <= 99 ) {
-        this->anno += 2000;
-      }
-      this->ora = std::stod(partiOra[0]);
-      this->minuti = std::stod(partiOra[1]);
-      this->secondi = round(std::stod(partiOra[2]));
-      if (this->secondi == 60) {
-        this->secondi = 0;
-        this->minuti++;
-        if (this->minuti == 60) {
-          this->minuti = 0;
-          this->ora++;
-        }
-      }
+      init(partiData, partiOra);
     }
     catch (std::invalid_argument& e) {
       fprintf(stderr, "Invalid argument exception. Init to default...\n");
@@ -81,18 +64,39 @@ Data::Data(const char * data, const char * ora, char dataSep, char oraSep, char 
   }
 }
 
-Data::Data(int uTime) {
+Data::Data(int uTime)
+  : giorno(0)
+  , mese(0)
+  , anno(0)
+  , ora(0)
+  , minuti(0)
+  , secondi(0)
+  , millisecondi(0)
+{
   defaultInit();
   sum(uTime);
 }
 
+void Data::init(std::vector <std::string> &dtToks, std::vector <std::string> &hrToks) {
+  giorno = std::stoi(dtToks[0]);
+  mese = std::stoi(dtToks[1]);
+  anno = std::stoi(dtToks[2]);
+  if (anno <= 99 ) {
+    anno += 2000;
+  }
+  ora = std::stoi(hrToks[0]);
+  minuti = std::stoi(hrToks[1]);
+  secondi = round(std::stoi(hrToks[2]));
+  sum(0);
+}
+
 void Data::defaultInit() {
-  this->giorno = 1;
-  this->mese = 1;
-  this->anno = 1970;
-  this->ora = 0;
-  this->minuti = 0;
-  this->secondi = 0;
+  giorno = 1;
+  mese = 1;
+  anno = 1970;
+  ora = 0;
+  minuti = 0;
+  secondi = 0;
 }
 
 bool Data::operator==(const Data &dt) {
@@ -270,7 +274,6 @@ Data& Data::subtract(int sec) {
   int giorniAggiunti = 0;
   if (ora < 0) {
     giorniAggiunti = floor(ora / 24.0);
-    std::cout << giorniAggiunti << '\n';
     resto = ora % 24;
     ora = resto != 0 ? 24 + resto : 0;
   }
