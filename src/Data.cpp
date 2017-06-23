@@ -231,11 +231,11 @@ int Data::toUnix() {
   return unix;
 }
 
-void Data::sum(int sec) {
+Data& Data::sum(int sec) {
   return (sec >= 0 ? add(sec) : subtract(sec));
 }
 
-void Data::add(int sec) {
+Data& Data::add(int sec) {
   secondi += sec;
   if (secondi >= 60) {
     minuti += secondi / 60;
@@ -251,10 +251,10 @@ void Data::add(int sec) {
     ora = ora % 24;
   }
   sumDays(giorniAggiunti);
-  return;
+  return *this;
 }
 
-void Data::subtract(int sec) {
+Data& Data::subtract(int sec) {
   secondi += sec;
   int resto;
   if (secondi < 0) {
@@ -275,10 +275,10 @@ void Data::subtract(int sec) {
     ora = resto != 0 ? 24 + resto : 0;
   }
   sumDays(giorniAggiunti);
-  return;
+  return *this;
 }
 
-void Data::sumDays(int d) {
+Data& Data::sumDays(int d) {
   if (d >= 0) {
     giorno += d;
     while (giorno > daysInMonth(mese, anno)) {
@@ -304,7 +304,7 @@ void Data::sumDays(int d) {
       }
     }
   }
-  return;
+  return *this;
 }
 
 int Data::getGpsOffset() {
@@ -327,9 +327,9 @@ int Data::getGpsOffset() {
   }
 }
 
-void Data::print() {
-  std::string dt = this->toString();
-  std::cout << dt << '\n';
+Data& Data::print() {
+  std::cout << toString() << std::endl;
+  return *this;
 }
 
 std::string Data::hourToString(char sep) {
