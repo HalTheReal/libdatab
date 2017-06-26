@@ -9,26 +9,55 @@ Spettro::Spettro()
   , dataSpt(0)
 {}
 
+Spettro::Spettro(const char * nomeFile)
+  : dT(0)
+  , canali(0)
+  , mCal(1)
+  , qCal(0)
+  , dataSpt(0)
+{
+    readFile(nomeFile);
+}
+
+void Spettro::defaultInit() {
+  dT = 0;
+  canali = 0;
+  mCal = 1;
+  qCal = 0;
+  dataSpt = Data(0);
+  bin.clear();
+}
+
 int Spettro::readFile(const char * nomeFile) {
   std::string filename(nomeFile);
   std::string::size_type idx;
 
   idx = filename.rfind('.');
-
-  if(idx != std::string::npos)
-  {
-    std::string extension = filename.substr(idx+1);
-    if (extension.compare("spt") == 0) {
-      return readSPT(nomeFile);
+  try {
+    if(idx != std::string::npos) {
+      std::string extension = filename.substr(idx+1);
+      if (extension.compare("spt") == 0) {
+        return readSPT(nomeFile);
+      }
+      else if (extension.compare("spe") == 0) {
+        return readSPE(nomeFile);
+      }
+      else if (extension.compare("txt") == 0) {
+        return readLST(nomeFile);
+      }
     }
-    else if (extension.compare("spe") == 0) {
-      return readSPE(nomeFile);
-    }
-    else if (extension.compare("txt") == 0) {
-      return readLST(nomeFile);
-    }
+    std::cout << nomeFile << " is not a valid file!\n";
   }
-  std::cout << nomeFile << " is not a valid file!\n";
+  catch (std::invalid_argument& e) {
+    std::cout << "Invalid argument exception while reading file:\n";
+    std::cout << nomeFile << std::endl;
+    defaultInit();
+  }
+  catch (std::out_of_range& e) {
+    std::cout << "Out of range exception while reading file:\n";
+    std::cout << nomeFile << std::endl;
+    defaultInit();
+  }
   return 0;
 }
 

@@ -13,6 +13,7 @@ class Spettro {
   private:
     int readSPE(const char * nomeFile);
     int readSPT(const char * nomeFile);
+    int readLST(const char * nomeFile);
 
   protected:
 
@@ -23,7 +24,7 @@ class Spettro {
     std::vector <float> bin;
     Data dataSpt;
 
-    virtual int readLST(const char * nomeFile);
+    void defaultInit();
     int energyToBin(float en);
 
     // Splitting delle stringhe
@@ -42,7 +43,7 @@ class Spettro {
     Spettro& binCut(int from, int to);
     Spettro& energyCut(float from, float to);
 
-    virtual int readFile(const char * nomeFile);
+    int readFile(const char * nomeFile);
 
     void writeSPE(const char * nomeFile);
     void writeSPT(const char * nomeFile);
