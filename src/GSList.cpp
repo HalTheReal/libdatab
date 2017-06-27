@@ -5,21 +5,45 @@ GSList::GSList()
   , dataGS(0)
 {}
 
+GSList::GSList(const char * nomeFile)
+  : dT(0)
+  , dataGS(0)
+{
+  readFile(nomeFile);
+}
+
 int GSList::readFile(const char * nomeFile) {
   std::string filename(nomeFile);
   std::string::size_type idx;
 
   idx = filename.rfind('.');
-
-  if(idx != std::string::npos)
-  {
-    std::string extension = filename.substr(idx+1);
-    if (extension.compare("txt") == 0) {
-      return readLST(nomeFile);
+  try {
+    if(idx != std::string::npos) {
+      std::string extension = filename.substr(idx+1);
+      if (extension.compare("txt") == 0) {
+        return readLST(nomeFile);
+      }
     }
+    std::cout << nomeFile << " is not a valid file!\n";
   }
-  std::cout << nomeFile << " is not a valid file!\n";
+  catch (std::invalid_argument& e) {
+    std::cout << "Invalid argument exception while reading file:\n";
+    std::cout << nomeFile << std::endl;
+    defaultInit();
+  }
+  catch (std::out_of_range& e) {
+    std::cout << "Out of range exception while reading file:\n";
+    std::cout << nomeFile << std::endl;
+    defaultInit();
+  }
   return 0;
+}
+
+void GSList::defaultInit() {
+  dT = 0;
+  dataGS = Data(0);
+  event.clear();
+  clk.clear();
 }
 
 int GSList::readLST(const char * nomeFile) {
@@ -149,4 +173,3 @@ std::vector <std::string> GSList::split(std::string toSplit, char c) {
   } while (0 != *str++);
   return result;
 }
-

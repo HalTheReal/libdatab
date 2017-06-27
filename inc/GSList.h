@@ -17,6 +17,7 @@ class GSList {
     std::vector <int> event;
     Data dataGS;
 
+    void defaultInit();
     static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
     static std::vector <std::string> split(std::string toSplit, char c);
 
