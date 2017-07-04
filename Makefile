@@ -17,9 +17,9 @@ OBJPATH=obj
 LIBPATH=.
 BINPATH=bin
 
-INC=$(INCPATH)/Tabella.h $(INCPATH)/Data.h $(INCPATH)/Spettro.h $(INCPATH)/GSList.h
-SRC=$(SRCPATH)/Tabella.cpp $(SRCPATH)/Data.cpp $(SRCPATH)/Spettro.cpp $(SRCPATH)/GSList.cpp
-OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o $(OBJPATH)/Spettro.o $(OBJPATH)/GSList.o
+INC=$(INCPATH)/*.h
+SRC=$(SRCPATH)/*.cpp
+OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o $(OBJPATH)/Spettro.o $(OBJPATH)/GSList.o $(OBJPATH)/tools.o
 OUT=$(LIBPATH)/libdatab.a
 
 INCLUDES=-I ./$(INCPATH)
@@ -39,4 +39,3 @@ clean:
 
 cleanall: clean
 	rm -f $(OUT)
-

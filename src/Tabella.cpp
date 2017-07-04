@@ -186,7 +186,7 @@ bool Tabella::cacheFetch(int line) {
       return false;
     }
     cache[(line - 1) % cEnt].clear();
-    cache[(line - 1) % cEnt] = split(riga, this->sep);
+    cache[(line - 1) % cEnt] = tls::split(riga, this->sep);
     cacheIdx[(line - 1) % cEnt] = line;
   }
   return true;
@@ -197,26 +197,6 @@ int Tabella::getLineNum() {
     return -1;
   }
   return nRighe;
-}
-
-// Splitta la stringa di input in base al carattere c di separazione fornito
-// in un vettore. Successioni di caratteri c saranno scartate
-std::vector <std::string> Tabella::split(std::string toSplit, char c) {
-  std::vector <std::string> result;
-  const char *str = toSplit.c_str();
-  do
-  {
-    const char *begin = str;
-    while (*begin == c && *begin) {
-      begin++;
-    }
-    str = begin;
-    while (*str != c && *str) {
-      str++;
-    }
-    result.push_back(std::string(begin, str));
-  } while (0 != *str++);
-  return result;
 }
 
 std::string Tabella::getTabName(){

@@ -7,7 +7,8 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>      //setw, setprecision
-#include "Data.h"
+#include <Data.h>
+#include <tools.h>
 
 class Spettro {
   private:
@@ -28,7 +29,6 @@ class Spettro {
     int energyToBin(float en);
 
     // Splitting delle stringhe
-    static std::vector <std::string> split(std::string toSplit, char c);
     static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
 
   public:

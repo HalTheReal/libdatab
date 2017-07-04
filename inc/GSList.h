@@ -7,8 +7,9 @@
 #include <vector>
 #include <iomanip>      //setw, setprecision
 
-#include "GSList.h"
-#include "Data.h"
+#include <GSList.h>
+#include <Data.h>
+#include <tools.h>
 
 class GSList {
   private:
@@ -19,7 +20,6 @@ class GSList {
 
     void defaultInit();
     static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
-    static std::vector <std::string> split(std::string toSplit, char c);
 
   protected:
     int readLST(const char * nomeFile);

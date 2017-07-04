@@ -1,6 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <tools.h>
 #include <string>
 #include <vector>
 #include <stdexcept>    // Eccezioni
@@ -20,7 +21,6 @@ class Data {
     void defaultInit();
     void init(std::vector <std::string> &dtToks, std::vector <std::string> &hrToks);
 
-    std::vector <std::string> split(const std::string &toSplit, char c);
     void sortDate(std::vector <std::string> &data, char style);
     Data& add(int sec);
     Data& subtract(int sec);

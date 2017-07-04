@@ -65,7 +65,7 @@ int GSList::readLST(const char * nomeFile) {
       event.push_back(stod(toks[1]));
     }
     else if (toks[0].compare("#StartTime:") == 0) {
-      std::vector <std::string> dateToks = split(toks[1], 'T');
+      std::vector <std::string> dateToks = tls::split(toks[1], 'T');
       dataGS = Data(dateToks[0], dateToks[1], '-', ':', 'B');
     }
   }
@@ -152,24 +152,4 @@ void GSList::splitWhite(const std::string &toSplit, std::vector <std::string> &r
     }
     res.push_back(std::string(begin, str));
   } while (0 != *str++);
-}
-
-// Splitta la stringa di input in base al carattere c di separazione fornito
-// in un vettore. Successioni di caratteri c saranno scartate
-std::vector <std::string> GSList::split(std::string toSplit, char c) {
-  std::vector <std::string> result;
-  const char *str = toSplit.c_str();
-  do
-  {
-    const char *begin = str;
-    while (*begin == c && *begin) {
-      begin++;
-    }
-    str = begin;
-    while (*str != c && *str) {
-      str++;
-    }
-    result.push_back(std::string(begin, str));
-  } while (0 != *str++);
-  return result;
 }

@@ -9,8 +9,8 @@ Data::Data(std::string data, std::string ora, char dataSep, char oraSep, char st
   , secondi(0)
   , millisecondi(0)
 {
-  std::vector <std::string> partiData = split(data, dataSep);
-  std::vector <std::string> partiOra = split(ora, oraSep);
+  std::vector <std::string> partiData = tls::split(data, dataSep);
+  std::vector <std::string> partiOra = tls::split(ora, oraSep);
   if (partiData.size() != 3 || partiOra.size() != 3) {
     fprintf(stderr, "Invalid date/hour. Init to default...\n");
     defaultInit();
@@ -42,8 +42,8 @@ Data::Data(const char * data, const char * ora, char dataSep, char oraSep, char 
 {
   std::string dataStr(data);
   std::string oraStr(ora);
-  std::vector <std::string> partiData = split(dataStr, dataSep);
-  std::vector <std::string> partiOra = split(oraStr, oraSep);
+  std::vector <std::string> partiData = tls::split(dataStr, dataSep);
+  std::vector <std::string> partiOra = tls::split(oraStr, oraSep);
   if (partiData.size() != 3 || partiOra.size() != 3) {
     fprintf(stderr, "Invalid date/hour. Init to default...\n");
     defaultInit();
@@ -369,24 +369,6 @@ std::string Data::toString(char sep1, char sep2, char style) {
   std::string str;
   str += dateToString(sep1, style) + " " + hourToString(sep2);
   return str;
-}
-
-std::vector <std::string> Data::split(const std::string &toSplit, char c) {
-  std::vector <std::string> result;
-  const char *str = toSplit.c_str();
-  do
-  {
-    const char *begin = str;
-    while (*begin == c && *begin) {
-      begin++;
-    }
-    str = begin;
-    while (*str != c && *str) {
-      str++;
-    }
-    result.push_back(std::string(begin, str));
-  } while (0 != *str++);
-  return result;
 }
 
 // Metodo privato per l'inversione della data
