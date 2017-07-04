@@ -74,17 +74,17 @@ int Spettro::readSPE(const char * nomeFile) {
       std::vector <std::string> toks;
       if (riga.compare("$DATE_MEA:") == 0) {
         std::getline(file, riga);
-        splitWhite(riga, toks);
+        toks = tls::splitWhite(riga);
         dataSpt = Data(toks[0], toks[1], '-', ':', 'B');
       }
       else if (riga.compare("$MEAS_TIM:") == 0) {
         std::getline(file, riga);
-        splitWhite(riga, toks);
+        toks = tls::splitWhite(riga);
         dT = std::stof(toks[0]);
       }
       else if (riga.compare("$DATA:") == 0) {
         std::getline(file, riga);
-        splitWhite(riga, toks);
+        toks = tls::splitWhite(riga);
         canali = std::stod(toks[1]) + 1;
       }
       else {
@@ -108,8 +108,7 @@ int Spettro::readSPT(const char * nomeFile) {
   bin.clear();
   std::string riga;
   while (std::getline(file,riga)) {
-    std::vector <std::string> toks;
-    splitWhite(riga, toks);
+    std::vector <std::string> toks = tls::splitWhite(riga);
     if (toks.size() == 5) {
       if (toks[1].compare("S_Time:") == 0) {
         dataSpt = Data(toks[3], toks[4], '-', ':', 'B');
@@ -142,8 +141,7 @@ int Spettro::readLST(const char * nomeFile) {
   bin.resize(canali, 0);
   std::string riga;
   while (std::getline(file,riga)) {
-    std::vector <std::string> toks;
-    splitWhite(riga, toks);
+    std::vector <std::string> toks = tls::splitWhite(riga);
     if (toks.size() == 3 && toks[0][0] != '#') {
       dT = stol(toks[0]) * 16E-9;
       ++bin[stoi(toks[1])];
@@ -252,24 +250,6 @@ void Spettro::writeSPE(const char * nomeFile) {
     }
   }
   outfile.close();
-}
-
-void Spettro::splitWhite(const std::string &toSplit, std::vector <std::string> &res) {
-  char sp = ' ';
-  char tb = '\t';
-  const char *str = toSplit.c_str();
-  do
-  {
-    const char *begin = str;
-    while ((*begin == sp || *begin == tb) && *begin) {
-      begin++;
-    }
-    str = begin;
-    while (*str != sp && *str != tb && *str) {
-      str++;
-    }
-    res.push_back(std::string(begin, str));
-  } while (0 != *str++);
 }
 
 Data Spettro::getDate() {

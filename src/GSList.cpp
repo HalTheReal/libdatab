@@ -57,8 +57,7 @@ int GSList::readLST(const char * nomeFile) {
 
   std::string riga;
   while (std::getline(file,riga)) {
-    std::vector <std::string> toks;
-    splitWhite(riga, toks);
+    std::vector <std::string> toks = tls::splitWhite(riga);
     if (toks.size() == 3 && toks[0][0] != '#') {
       dT = stol(toks[0]) * 16E-9;
       clk.push_back(stol(toks[0]));
@@ -134,22 +133,4 @@ GSList& GSList::append(const GSList & toApp) {
   }
   dT += toApp.dT;
   return *this;
-}
-
-void GSList::splitWhite(const std::string &toSplit, std::vector <std::string> &res) {
-  char sp = ' ';
-  char tb = '\t';
-  const char *str = toSplit.c_str();
-  do
-  {
-    const char *begin = str;
-    while ((*begin == sp || *begin == tb) && *begin) {
-      begin++;
-    }
-    str = begin;
-    while (*str != sp && *str != tb && *str) {
-      str++;
-    }
-    res.push_back(std::string(begin, str));
-  } while (0 != *str++);
 }

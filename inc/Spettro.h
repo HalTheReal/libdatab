@@ -28,9 +28,6 @@ class Spettro {
     void defaultInit();
     int energyToBin(float en);
 
-    // Splitting delle stringhe
-    static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
-
   public:
     Spettro();
     Spettro(const char * nomeFile);

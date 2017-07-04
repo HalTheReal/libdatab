@@ -19,7 +19,6 @@ class GSList {
     Data dataGS;
 
     void defaultInit();
-    static void splitWhite(const std::string &toSplit, std::vector <std::string> &res);
 
   protected:
     int readLST(const char * nomeFile);
