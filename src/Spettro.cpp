@@ -211,6 +211,12 @@ Spettro& Spettro::append(const Spettro& toApp) {
   return *this;
 }
 
+Spettro& Spettro::calibrate(double m, double q) {
+  mCal = m;
+  qCal = q;
+  return *this;
+}
+
 void Spettro::writeSPT(const char * nomeFile) {
   using namespace std;
   ofstream outfile;

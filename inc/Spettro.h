@@ -39,6 +39,7 @@ class Spettro {
 
     Spettro& binCut(int from, int to);
     Spettro& energyCut(float from, float to);
+    Spettro& calibrate(double m, double q);
 
     int readFile(const char * nomeFile);
 
