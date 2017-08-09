@@ -90,6 +90,27 @@ void GSList::writeLST(const char * nomeFile) {
   }
 }
 
+void GSList::writeSPE(const char * nomeFile) {
+  int canali = 2048;
+  std::vector <int> bin(canali, 0);
+  for (int val : event) {
+    ++bin[val];
+  }
+  using namespace std;
+  ofstream outfile;
+  outfile.open(nomeFile);
+  if (outfile) {
+    outfile << "$SPEC_ID:\nGSList.cpp\n";
+    outfile << "$DATE_MEA:\n" << dataGS.toString('-', ':', 'B') << endl;
+    outfile << "$MEAS_TIM:\n" << dT << " " << dT << endl;
+    outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
+    for (int i = 0; i < canali; ++i) {
+      outfile << bin[i] << endl;
+    }
+  }
+  outfile.close();
+}
+
 GSList& GSList::timeCut(int from, int to) {
   std::vector <long> tClock;
   std::vector <int> tEvent;
@@ -133,4 +154,12 @@ GSList& GSList::append(const GSList & toApp) {
   }
   dT += toApp.dT;
   return *this;
+}
+
+float GSList::getdT() {
+  return dT;
+}
+
+Data GSList::getDate() {
+  return dataGS;
 }

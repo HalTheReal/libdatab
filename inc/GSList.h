@@ -33,7 +33,11 @@ class GSList {
     GSList& timeCut(int from, int to);
     GSList& timeCut(Data &from, Data &to);
 
+    float getdT();
+    Data getDate();
+
     void writeLST(const char * nomeFile);
+    void writeSPE(const char * nomeFile);
 };
 
 #endif
