@@ -26,7 +26,6 @@ class Spettro {
     Data dataSpt;
 
     void defaultInit();
-    int energyToBin(float en);
 
   public:
     Spettro();
@@ -46,8 +45,15 @@ class Spettro {
     void writeSPE(const char * nomeFile);
     void writeSPT(const char * nomeFile);
 
-    double getCounts(int e1, int e2);
-    double getCps(int e1, int e2);
+    int energyToBin(double en) const;
+
+    double getCounts(double e1) const;
+    double getCounts(double e1, double e2) const;
+    double getCps(double e1) const;
+    double getCps(double e1, double e2) const;
+    double getBinContent(int b1) const;
+    double getBinContent(int b1, int b2) const;
+    
     Data getDate();
     float getdT();
 

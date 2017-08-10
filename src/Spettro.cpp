@@ -110,7 +110,7 @@ int Spettro::readSPT(const char * nomeFile) {
   while (std::getline(file,riga)) {
     std::vector <std::string> toks = tls::splitWhite(riga);
     if (toks.size() == 5) {
-      if (toks[1].compare("S_Time:") == 0) {
+      if (toks[1].compare("S_TIME:") == 0) {
         dataSpt = Data(toks[3], toks[4], '-', ':', 'B');
       }
       else {
@@ -198,7 +198,7 @@ Spettro& Spettro::energyCut(float from, float to) {
   return binCut(energyToBin(from), energyToBin(to));
 }
 
-int Spettro::energyToBin(float en) {
+int Spettro::energyToBin(double en) const {
   return (en - qCal) / mCal;
 }
 
@@ -217,6 +217,34 @@ Spettro& Spettro::calibrate(double m, double q) {
   return *this;
 }
 
+double Spettro::getCounts(double e1) const {
+  return getBinContent(energyToBin(e1));
+}
+
+double Spettro::getCounts(double e1, double e2) const {
+  return getBinContent(energyToBin(e1), energyToBin(e2));
+}
+
+double Spettro::getCps(double e1) const {
+  return getCounts(e1) / dT;
+}
+
+double Spettro::getCps(double e1, double e2) const {
+  return getCounts(e1, e2) / dT;
+}
+
+double Spettro::getBinContent(int b1) const {
+  return bin[b1];
+}
+
+double Spettro::getBinContent(int b1, int b2) const {
+  double integral = 0;
+  for(int i = b1; i <= b2; ++i) {
+    integral += bin[i];
+  }
+  return integral;
+}
+
 void Spettro::writeSPT(const char * nomeFile) {
   using namespace std;
   ofstream outfile;
@@ -233,9 +261,12 @@ void Spettro::writeSPT(const char * nomeFile) {
     outfile << "# S_TIME: 000 " << dataSpt.toString('-', ':', 'B') << endl;
     outfile << "# " << dataSpt.toString('-', ':', 'B') << "# DET # Spettro.cpp" << endl;
     for (int i = 0; i < canali; ++i) {
-      outfile << bin[i] << " ";
+      outfile << bin[i];
       if (i % 8 == 7) {
         outfile << endl;
+      }
+      else {
+        outfile << " ";
       }
     }
   }
