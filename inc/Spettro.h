@@ -7,6 +7,8 @@
 #include <sstream>
 #include <vector>
 #include <iomanip>      //setw, setprecision
+#include <random>
+#include <chrono>
 #include <Data.h>
 #include <tools.h>
 
@@ -39,6 +41,8 @@ class Spettro {
     Spettro& binCut(int from, int to);
     Spettro& energyCut(float from, float to);
     Spettro& calibrate(double m, double q);
+    Spettro& rebin(double gain);
+    Spettro& rebin(double gain, unsigned seed);
 
     int readFile(const char * nomeFile);
 

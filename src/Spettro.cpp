@@ -217,6 +217,33 @@ Spettro& Spettro::calibrate(double m, double q) {
   return *this;
 }
 
+Spettro& Spettro::rebin(double gain) {
+  unsigned seed = std::chrono::steady_clock::now().time_since_epoch().count();
+  return rebin(gain, seed);
+}
+
+Spettro& Spettro::rebin(double gain, unsigned seed) {
+  std::default_random_engine generator(seed);
+  std::vector <float> newBin(canali, 0);
+  for (int i = 0; i < canali; ++i) {
+    double E0 = i * mCal + 0.5 * mCal + qCal;
+    double Emin = E0 - 0.5 * mCal;
+    double Emax = E0 + 0.5 * mCal;
+    std::uniform_real_distribution <double> distribution(Emin, Emax);
+    for (int j = 0; j < bin[i]; ++j) {
+      double rnd = distribution(generator);
+      int idx = ceil(rnd / gain);
+      if (idx >= 0 && idx < canali) {
+        ++newBin[idx];
+      }
+    }
+  }
+  mCal = gain;
+  qCal = 0;
+  bin = newBin;
+  return *this;
+}
+
 double Spettro::getCounts(double e1) const {
   return getBinContent(energyToBin(e1));
 }
