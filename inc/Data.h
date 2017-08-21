@@ -34,23 +34,23 @@ class Data {
     Data(std::string data, std::string ora, char dataSep = '/', char oraSep = ':', char style = 'L');
     Data(int uTime = 0);
 
-    bool operator == (const Data &dt);
-    bool operator != (const Data &dt);
-    bool operator > (const Data &dt);
-    bool operator < (const Data &dt);
-    bool operator >= (const Data &dt);
-    bool operator <= (const Data &dt);
+    bool operator == (const Data &dt) const;
+    bool operator != (const Data &dt) const;
+    bool operator > (const Data &dt) const;
+    bool operator < (const Data &dt) const;
+    bool operator >= (const Data &dt) const;
+    bool operator <= (const Data &dt) const;
 
     static bool isLeap(int year);
 
-    Data& print();
+    void print() const;
     Data& sum(int sec);
     Data& sumDays(int d);
-    int getGpsOffset();
-    int toUnix();
-    std::string toString(char sep1 = '/', char sep2 = ':', char style = 'L');
-    std::string dateToString(char sep = '/', char style = 'L');
-    std::string hourToString(char sep = ':');
+    int getGpsOffset() const;
+    int toUnix() const;
+    std::string toString(char sep1 = '/', char sep2 = ':', char style = 'L') const;
+    std::string dateToString(char sep = '/', char style = 'L') const;
+    std::string hourToString(char sep = ':') const;
     // Deprecated
     std::string toRevString(char sep = '/', char sep2 = ':');
     std::string dateToRevString(char sep = '/');

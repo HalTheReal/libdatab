@@ -99,7 +99,7 @@ void Data::defaultInit() {
   secondi = 0;
 }
 
-bool Data::operator==(const Data &dt) {
+bool Data::operator==(const Data &dt) const {
   if (giorno == dt.giorno && mese == dt.mese && anno == dt.anno) {
     if (secondi == dt.secondi && minuti == dt.minuti && ora == dt.ora) {
       return true;
@@ -108,11 +108,11 @@ bool Data::operator==(const Data &dt) {
   return false;
 }
 
-bool Data::operator != (const Data &dt) {
+bool Data::operator != (const Data &dt) const {
   return !(*this == dt);
 }
 
-bool Data::operator > (const Data &dt) {
+bool Data::operator > (const Data &dt) const {
   if (anno > dt.anno) { return true; }
   if (anno < dt.anno) { return false; }
   if (mese > dt.mese) { return true; }
@@ -127,7 +127,7 @@ bool Data::operator > (const Data &dt) {
   else { return false; }
 }
 
-bool Data::operator < (const Data &dt) {
+bool Data::operator < (const Data &dt) const {
   if (anno < dt.anno) { return true; }
   if (anno > dt.anno) { return false; }
   if (mese < dt.mese) { return true; }
@@ -142,11 +142,11 @@ bool Data::operator < (const Data &dt) {
   else { return false; }
 }
 
-bool Data::operator >= (const Data &dt) {
+bool Data::operator >= (const Data &dt) const {
   return (*this == dt || *this > dt);
 }
 
-bool Data::operator <= (const Data &dt) {
+bool Data::operator <= (const Data &dt) const {
   return (*this == dt || *this < dt);
 }
 
@@ -208,7 +208,7 @@ int Data::daysToNewYear(int day, int month, int year) {
   return tot - 1;
 }
 
-int Data::toUnix() {
+int Data::toUnix() const {
   int unix = 0;
   unix = this->secondi + this->minuti*60 + this->ora*60*60;
   int dayCounter = 0;
@@ -310,7 +310,7 @@ Data& Data::sumDays(int d) {
   return *this;
 }
 
-int Data::getGpsOffset() {
+int Data::getGpsOffset() const {
   Data dt1("1/7/2012", "00:00:00");
   Data dt2("30/6/2015", "23:59:59");
   Data dt3("1/7/2015", "00:00:00");
@@ -330,12 +330,11 @@ int Data::getGpsOffset() {
   }
 }
 
-Data& Data::print() {
+void Data::print() const {
   std::cout << toString() << std::endl;
-  return *this;
 }
 
-std::string Data::hourToString(char sep) {
+std::string Data::hourToString(char sep) const {
   std::string str;
   if (ora < 10) { str += "0"; }
   str += std::to_string(ora) + sep;
@@ -346,7 +345,7 @@ std::string Data::hourToString(char sep) {
   return str;
 }
 
-std::string Data::dateToString(char sep, char style) {
+std::string Data::dateToString(char sep, char style) const {
   std::string str;
   switch(style) {
     case 'L':   // Little Endian dd/mm/yy
@@ -365,7 +364,7 @@ std::string Data::dateToString(char sep, char style) {
   return str;
 }
 
-std::string Data::toString(char sep1, char sep2, char style) {
+std::string Data::toString(char sep1, char sep2, char style) const {
   std::string str;
   str += dateToString(sep1, style) + " " + hourToString(sep2);
   return str;

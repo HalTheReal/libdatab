@@ -19,6 +19,7 @@ class GSList {
     Data dataGS;
 
     void defaultInit();
+    bool isEmpty() const;
 
   protected:
     int readLST(const char * nomeFile);
@@ -31,13 +32,15 @@ class GSList {
 
     GSList& append(const GSList& toApp);
     GSList& timeCut(int from, int to);
+    GSList& timeCut(Data &from, int to);
     GSList& timeCut(Data &from, Data &to);
 
-    float getdT();
-    Data getDate();
+    float getdT() const;
+    Data getDate() const;
 
     void writeLST(const char * nomeFile);
     void writeSPE(const char * nomeFile);
+    void writeSPT(const char * nomeFile);
 };
 
 #endif

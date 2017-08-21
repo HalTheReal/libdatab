@@ -46,6 +46,13 @@ void GSList::defaultInit() {
   clk.clear();
 }
 
+bool GSList::isEmpty() const {
+  if (clk.size() == 0 || event.size() == 0) {
+    return true;
+  }
+  return false;
+}
+
 int GSList::readLST(const char * nomeFile) {
   std::ifstream file(nomeFile);
   if (!file) {
@@ -102,7 +109,7 @@ void GSList::writeSPE(const char * nomeFile) {
   if (outfile) {
     outfile << "$SPEC_ID:\nGSList.cpp\n";
     outfile << "$DATE_MEA:\n" << dataGS.toString('-', ':', 'B') << endl;
-    outfile << "$MEAS_TIM:\n" << dT << " " << dT << endl;
+    outfile << "$MEAS_TIM:\n" << round(dT) << " " << round(dT) << endl;
     outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
     for (int i = 0; i < canali; ++i) {
       outfile << bin[i] << endl;
@@ -111,7 +118,37 @@ void GSList::writeSPE(const char * nomeFile) {
   outfile.close();
 }
 
+void GSList::writeSPT(const char * nomeFile) {
+  int canali = 2048;
+  std::vector <int> bin(canali, 0);
+  for (int val : event) {
+    ++bin[val];
+  }
+  using namespace std;
+  ofstream outfile;
+  outfile.open(nomeFile);
+  if (outfile) {
+    outfile << canali << " " << round(dT);
+    outfile << " false " << "0 1.0" << endl;
+    outfile << "# S_TIME: 000 " << dataGS.toString('-', ':', 'B') << endl;
+    outfile << "# " << dataGS.toString('-', ':', 'B') << "# DET # Spettro.cpp" << endl;
+    for (int i = 0; i < canali; ++i) {
+      outfile << bin[i];
+      if (i % 8 == 7) {
+        outfile << endl;
+      }
+      else {
+        outfile << " ";
+      }
+    }
+  }
+  outfile.close();
+}
+
 GSList& GSList::timeCut(int from, int to) {
+  if (from < 0) {
+    from = 0;
+  }
   std::vector <long> tClock;
   std::vector <int> tEvent;
   for (unsigned i = 0; i < clk.size(); i++) {
@@ -123,43 +160,45 @@ GSList& GSList::timeCut(int from, int to) {
   event = tEvent;
   clk = tClock;
   dataGS.sum(from);
-  dT = (clk.back() - clk.front()) * 16E-9;
+  if (clk.size() != 0) {
+    dT = clk.back() * 16E-9;
+  }
+  else {
+    dT = 0;
+  }
   return *this;
+}
+
+GSList& GSList::timeCut(Data &from, int to) {
+  Data toData = from;
+  toData.sum(to);
+  return timeCut(from, toData);
 }
 
 GSList& GSList::timeCut(Data &from, Data &to) {
   int fromInt = from.toUnix() - dataGS.toUnix();
-  int toInt = from.toUnix() - to.toUnix();
+  int toInt = to.toUnix() - dataGS.toUnix();
   return timeCut(fromInt, toInt);
 }
 
 GSList& GSList::append(const GSList & toApp) {
-  if (dataGS < toApp.dataGS) {
-    event.insert(event.end(), toApp.event.begin(), toApp.event.end());
-    long last = clk.back();
-    for (long val : toApp.clk) {
-      clk.push_back(val + last);
-    }
+  if (dataGS > toApp.dataGS) {
+    std::cout << "Unable to append!\n";
+    return *this;
   }
-  else {
-    event.insert(event.begin(), toApp.event.begin(), toApp.event.end());
-    std::vector <long> tmp;
-    tmp = clk;
-    clk = toApp.clk;
-    long last = clk.back();
-    for (long val : tmp) {
-      clk.push_back(val + last);
-    }
-    dataGS = toApp.dataGS;
+  event.insert(event.end(), toApp.event.begin(), toApp.event.end());
+  long last = (toApp.dataGS.toUnix() - dataGS.toUnix()) / 16E-9;
+  for (long val : toApp.clk) {
+    clk.push_back(val + last);
   }
   dT += toApp.dT;
   return *this;
 }
 
-float GSList::getdT() {
+float GSList::getdT() const {
   return dT;
 }
 
-Data GSList::getDate() {
+Data GSList::getDate() const {
   return dataGS;
 }
