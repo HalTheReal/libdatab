@@ -69,10 +69,12 @@ FileReader& FileReader::closeFile() {
 
 FileReader& FileReader::skipTo(int riga) {
   if (currentLine == riga - 1) {
+    std::cout << "Prossima riga!\n";
     currentLine++;
     return *this;
   }
-  if (riga < currentLine) {
+  if (riga <= currentLine) {
+    std::cout << "Riga minore!\n";
     currentLine = 0;
     file.seekg(0, file.beg);
   }
