@@ -19,7 +19,7 @@ BINPATH=bin
 
 INC=$(INCPATH)/*.h
 SRC=$(SRCPATH)/*.cpp
-OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o $(OBJPATH)/Spettro.o $(OBJPATH)/GSList.o $(OBJPATH)/tools.o
+OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o $(OBJPATH)/Spettro.o $(OBJPATH)/GSList.o $(OBJPATH)/FileReader.o $(OBJPATH)/tools.o
 OUT=$(LIBPATH)/libdatab.a
 
 INCLUDES=-I ./$(INCPATH)
