@@ -25,9 +25,14 @@ class FileReader {
     FileReader();
     FileReader(const char *nomeFile);
     FileReader(const std::string  &nomeFile);
+    FileReader(const FileReader & src);
+    FileReader& operator = (const FileReader & src);
+
     FileReader& openFile(const char * nomeFile);
     FileReader& openFile(const std::string &nomeFile);
+    
     std::string readLine(int riga);
+    const char * getName();
     int getLineNum();
 };
 

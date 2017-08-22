@@ -29,6 +29,22 @@ FileReader& FileReader::defaultInit() {
   return *this;
 }
 
+FileReader::FileReader(const FileReader & src)
+  : currentLine(0)
+  , totalLines(0)
+  , nome(src.nome)
+{
+  openFile(nome);
+}
+
+FileReader& FileReader::operator=(const FileReader & src) {
+  currentLine = 0;
+  totalLines = 0;
+  nome = src.nome;
+  openFile(nome);
+  return *this;
+}
+
 FileReader& FileReader::openFile(const char *nomeFile) {
   defaultInit();
   file.open(nomeFile);
@@ -91,4 +107,8 @@ int FileReader::countLines() {
 
 int FileReader::getLineNum() {
   return totalLines;
+}
+
+const char * FileReader::getName() {
+  return nome;
 }
