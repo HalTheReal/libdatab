@@ -31,7 +31,7 @@ class FileReader {
     FileReader& openFile(const char * nomeFile);
     FileReader& openFile(const std::string &nomeFile);
     
-    std::string readLine(int riga);
+    std::string getLine(int riga);
     const char * getName();
     int getLineNum();
 };

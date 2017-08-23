@@ -18,7 +18,6 @@ class Tabella {
     int totalFields;
     FileReader fileR;
 
-    std::string readLine(int riga);
     int countFields();
 
   protected:
@@ -27,7 +26,7 @@ class Tabella {
     Tabella(std::string nomeFile, char separator);
     Tabella(const char * nomeFile, char separator);
     int getLineNum();
-    int getLine(int riga, std::string& str);
+    std::string getLine(int riga);
     std::string getField(int riga, int field);
     int getField(int riga, int field, std::string& str);
     double readDouble(int riga, int field);
