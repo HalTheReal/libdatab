@@ -26,6 +26,7 @@ class Tabella {
     Tabella(std::string nomeFile, char separator);
     Tabella(const char * nomeFile, char separator);
     int getLineNum();
+    int getFieldNum();
     std::string getLine(int riga);
     std::string getField(int riga, int field);
     int getField(int riga, int field, std::string& str);

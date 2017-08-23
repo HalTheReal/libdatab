@@ -47,6 +47,10 @@ int Tabella::getLineNum() {
   return fileR.getLineNum();
 }
 
+int Tabella::getFieldNum() {
+  return totalFields;
+}
+
 std::string Tabella::getTabName(){
   std::string nome(fileR.getName());
   return nome;
