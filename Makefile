@@ -15,11 +15,10 @@ INCPATH=inc
 SRCPATH=src
 OBJPATH=obj
 LIBPATH=.
-BINPATH=bin
 
-INC=$(INCPATH)/*.h
-SRC=$(SRCPATH)/*.cpp
-OBJ=$(OBJPATH)/Tabella.o $(OBJPATH)/Data.o $(OBJPATH)/Spettro.o $(OBJPATH)/GSList.o $(OBJPATH)/FileReader.o $(OBJPATH)/tools.o
+INC=$(wildcard $(INCPATH)/*.h)
+SOURCES:=$(wildcard $(SRCPATH)/*.cpp)
+OBJ:=$(patsubst $(SRCPATH)/%.cpp,$(OBJPATH)/%.o,$(SOURCES))
 OUT=$(LIBPATH)/libdatab.a
 
 INCLUDES=-I ./$(INCPATH)
