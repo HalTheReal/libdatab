@@ -1,7 +1,6 @@
 #include "tools.h"
 
 namespace tls {
-
   std::vector <std::string> split(const std::string &toSplit, char c) {
     std::vector <std::string> result;
     const char *str = toSplit.c_str();
@@ -39,5 +38,4 @@ namespace tls {
     } while (0 != *str++);
     return res;
   }
-
 }
