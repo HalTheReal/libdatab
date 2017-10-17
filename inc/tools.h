@@ -57,5 +57,23 @@ namespace sta {
     }
     return (count == 0 ? nodata : sqrt(tot / count));
   }
+  template <typename T>
+  T sum(const std::vector <T> &data) {
+    T tot = 0;
+    for (T val : data) {
+      tot += val;
+    }
+    return tot;
+  }
+  template <typename T>
+  T sum(const std::vector <T> &data, T nodata) {
+    T tot = 0;
+    for (T val : data) {
+      if (val != nodata) {
+        tot += val;
+      }
+    }
+    return tot;
+  }
 }
 #endif
