@@ -139,18 +139,23 @@ int Spettro::readLST(const char * nomeFile) {
   canali = 2048;
   bin.clear();
   bin.resize(canali, 0);
-  std::string riga;
-  while (std::getline(file,riga)) {
-    std::vector <std::string> toks = tls::splitWhite(riga);
-    if (toks.size() == 3 && toks[0][0] != '#') {
-      dT = stol(toks[0]) * 16E-9;
-      ++bin[stoi(toks[1])];
-    }
-    else if (toks[0].compare("#StartTime:") == 0) {
-      std::vector <std::string> dateToks = tls::split(toks[1], 'T');
+  std::string token;
+  do {
+    file >> token;
+    if (token.compare("#StartTime:") == 0) {
+      file >> token;
+      std::vector <std::string> dateToks = tls::split(token, 'T');
       dataSpt = Data(dateToks[0], dateToks[1], '-', ':', 'B');
     }
+  } while (token != "Gain");
+
+  long timeTok;
+  double gainTok;
+  int energyTok;
+  while (file >> timeTok >> energyTok >> gainTok) {
+    ++bin[energyTok];
   }
+  dT = timeTok * 16E-9;
   file.close();
   return 1;
 }

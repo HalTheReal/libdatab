@@ -65,16 +65,22 @@ int GSList::readLST(const char * nomeFile) {
   std::string riga;
   while (std::getline(file,riga)) {
     std::vector <std::string> toks = tls::splitWhite(riga);
-    if (toks.size() == 3 && toks[0][0] != '#') {
-      dT = stol(toks[0]) * 16E-9;
-      clk.push_back(stol(toks[0]));
-      event.push_back(stod(toks[1]));
-    }
-    else if (toks[0].compare("#StartTime:") == 0) {
+    if (toks[0].compare("#StartTime:") == 0) {
       std::vector <std::string> dateToks = tls::split(toks[1], 'T');
       dataGS = Data(dateToks[0], dateToks[1], '-', ':', 'B');
     }
+    else if (toks[0].compare("#Fields:") == 0) {
+      break;
+    }
   }
+  long timeTok;
+  double gainTok;
+  int energyTok;
+  while (file >> timeTok >> energyTok >> gainTok) {
+    clk.push_back(timeTok);
+    event.push_back(energyTok);
+  }
+  dT = timeTok * 16E-9;
   file.close();
   return 1;
 }
