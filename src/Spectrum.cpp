@@ -48,11 +48,6 @@ namespace physics {
     return *this;
   }
 
-  Spectrum operator+(Spectrum lhs, const Spectrum& rhs) {
-    lhs += rhs;
-    return lhs;
-  }
-
   Spectrum& Spectrum::operator-=(const Spectrum& rhs) {
     for (int i = 0; i < canali; ++i) {
       bin[i] -= rhs.bin[i];
@@ -63,16 +58,11 @@ namespace physics {
     return *this;
   }
 
-  Spectrum operator-(Spectrum lhs, const Spectrum& rhs) {
-    lhs -= rhs;
-    return lhs;
-  }
-
   int Spectrum::energyToBin(double en) const {
     return (en - qCal) / mCal;
   }
 
-  Spectrum& Spectrum::calibrate(double m, double q) {
+  Spectrum& Spectrum::calibrateWith(double m, double q) {
     mCal = m;
     qCal = q;
     return *this;
@@ -109,13 +99,39 @@ namespace physics {
     return bin[b1];
   }
 
-  double Spectrum::binAt(int b1, int b2) const {
-    double integral = 0;
-    for(int i = b1; i <= b2; ++i) {
-      integral += bin[i];
-    }
-    return integral;
+  int Spectrum::channels() const {
+    return canali;
   }
+
+  Spectrum operator+(Spectrum lhs, const Spectrum& rhs) {
+    lhs += rhs;
+    return lhs;
+  }
+
+  Spectrum operator-(Spectrum lhs, const Spectrum& rhs) {
+    lhs -= rhs;
+    return lhs;
+  }
+
+  double binIntegral(const Spectrum &sp, int from, int to) {
+    double integral = 0;
+    for (int i = from; from < to; ++from) {
+      integral += sp.binAt(i);
+    }
+    return (integral);
+  }
+
+  double counts(const Spectrum &sp, double en) {
+    int binIdx = sp.energyToBin(en);
+    return (sp.binAt(binIdx));
+  }
+
+  double counts(const Spectrum &sp, double en1, double en2) {
+    int from = sp.energyToBin(en1);
+    int to = sp.energyToBin(en2);
+    return (binIntegral(sp, from, to));
+  }
+
 }
 //  void Spectrum::writeSPT(const char * nomeFile) {
 //    using namespace std;

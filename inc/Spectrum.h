@@ -9,7 +9,6 @@
 #include <iomanip>      //setw, setprecision
 #include <random>
 #include <chrono>
-#include <Data.h>
 #include <tools.h>
 
 namespace physics {
@@ -25,14 +24,14 @@ namespace physics {
       Spectrum& operator+=(const Spectrum& rhs);
       Spectrum& operator-=(const Spectrum& rhs);
 
-      Spectrum& calibrate(double m, double q);
+      Spectrum& calibrateWith(double m, double q);
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
 
       int energyToBin(double en) const;
+      int channels() const;
 
       double binAt(int b1) const;
-      double binAt(int b1, int b2) const;
 
     private:
       std::vector <float> bin;
@@ -43,6 +42,10 @@ namespace physics {
 
   Spectrum operator+(Spectrum lhs, const Spectrum& rhs);
   Spectrum operator-(Spectrum lhs, const Spectrum& rhs);
+
+  double binIntegral(const Spectrum &sp, int from, int to);
+  double counts(const Spectrum &sp, double en);
+  double counts(const Spectrum &sp, double en1, double en2);
 
 }
 #endif
