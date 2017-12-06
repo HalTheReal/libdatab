@@ -3,11 +3,9 @@
 namespace physics {
 
   Spectrum::Spectrum()
-      : dT(0)
-      , canali(0)
+      : canali(0)
       , mCal(1)
       , qCal(0)
-      , dataSpt(0)
   {}
 
   Spectrum::Spectrum(const std::vector <int> &hist)
@@ -17,6 +15,7 @@ namespace physics {
     for (int v : hist) {
       bin.push_back(v);
     }
+    canali = bin.size();
   }
 
   Spectrum::Spectrum(const std::vector <float> &hist)
@@ -26,6 +25,7 @@ namespace physics {
     for (float v : hist) {
       bin.push_back(v);
     }
+    canali = bin.size();
   }
 
   Spectrum::Spectrum(const std::vector <double> &hist)
@@ -35,11 +35,15 @@ namespace physics {
     for (double v : hist) {
       bin.push_back(v);
     }
+    canali = bin.size();
   }
   
   Spectrum& Spectrum::operator+=(const Spectrum& rhs) {
     for (int i = 0; i < canali; ++i) {
       bin[i] += rhs.bin[i];
+      if (bin[i] < 0) {
+        bin[i] = 0;
+      }
     }
     return *this;
   }
@@ -52,6 +56,9 @@ namespace physics {
   Spectrum& Spectrum::operator-=(const Spectrum& rhs) {
     for (int i = 0; i < canali; ++i) {
       bin[i] -= rhs.bin[i];
+      if (bin[i] < 0) {
+        bin[i] = 0;
+      }
     }
     return *this;
   }
@@ -98,22 +105,6 @@ namespace physics {
     return *this;
   }
 
-  double Spectrum::getCounts(double e1) const {
-    return binAt(energyToBin(e1));
-  }
-
-  double Spectrum::getCounts(double e1, double e2) const {
-    return binAt(energyToBin(e1), energyToBin(e2));
-  }
-
-  double Spectrum::getCps(double e1) const {
-    return getCounts(e1) / dT;
-  }
-
-  double Spectrum::getCps(double e1, double e2) const {
-    return getCounts(e1, e2) / dT;
-  }
-
   double Spectrum::binAt(int b1) const {
     return bin[b1];
   }
@@ -125,61 +116,50 @@ namespace physics {
     }
     return integral;
   }
-
-  void Spectrum::writeSPT(const char * nomeFile) {
-    using namespace std;
-    ofstream outfile;
-    outfile.open(nomeFile);
-    if (outfile) {
-      outfile << canali << " " << dT;
-      if (mCal != 1) {
-        outfile << " true ";
-      }
-      else {
-        outfile << " false ";
-      }
-      outfile << qCal << " " << mCal << endl;
-      outfile << "# S_TIME: 000 " << dataSpt.toString('-', ':', 'B') << endl;
-      outfile << "# " << dataSpt.toString('-', ':', 'B') << "# DET # Spectrum.cpp" << endl;
-      for (int i = 0; i < canali; ++i) {
-        outfile << bin[i];
-        if (i % 8 == 7) {
-          outfile << endl;
-        }
-        else {
-          outfile << " ";
-        }
-      }
-    }
-    outfile.close();
-  }
-
-  void Spectrum::writeSPE(const char * nomeFile) {
-    using namespace std;
-    ofstream outfile;
-    outfile.open(nomeFile);
-    if (outfile) {
-      outfile << "$SPEC_ID:\nSpectrum.cpp\n";
-      outfile << "$DATE_MEA:\n" << dataSpt.toString('-', ':', 'B') << endl;
-      outfile << "$MEAS_TIM:\n" << dT << " " << dT << endl;
-      outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
-      for (int i = 0; i < canali; ++i) {
-        outfile << bin[i] << endl;
-      }
-    }
-    outfile.close();
-  }
-
-  Data Spectrum::getDate() {
-    return dataSpt;
-  }
-
-  float Spectrum::getdT() {
-    return dT;
-  }
-
 }
-
+//  void Spectrum::writeSPT(const char * nomeFile) {
+//    using namespace std;
+//    ofstream outfile;
+//    outfile.open(nomeFile);
+//    if (outfile) {
+//      outfile << canali << " " << dT;
+//      if (mCal != 1) {
+//        outfile << " true ";
+//      }
+//      else {
+//        outfile << " false ";
+//      }
+//      outfile << qCal << " " << mCal << endl;
+//      outfile << "# S_TIME: 000 " << dataSpt.toString('-', ':', 'B') << endl;
+//      outfile << "# " << dataSpt.toString('-', ':', 'B') << "# DET # Spectrum.cpp" << endl;
+//      for (int i = 0; i < canali; ++i) {
+//        outfile << bin[i];
+//        if (i % 8 == 7) {
+//          outfile << endl;
+//        }
+//        else {
+//          outfile << " ";
+//        }
+//      }
+//    }
+//    outfile.close();
+//  }
+//
+//  void Spectrum::writeSPE(const char * nomeFile) {
+//    using namespace std;
+//    ofstream outfile;
+//    outfile.open(nomeFile);
+//    if (outfile) {
+//      outfile << "$SPEC_ID:\nSpectrum.cpp\n";
+//      outfile << "$DATE_MEA:\n" << dataSpt.toString('-', ':', 'B') << endl;
+//      outfile << "$MEAS_TIM:\n" << dT << " " << dT << endl;
+//      outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
+//      for (int i = 0; i < canali; ++i) {
+//        outfile << bin[i] << endl;
+//      }
+//    }
+//    outfile.close();
+//  }
 //int Spectrum::readSPE(const char * nomeFile) {
 //  std::ifstream file(nomeFile);
 //  if (!file) {

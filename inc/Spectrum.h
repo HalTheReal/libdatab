@@ -29,31 +29,16 @@ namespace physics {
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
 
-      void writeSPE(const char * nomeFile);
-      void writeSPT(const char * nomeFile);
-
       int energyToBin(double en) const;
 
-      double getCounts(double e1) const;
-      double getCounts(double e1, double e2) const;
-      double getCps(double e1) const;
-      double getCps(double e1, double e2) const;
       double binAt(int b1) const;
       double binAt(int b1, int b2) const;
 
-      Data getDate();
-      float getdT();
-
     private:
-
-      float dT;
+      std::vector <float> bin;
       int canali;
       double mCal;
       double qCal;
-      std::vector <float> bin;
-      Data dataSpt;
-
-      void defaultInit();
   };
 
   Spectrum operator+(Spectrum lhs, const Spectrum& rhs);
