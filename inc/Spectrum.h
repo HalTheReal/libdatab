@@ -15,23 +15,12 @@
 namespace physics {
 
   class Spectrum {
-    private:
-      int readSPE(const char * nomeFile);
-      int readSPT(const char * nomeFile);
-      int readLST(const char * nomeFile);
-
-      float dT;
-      int canali;
-      double mCal;
-      double qCal;
-      std::vector <float> bin;
-      Data dataSpt;
-
-      void defaultInit();
 
     public:
       Spectrum();
-      Spectrum(const char * nomeFile);
+      Spectrum(const std::vector <int> &hist);
+      Spectrum(const std::vector <float> &hist);
+      Spectrum(const std::vector <double> &hist);
 
       Spectrum& operator+=(const Spectrum& rhs);
       Spectrum& operator-=(const Spectrum& rhs);
@@ -43,8 +32,6 @@ namespace physics {
       Spectrum& calibrate(double m, double q);
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
-
-      int readFile(const char * nomeFile);
 
       void writeSPE(const char * nomeFile);
       void writeSPT(const char * nomeFile);
@@ -62,6 +49,17 @@ namespace physics {
       float getdT();
 
       void printContent();
+
+    private:
+
+      float dT;
+      int canali;
+      double mCal;
+      double qCal;
+      std::vector <float> bin;
+      Data dataSpt;
+
+      void defaultInit();
   };
 
   Spectrum operator+(Spectrum lhs, const Spectrum& rhs);
