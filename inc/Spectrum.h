@@ -25,10 +25,6 @@ namespace physics {
       Spectrum& operator+=(const Spectrum& rhs);
       Spectrum& operator-=(const Spectrum& rhs);
 
-      Spectrum& append(const Spectrum& toApp);
-
-      Spectrum& binCut(int from, int to);
-      Spectrum& energyCut(float from, float to);
       Spectrum& calibrate(double m, double q);
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
@@ -42,13 +38,11 @@ namespace physics {
       double getCounts(double e1, double e2) const;
       double getCps(double e1) const;
       double getCps(double e1, double e2) const;
-      double getBinContent(int b1) const;
-      double getBinContent(int b1, int b2) const;
+      double binAt(int b1) const;
+      double binAt(int b1, int b2) const;
 
       Data getDate();
       float getdT();
-
-      void printContent();
 
     private:
 

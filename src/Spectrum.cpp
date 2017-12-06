@@ -61,35 +61,8 @@ namespace physics {
     return lhs;
   }
 
-  Spectrum& Spectrum::binCut(int from, int to) {
-    if (from > to) {
-      int tmp = from;
-      from = to;
-      to = tmp;
-    }
-    for (int i = 0; i < canali; ++i) {
-      if (i < from || i > to) {
-        bin[i] = 0;
-      }
-    }
-    return *this;
-  }
-
-  Spectrum& Spectrum::energyCut(float from, float to) {
-    return binCut(energyToBin(from), energyToBin(to));
-  }
-
   int Spectrum::energyToBin(double en) const {
     return (en - qCal) / mCal;
-  }
-
-  Spectrum& Spectrum::append(const Spectrum& toApp) {
-    *this += toApp;
-    if (dataSpt > toApp.dataSpt) {
-      dataSpt = toApp.dataSpt;
-    }
-    dT += toApp.dT;
-    return *this;
   }
 
   Spectrum& Spectrum::calibrate(double m, double q) {
@@ -126,11 +99,11 @@ namespace physics {
   }
 
   double Spectrum::getCounts(double e1) const {
-    return getBinContent(energyToBin(e1));
+    return binAt(energyToBin(e1));
   }
 
   double Spectrum::getCounts(double e1, double e2) const {
-    return getBinContent(energyToBin(e1), energyToBin(e2));
+    return binAt(energyToBin(e1), energyToBin(e2));
   }
 
   double Spectrum::getCps(double e1) const {
@@ -141,11 +114,11 @@ namespace physics {
     return getCounts(e1, e2) / dT;
   }
 
-  double Spectrum::getBinContent(int b1) const {
+  double Spectrum::binAt(int b1) const {
     return bin[b1];
   }
 
-  double Spectrum::getBinContent(int b1, int b2) const {
+  double Spectrum::binAt(int b1, int b2) const {
     double integral = 0;
     for(int i = b1; i <= b2; ++i) {
       integral += bin[i];
@@ -203,16 +176,6 @@ namespace physics {
 
   float Spectrum::getdT() {
     return dT;
-  }
-
-  void Spectrum::printContent() {
-    std::cout << dataSpt.toString() << std::endl;
-    std::cout << "Canali: " << canali << std::endl;
-    std::cout << "m: " << mCal << std::endl;
-    std::cout << "q: " << qCal << std::endl;
-    std::cout << "dT: " << dT << std::endl;
-    std::cout << "Primo bin: " << bin[0] << std::endl;
-    std::cout << "Ultimo bin: " << bin[canali - 1] << std::endl;
   }
 
 }
