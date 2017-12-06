@@ -18,8 +18,6 @@ class Spettro {
     int readSPT(const char * nomeFile);
     int readLST(const char * nomeFile);
 
-  protected:
-
     float dT;
     int canali;
     double mCal;
