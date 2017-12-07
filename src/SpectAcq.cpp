@@ -27,8 +27,123 @@ namespace physics {
   Data SpectAcq::getDate() const {
     return dataSp;
   }
-}
-//  void Spectrum::writeSPT(const char * nomeFile) {
+
+  SpectAcq readSPE(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      // Eccezione
+    }
+    std::vector <double> bin;
+    Data dataSpt;
+    float dT;
+    std::string riga;
+    while (file >> riga) {
+      if (riga.compare("$DATE_MEA:") == 0) {
+        std::string dtStr, hrStr;
+        file >> dtStr >> hrStr;
+        dataSpt = Data(dtStr, hrStr, '-', ':', 'B');
+      }
+      else if (riga.compare("$SPEC_ID:") == 0) {
+        file >> riga;
+      }
+      else if (riga.compare("$MEAS_TIM:") == 0) {
+        file >> dT >> dT;
+      }
+      else if (riga.compare("$DATA:") == 0) {
+        int fstChn, lstChn;
+        file >> fstChn >> lstChn;
+        bin.reserve(lstChn + 1);
+      }
+      else {
+        bin.push_back(stof(riga));
+      }
+    }
+    file.close();
+    SpectAcq ret(bin, dataSpt, dT);
+    return ret;
+  }
+
+  SpectAcq readSPT(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      // Eccezione
+    }
+    std::vector <double> bin;
+    Data acqDate;
+    float dT;
+    double qS, mS;
+    std::string riga;
+    while (std::getline(file,riga)) {
+      std::vector <std::string> toks = tls::splitWhite(riga);
+      if (toks.size() == 5) {
+        if (toks[1].compare("S_TIME:") == 0) {
+          acqDate = Data(toks[3], toks[4], '-', ':', 'B');
+        }
+        else {
+          dT = std::stof(toks[1]);
+          qS = std::stod(toks[3]);
+          mS = std::stod(toks[4]);
+        }
+      }
+      else if (toks.size() == 8) {
+        for (int i = 0; i < 8; ++i) {
+          bin.push_back(std::stof(toks[i]));
+        }
+      }
+    }
+    file.close();
+    SpectAcq ret(bin, acqDate, dT);
+    ret.calibrateWith(mS, qS);
+    return ret;
+  }
+
+  SpectAcq readLST(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      // Eccezione
+    }
+    std::vector <int> bin(2048, 0);
+    Data acqDate;
+    float dT;
+    std::string token;
+    do {
+      file >> token;
+      if (token.compare("#StartTime:") == 0) {
+        file >> token;
+        std::vector <std::string> dateToks = tls::split(token, 'T');
+        acqDate = Data(dateToks[0], dateToks[1], '-', ':', 'B');
+      }
+    } while (token != "Gain");
+
+    long timeTok;
+    double gainTok;
+    int energyTok;
+    while (file >> timeTok >> energyTok >> gainTok) {
+      ++bin[energyTok];
+    }
+    file.close();
+    dT = timeTok * 16E-9;
+    SpectAcq ret(bin, acqDate, dT);
+    return ret;
+  }
+
+  void writeSPE(const SpectAcq &sp, const char * nomeFile) {
+    using namespace std;
+    ofstream outfile;
+    outfile.open(nomeFile);
+    if (outfile) {
+      outfile << "$SPEC_ID:\nSpectrum.cpp\n";
+      outfile << "$DATE_MEA:\n" << sp.getDate().toString('-', ':', 'B') << '\n';
+      outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
+      outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
+      for (int i = 0; i < sp.channels(); ++i) {
+        outfile << sp.binAt(i) << '\n';
+      }
+    }
+    outfile.close();
+  }
+
+//  void writeSPT(const SpectAcq &sp, const char * nomeFile) {
 //    using namespace std;
 //    ofstream outfile;
 //    outfile.open(nomeFile);
@@ -56,117 +171,4 @@ namespace physics {
 //    outfile.close();
 //  }
 //
-//  void Spectrum::writeSPE(const char * nomeFile) {
-//    using namespace std;
-//    ofstream outfile;
-//    outfile.open(nomeFile);
-//    if (outfile) {
-//      outfile << "$SPEC_ID:\nSpectrum.cpp\n";
-//      outfile << "$DATE_MEA:\n" << dataSpt.toString('-', ':', 'B') << endl;
-//      outfile << "$MEAS_TIM:\n" << dT << " " << dT << endl;
-//      outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
-//      for (int i = 0; i < canali; ++i) {
-//        outfile << bin[i] << endl;
-//      }
-//    }
-//    outfile.close();
-//  }
-//int Spectrum::readSPE(const char * nomeFile) {
-//  std::ifstream file(nomeFile);
-//  if (!file) {
-//    fprintf(stderr, "Impossibile aprire il file:\n%s\n", nomeFile);
-//    return 0;
-//  }
-//  bin.clear();
-//  std::string riga;
-//  while (std::getline(file,riga)) {
-//    if (riga[0] == '$') {
-//      std::vector <std::string> toks;
-//      if (riga.compare("$DATE_MEA:") == 0) {
-//        std::getline(file, riga);
-//        toks = tls::splitWhite(riga);
-//        dataSpt = Data(toks[0], toks[1], '-', ':', 'B');
-//      }
-//      else if (riga.compare("$MEAS_TIM:") == 0) {
-//        std::getline(file, riga);
-//        toks = tls::splitWhite(riga);
-//        dT = std::stof(toks[0]);
-//      }
-//      else if (riga.compare("$DATA:") == 0) {
-//        std::getline(file, riga);
-//        toks = tls::splitWhite(riga);
-//        canali = std::stod(toks[1]) + 1;
-//      }
-//      else {
-//        std::getline(file, riga);
-//      }
-//    }
-//    else {
-//      bin.push_back(stof(riga));
-//    }
-//  }
-//  file.close();
-//  return 1;
-//}
-//
-//int Spectrum::readSPT(const char * nomeFile) {
-//  std::ifstream file(nomeFile);
-//  if (!file) {
-//    fprintf(stderr, "Impossibile aprire il file:\n%s\n", nomeFile);
-//    return 0;
-//  }
-//  bin.clear();
-//  std::string riga;
-//  while (std::getline(file,riga)) {
-//    std::vector <std::string> toks = tls::splitWhite(riga);
-//    if (toks.size() == 5) {
-//      if (toks[1].compare("S_TIME:") == 0) {
-//        dataSpt = Data(toks[3], toks[4], '-', ':', 'B');
-//      }
-//      else {
-//        canali = std::stod(toks[0]);
-//        dT = std::stof(toks[1]);
-//        qCal = std::stod(toks[3]);
-//        mCal = std::stod(toks[4]);
-//      }
-//    }
-//    else if (toks.size() == 8) {
-//      for (int i = 0; i < 8; ++i) {
-//        bin.push_back(std::stof(toks[i]));
-//      }
-//    }
-//  }
-//  file.close();
-//  return 1;
-//}
-//
-//int Spectrum::readLST(const char * nomeFile) {
-//  std::ifstream file(nomeFile);
-//  if (!file) {
-//    fprintf(stderr, "Impossibile aprire il file:\n%s\n", nomeFile);
-//    return 0;
-//  }
-//  canali = 2048;
-//  bin.clear();
-//  bin.resize(canali, 0);
-//  std::string token;
-//  do {
-//    file >> token;
-//    if (token.compare("#StartTime:") == 0) {
-//      file >> token;
-//      std::vector <std::string> dateToks = tls::split(token, 'T');
-//      dataSpt = Data(dateToks[0], dateToks[1], '-', ':', 'B');
-//    }
-//  } while (token != "Gain");
-//
-//  long timeTok;
-//  double gainTok;
-//  int energyTok;
-//  while (file >> timeTok >> energyTok >> gainTok) {
-//    ++bin[energyTok];
-//  }
-//  dT = timeTok * 16E-9;
-//  file.close();
-//  return 1;
-//}
-//
+}
