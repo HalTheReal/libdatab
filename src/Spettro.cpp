@@ -321,15 +321,15 @@ void Spettro::writeSPE(const char * nomeFile) {
   outfile.close();
 }
 
-Data Spettro::getDate() {
+Data Spettro::getDate() const {
   return dataSpt;
 }
 
-float Spettro::getdT() {
+float Spettro::getdT() const {
   return dT;
 }
 
-void Spettro::printContent() {
+void Spettro::printContent() const {
   std::cout << dataSpt.toString() << std::endl;
   std::cout << "Canali: " << canali << std::endl;
   std::cout << "m: " << mCal << std::endl;

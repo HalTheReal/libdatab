@@ -58,10 +58,10 @@ class Spettro {
     double getBinContent(int b1) const;
     double getBinContent(int b1, int b2) const;
     
-    Data getDate();
-    float getdT();
+    Data getDate() const;
+    float getdT() const;
 
-    void printContent();
+    void printContent() const;
 };
 
 Spettro operator+(Spettro lhs, const Spettro& rhs);
