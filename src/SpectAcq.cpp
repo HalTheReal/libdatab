@@ -128,8 +128,7 @@ namespace physics {
   }
 
   void writeSPE(const SpectAcq &sp, const char * nomeFile) {
-    using namespace std;
-    ofstream outfile;
+    std::ofstream outfile;
     outfile.open(nomeFile);
     if (outfile) {
       outfile << "$SPEC_ID:\nSpectrum.cpp\n";

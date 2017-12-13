@@ -26,8 +26,8 @@ namespace physics {
   SpectAcq readSPT(const char * nomeFile);
   SpectAcq readLST(const char * nomeFile);
 
-  double getCps(const SpectAcq &sp, double en1);
-  double getCps(const SpectAcq &sp, double en1, double en2);
+  double cps(const SpectAcq &sp, double en1);
+  double cps(const SpectAcq &sp, double en1, double en2);
 
   void writeSPE(const SpectAcq &sp, const char * nomeFile);
   void writeSPT(const SpectAcq &sp, const char * nomeFile);
