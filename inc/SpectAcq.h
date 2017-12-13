@@ -2,6 +2,7 @@
 #define SPECTRUMACQ_H
 
 #include <Spectrum.h>
+#include <stdexcept>    // Eccezioni
 #include <Data.h>
 
 namespace physics {

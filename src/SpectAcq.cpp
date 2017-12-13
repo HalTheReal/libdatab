@@ -31,7 +31,7 @@ namespace physics {
   SpectAcq readSPE(const char * nomeFile) {
     std::ifstream file(nomeFile);
     if (!file) {
-      // Eccezione
+      throw std::runtime_error("Unable to open file!");
     }
     std::vector <double> bin;
     Data dataSpt;
@@ -66,7 +66,7 @@ namespace physics {
   SpectAcq readSPT(const char * nomeFile) {
     std::ifstream file(nomeFile);
     if (!file) {
-      // Eccezione
+      throw std::runtime_error("Unable to open file!");
     }
     std::vector <double> bin;
     Data acqDate;
@@ -100,7 +100,7 @@ namespace physics {
   SpectAcq readLST(const char * nomeFile) {
     std::ifstream file(nomeFile);
     if (!file) {
-      // Eccezione
+      throw std::runtime_error("Unable to open file!");
     }
     std::vector <int> bin(2048, 0);
     Data acqDate;
@@ -142,32 +142,31 @@ namespace physics {
     outfile.close();
   }
 
-//  void writeSPT(const SpectAcq &sp, const char * nomeFile) {
-//    using namespace std;
-//    ofstream outfile;
-//    outfile.open(nomeFile);
-//    if (outfile) {
-//      outfile << canali << " " << dT;
-//      if (mCal != 1) {
-//        outfile << " true ";
-//      }
-//      else {
-//        outfile << " false ";
-//      }
-//      outfile << qCal << " " << mCal << endl;
-//      outfile << "# S_TIME: 000 " << dataSpt.toString('-', ':', 'B') << endl;
-//      outfile << "# " << dataSpt.toString('-', ':', 'B') << "# DET # Spectrum.cpp" << endl;
-//      for (int i = 0; i < canali; ++i) {
-//        outfile << bin[i];
-//        if (i % 8 == 7) {
-//          outfile << endl;
-//        }
-//        else {
-//          outfile << " ";
-//        }
-//      }
-//    }
-//    outfile.close();
-//  }
-//
+  void writeSPT(const SpectAcq &sp, const char * nomeFile) {
+    std::ofstream outfile;
+    outfile.open(nomeFile);
+    if (outfile) {
+      outfile << sp.channels() << " " << sp.getDT();
+      if (sp.getM() != 1) {
+        outfile << " true ";
+      }
+      else {
+        outfile << " false ";
+      }
+      outfile << sp.getQ() << " " << sp.getM() << '\n';
+      outfile << "# S_TIME: 000 " << sp.getDate().toString('-', ':', 'B') << '\n';
+      outfile << "# " << sp.getDate().toString('-', ':', 'B') << "# DET # Spectrum.cpp" << '\n';
+      for (int i = 0; i < sp.channels(); ++i) {
+        outfile << sp.binAt(i);
+        if (i % 8 == 7) {
+          outfile << '\n';
+        }
+        else {
+          outfile << " ";
+        }
+      }
+    }
+    outfile.close();
+  }
+
 }
