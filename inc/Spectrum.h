@@ -28,7 +28,8 @@ namespace physics {
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
 
-      int energyToBin(double en) const;
+      double getM() const;
+      double getQ() const;
       int channels() const;
 
       double binAt(int b1) const;
@@ -43,6 +44,7 @@ namespace physics {
   Spectrum operator+(Spectrum lhs, const Spectrum& rhs);
   Spectrum operator-(Spectrum lhs, const Spectrum& rhs);
 
+  int energyToBin(const Spectrum &sp, double en);
   double binIntegral(const Spectrum &sp, int from, int to);
   double counts(const Spectrum &sp, double en);
   double counts(const Spectrum &sp, double en1, double en2);
