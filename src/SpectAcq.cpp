@@ -28,6 +28,14 @@ namespace physics {
     return dataSp;
   }
 
+  double cps(const SpectAcq &sp, double en1) {
+    return (counts(sp, en1) / sp.getDT());
+  }
+
+  double cps(const SpectAcq &sp, double en1, double en2) {
+    return (counts(sp, en1, en2) / sp.getDT());
+  }
+
   SpectAcq readSPE(const char * nomeFile) {
     std::ifstream file(nomeFile);
     if (!file) {
