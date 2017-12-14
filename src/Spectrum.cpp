@@ -124,7 +124,7 @@ namespace physics {
 
   double binIntegral(const Spectrum &sp, int from, int to) {
     double integral = 0;
-    for (int i = from; from < to; ++from) {
+    for (int i = from; i <= to; ++i) {
       integral += sp.binAt(i);
     }
     return (integral);
