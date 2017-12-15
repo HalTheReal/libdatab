@@ -57,4 +57,22 @@ namespace Chrono {
     ret += tm.hour() * 60 * 60;
     return ret;
   }
+
+  std::string toString(const Time &tm) {
+    std::stringstream ss;
+    if (tm.hour() < 10) {
+      ss << '0';
+    }
+    ss << tm.hour() << ':';
+    if (tm.min() < 10) {
+      ss << '0';
+    }
+    ss << tm.min() << ':';
+    if (tm.sec() < 10) {
+      ss << '0';
+    }
+    ss << tm.sec();
+    return ss.str();
+  }
+
 }
