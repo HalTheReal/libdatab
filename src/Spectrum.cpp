@@ -1,6 +1,6 @@
 #include "Spectrum.h"
 
-namespace physics {
+namespace Spectrometry {
 
   Spectrum::Spectrum()
       : canali(0)

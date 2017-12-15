@@ -11,7 +11,7 @@
 #include <chrono>
 #include <tools.h>
 
-namespace physics {
+namespace Spectrometry {
 
   class Spectrum {
 

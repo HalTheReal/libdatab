@@ -1,6 +1,6 @@
 #include "SpectAcq.h"
 
-namespace physics {
+namespace Spectrometry {
 
   SpectAcq::SpectAcq(const std::vector <int> &hist, const Data &date, float t)
     : Spectrum(hist)

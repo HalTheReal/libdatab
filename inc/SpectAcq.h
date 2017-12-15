@@ -5,7 +5,7 @@
 #include <stdexcept>    // Eccezioni
 #include <Data.h>
 
-namespace physics {
+namespace Spectrometry {
 
   class SpectAcq : public Spectrum {
 
