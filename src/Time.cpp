@@ -8,12 +8,18 @@ namespace Chrono {
     , seconds(0)
   {}
 
-  // TODO Eccezione se l'orario non è valido
   Time::Time(int hs, int ms, int ss)
     : hours(hs)
     , minutes(ms)
     , seconds(ss)
-  {}
+  {
+    if (!isValid()) {
+      hours = 0;
+      minutes = 0;
+      seconds = 0;
+      throw std::runtime_error("Invalid Time");
+    }
+  }
 
   Time::Time(int secs)
     : Time()
@@ -27,6 +33,16 @@ namespace Chrono {
     minutes = usable / 60;
     usable -= minutes * 60;
     seconds = usable;
+  }
+
+  bool Time::isValid() const {
+    if(hours < 0 || minutes < 0 || seconds < 0) {
+      return false;
+    }
+    if(hours > 23 || minutes > 59 || seconds > 59) {
+      return false;
+    }
+    return true;
   }
 
   int Time::hour() const {

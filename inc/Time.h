@@ -26,6 +26,8 @@ namespace Chrono {
       int hours;
       int minutes;
       int seconds;
+
+      bool isValid() const;
   };
 
   int toInt(const Time &tm);
