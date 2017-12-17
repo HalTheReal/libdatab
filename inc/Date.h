@@ -18,21 +18,27 @@ namespace Chrono {
       int day() const;
       int month() const;
       int year() const;
-      Date& addDays(int days);
+      Date& addDay(int toAdd);
+      Date& addMonth(int toAdd);
+      Date& addYear(int toAdd);
     
     private:
       int dDay;
       int dMonth;
       int dYear;
+
       bool isValid() const;
   };
 
   bool isLeap(const Date &dt);
+
   int daysInMonth(const Date &dt);
+
   int daysInYear(const Date &dt);
 
   std::string toString(const Date &dt, char sep = '/');
-  Date strToDate(const std::string &str);
+  Date strToDate(const std::string &str, char sep = '/');
+
 }
 
 #endif

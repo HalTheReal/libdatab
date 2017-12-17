@@ -43,6 +43,56 @@ namespace Chrono {
     return dYear;
   }
 
+  Date& Date::addDay(int toAdd) {
+    while (toAdd < 0) {
+      ++toAdd;
+      --dDay;
+      if (dDay == 0) {
+        addMonth(-1);
+        dDay += daysInMonth(*this);
+      }
+    }
+    while (toAdd > 0) {
+      --toAdd;
+      ++dDay;
+      if (dDay > daysInMonth(*this)) {
+        addMonth(1);
+        dDay = 1;
+      }
+    }
+    return *this;
+  }
+
+  Date& Date::addMonth(int toAdd) {
+    while (toAdd < 0) {
+      ++toAdd;
+      --dMonth;
+      if (dMonth == 0) {
+        dMonth = 12;
+        addYear(-1);
+      }
+    }
+    while (toAdd > 0) {
+      --toAdd;
+      ++dMonth;
+      if (dMonth == 13) {
+        dMonth = 1;
+        addYear(1);
+      }
+    }
+    return *this; 
+  }
+
+  Date& Date::addYear(int toAdd) {
+    dYear += toAdd;
+    // Succede solo se aggiungo 1 anno al 29/2
+    if (dMonth == 2 && dDay > daysInMonth(*this)) {
+      addDay(1);
+    }
+    // Eccezione se year < 0 ?
+    return *this;
+  }
+
   bool isLeap(const Date &dt) {
     if (dt.year() % 4 != 0) {
       return false;
