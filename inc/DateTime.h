@@ -20,10 +20,11 @@ namespace Chrono {
 
       DateTime& addDay(int toAdd);
       DateTime& addSec(int toAdd);
+      std::string toString() const;
       
     private:
-      Date dt;
-      Time tm;
+      Date dateNow;
+      Time timeNow;
 
   };
 
