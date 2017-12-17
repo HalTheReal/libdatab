@@ -20,7 +20,12 @@ namespace Chrono {
 
       DateTime& addDay(int toAdd);
       DateTime& addSec(int toAdd);
-      std::string toString() const;
+      int day() const;
+      int month() const;
+      int year() const;
+      int hour() const;
+      int min() const;
+      int sec() const;
       
     private:
       Date dateNow;
@@ -29,6 +34,7 @@ namespace Chrono {
   };
 
   int toUnix(const DateTime &dtt);
+  std::string toString(const DateTime &dtt, char dateSep = '/');
 
 }
 
