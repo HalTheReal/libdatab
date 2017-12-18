@@ -14,9 +14,6 @@ namespace Chrono {
     , dYear(yr)
   {
     if (!isValid()) {
-      dDay = 1;
-      dMonth = 1;
-      dYear = 1970;
       throw std::runtime_error("Invalid Date");
     }
   }

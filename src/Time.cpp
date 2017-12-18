@@ -14,9 +14,6 @@ namespace Chrono {
     , seconds(ss)
   {
     if (!isValid()) {
-      hours = 0;
-      minutes = 0;
-      seconds = 0;
       throw std::runtime_error("Invalid Time");
     }
   }
