@@ -43,6 +43,26 @@ namespace Chrono {
     return timeNow.sec();
   }
 
+  DateTime& DateTime::addDay(int toAdd) {
+    dateNow.addDay(toAdd);
+    return *this;
+  }
+
+  DateTime& DateTime::addSec(int toAdd) {
+    int daysToAdd = toAdd / 86400;
+    toAdd -= daysToAdd * 86400;
+    Time before = timeNow;
+    timeNow.addSec(toAdd);
+    if (toAdd > 0 && timeNow < before) {      // Ho aggiunto ma before è >
+      ++daysToAdd;
+    }
+    else if (toAdd < 0 && timeNow > before) { // Ho tolto ma before è <
+      --daysToAdd;
+    }
+    dateNow.addDay(daysToAdd);
+    return *this;
+  }
+
   std::string toString(const DateTime &dtt, char dateSep) {
     std::stringstream ss;
     ss << dtt.day() << dateSep;
