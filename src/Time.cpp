@@ -54,13 +54,58 @@ namespace Chrono {
     return seconds;
   }
 
-  Time& Time::addSeconds(int secs) {
+  Time& Time::addSec(int secs) {
     int base = toInt(*this);
     Time add(base + secs);
     hours = add.hour();
     minutes = add.min();
     seconds = add.sec();
     return *this;
+  }
+
+  bool operator == (const Time &tm1, const Time &tm2) {
+    if (tm1.hour() == tm2.hour() && tm1.min() == tm2.min() && tm1.sec() == tm2.sec()) {
+      return true;
+    }
+    return false;
+  }
+
+  bool operator != (const Time &tm1, const Time &tm2) {
+    return !(tm1 == tm2);
+  }
+
+  bool operator < (const Time &tm1, const Time &tm2) {
+    if (tm1.hour() < tm2.hour()) {
+      return true;
+    }
+    if (tm1.hour() > tm2.hour()) {
+      return false;
+    }
+    if (tm1.min() < tm2.min()) {
+      return true;
+    }
+    if (tm1.min() > tm2.min()) {
+      return false;
+    }
+    if (tm1.sec() < tm2.sec()) {
+      return true;
+    }
+    if (tm1.sec() > tm2.sec()) {
+      return false;
+    }
+    return false;
+  }
+
+  bool operator <= (const Time &tm1, const Time &tm2) {
+    return (tm1 < tm2 || tm1 == tm2);
+  }
+
+  bool operator > (const Time &tm1, const Time &tm2) {
+    return !(tm1 <= tm2);
+  }
+
+  bool operator >= (const Time &tm1, const Time &tm2) {
+    return !(tm1 < tm2);
   }
 
   int toInt(const Time &tm) {

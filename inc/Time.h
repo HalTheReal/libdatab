@@ -20,7 +20,7 @@ namespace Chrono {
       int min() const;
       int sec() const;
       
-      Time& addSeconds(int secs);
+      Time& addSec(int secs);
 
     private:
       int hours;
@@ -33,6 +33,13 @@ namespace Chrono {
   int toInt(const Time &tm);
   std::string toString(const Time &tm);
   Time strToTime(const std::string &str);
+
+  bool operator == (const Time &tm1, const Time &tm2);
+  bool operator != (const Time &tm1, const Time &tm2);
+  bool operator < (const Time &tm1, const Time &tm2);
+  bool operator <= (const Time &tm1, const Time &tm2);
+  bool operator > (const Time &tm1, const Time &tm2);
+  bool operator >= (const Time &tm1, const Time &tm2);
 
 }
 
