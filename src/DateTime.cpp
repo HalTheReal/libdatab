@@ -63,6 +63,22 @@ namespace Chrono {
     return *this;
   }
 
+  int toUnix(DateTime dtt) {
+    DateTime uxZero(1, 1, 1970, 0, 0, 0);
+    int midnightOffset = 86400 - toInt(toTime(dtt));
+    dtt.addSec(midnightOffset);
+    int dayToZero = 0;
+    while (dtt > uxZero) {
+      dtt.addDay(-1);
+      ++dayToZero;
+    }
+    while (dtt < uxZero) {
+      dtt.addDay(1);
+      --dayToZero;
+    }
+    return (dayToZero * 86400) - midnightOffset;
+  }
+
   Date toDate(const DateTime &dtt) {
     return (Date(dtt.day(), dtt.month(), dtt.year()));
   }
