@@ -63,6 +63,14 @@ namespace Chrono {
     return *this;
   }
 
+  Date toDate(const DateTime &dtt) {
+    return (Date(dtt.day(), dtt.month(), dtt.year()));
+  }
+
+  Time toTime(const DateTime &dtt) {
+    return (Time(dtt.hour(), dtt.min(), dtt.sec()));
+  }
+
   std::string toString(const DateTime &dtt, char dateSep) {
     std::stringstream ss;
     ss << dtt.day() << dateSep;
@@ -81,6 +89,44 @@ namespace Chrono {
     }
     ss << dtt.sec();
     return ss.str();
+  }
+
+  bool operator == (const DateTime &dtt1, const DateTime &dtt2) {
+    if (toTime(dtt1) == toTime(dtt2) && toDate(dtt1) == toDate(dtt2)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool operator != (const DateTime &dtt1, const DateTime &dtt2) {
+    return !(dtt1 == dtt2);
+  }
+
+  bool operator < (const DateTime &dtt1, const DateTime &dtt2) {
+    if (toDate(dtt1) < toDate(dtt2)) {
+      return true;
+    }
+    if (toDate(dtt1) > toDate(dtt2)) {
+      return false;
+    }
+    if (toTime(dtt1) < toTime(dtt2)) {
+      return true;
+    }
+    // Se arrivo qui le date sono == ma l'orario
+    // non è minore! quindi l'orario è >=
+    return false;
+  }
+
+  bool operator <= (const DateTime &dtt1, const DateTime &dtt2) {
+    return (dtt1 < dtt2 || dtt1 == dtt2);
+  }
+
+  bool operator > (const DateTime &dtt1, const DateTime &dtt2) {
+    return !(dtt1 <= dtt2);
+  }
+
+  bool operator >= (const DateTime &dtt1, const DateTime &dtt2) {
+    return !(dtt1 < dtt2);
   }
 
 }
