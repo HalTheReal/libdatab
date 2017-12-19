@@ -123,6 +123,51 @@ namespace Chrono {
     return (isLeap(dt) ? 366 : 365);
   }
 
+  bool operator == (const Date &dt1, const Date &dt2) {
+    if(dt1.day() == dt2.day() && dt1.month() == dt2.month() && dt1.year() == dt2.year()) {
+      return true;
+    }
+    return false;
+  }
+
+  bool operator != (const Date &dt1, const Date &dt2) {
+    return !(dt1 == dt2);
+  }
+
+  bool operator < (const Date &dt1, const Date &dt2) {
+    if (dt1.year() < dt2.year()) {
+      return true;
+    }
+    if (dt1.year() > dt2.year()) {
+      return false;
+    }
+    if (dt1.month() < dt2.month()) {
+      return true;
+    }
+    if (dt1.month() > dt2.month()) {
+      return false;
+    }
+    if (dt1.day() < dt2.day()) {
+      return true;
+    }
+    if (dt1.day() > dt2.day()) {
+      return false;
+    }
+    return false;
+  }
+
+  bool operator <= (const Date &dt1, const Date &dt2) {
+    return (dt1 < dt2 || dt1 == dt2);
+  }
+
+  bool operator > (const Date &dt1, const Date &dt2) {
+    return !(dt1 <= dt2);
+  }
+
+  bool operator >= (const Date &dt1, const Date &dt2) {
+    return !(dt1 < dt2);
+  }
+
   std::string toString(const Date &dt, char sep) {
     std::stringstream ss;
     ss << dt.day() << sep;

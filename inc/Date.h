@@ -36,6 +36,13 @@ namespace Chrono {
 
   int daysInYear(const Date &dt);
 
+  bool operator == (const Date &dt1, const Date &dt2);
+  bool operator != (const Date &dt1, const Date &dt2);
+  bool operator < (const Date &dt1, const Date &dt2);
+  bool operator <= (const Date &dt1, const Date &dt2);
+  bool operator > (const Date &dt1, const Date &dt2);
+  bool operator >= (const Date &dt1, const Date &dt2);
+
   std::string toString(const Date &dt, char sep = '/');
   Date strToDate(const std::string &str, char sep = '/');
 
