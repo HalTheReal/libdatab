@@ -7,6 +7,7 @@
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
 #include <math.h>       // fmod
+#include <tools.h>
 
 namespace Chrono {
 
@@ -31,6 +32,8 @@ namespace Chrono {
   };
 
   int toInt(const Time &tm);
+  std::ostream& operator << (std::ostream &stream, const Time &tm);
+  std::istream& operator >> (std::istream &stream, Time &tm);
   std::string toString(const Time &tm);
   Time strToTime(const std::string &str);
 

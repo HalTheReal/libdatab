@@ -116,20 +116,48 @@ namespace Chrono {
     return ret;
   }
 
+  std::ostream& operator << (std::ostream &stream, const Time &tm) {
+    if (tm.hour() < 10) {
+      stream << '0';
+    }
+    stream << tm.hour() << ':';
+    if (tm.min() < 10) {
+      stream << '0';
+    }
+    stream << tm.min() << ':';
+    if (tm.sec() < 10) {
+      stream << '0';
+    }
+    stream << tm.sec();
+    return stream;
+  }
+
+  std::istream& operator >> (std::istream &stream, Time &tm) {
+    if (!stream.good()) {
+      return stream;
+    }
+    std::string timeStr;
+    std::vector <std::string> toks;
+    int hour, min, sec;
+    if (stream >> timeStr) {
+      toks = tls::split(timeStr, ':');
+    }
+    try {
+      hour = std::stoi(toks[0]);
+      min = std::stoi(toks[1]);
+      sec = std::stoi(toks[2]);
+      tm = Time(hour, min, sec);
+    }
+    catch (const std::exception &e) {
+      std::cout << "Presa!\n";
+      stream.setstate(std::ios_base::failbit);
+    }
+    return stream;
+  }
+
   std::string toString(const Time &tm) {
     std::stringstream ss;
-    if (tm.hour() < 10) {
-      ss << '0';
-    }
-    ss << tm.hour() << ':';
-    if (tm.min() < 10) {
-      ss << '0';
-    }
-    ss << tm.min() << ':';
-    if (tm.sec() < 10) {
-      ss << '0';
-    }
-    ss << tm.sec();
+    ss << tm;
     return ss.str();
   }
 
