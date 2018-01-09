@@ -149,9 +149,20 @@ namespace Chrono {
     return stream;
   }
 
-  std::string toString(const Time &tm) {
+  std::string toString(const Time &tm, char sep) {
     std::stringstream ss;
-    ss << tm;
+    if (tm.hour() < 10) {
+      ss << '0';
+    }
+    ss << tm.hour() << sep;
+    if (tm.min() < 10) {
+      ss << '0';
+    }
+    ss << tm.min() << sep;
+    if (tm.sec() < 10) {
+      ss << '0';
+    }
+    ss << tm.sec();
     return ss.str();
   }
 

@@ -31,12 +31,6 @@ namespace Chrono {
       bool isValid() const;
   };
 
-  int toInt(const Time &tm);
-  std::ostream& operator << (std::ostream &stream, const Time &tm);
-  std::istream& operator >> (std::istream &stream, Time &tm);
-  std::string toString(const Time &tm);
-  Time strToTime(const std::string &str, char sep = ':');
-
   bool operator == (const Time &tm1, const Time &tm2);
   bool operator != (const Time &tm1, const Time &tm2);
   bool operator < (const Time &tm1, const Time &tm2);
@@ -44,6 +38,12 @@ namespace Chrono {
   bool operator > (const Time &tm1, const Time &tm2);
   bool operator >= (const Time &tm1, const Time &tm2);
 
+  std::ostream& operator << (std::ostream &stream, const Time &tm);
+  std::istream& operator >> (std::istream &stream, Time &tm);
+
+  int toInt(const Time &tm);
+  std::string toString(const Time &tm, char sep = ':');
+  Time strToTime(const std::string &str, char sep = ':');
 }
 
 #endif
