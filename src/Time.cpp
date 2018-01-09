@@ -137,20 +137,14 @@ namespace Chrono {
       return stream;
     }
     std::string timeStr;
-    std::vector <std::string> toks;
-    int hour, min, sec;
     if (stream >> timeStr) {
-      toks = tls::split(timeStr, ':');
-    }
-    try {
-      hour = std::stoi(toks[0]);
-      min = std::stoi(toks[1]);
-      sec = std::stoi(toks[2]);
-      tm = Time(hour, min, sec);
-    }
-    catch (const std::exception &e) {
-      std::cout << "Presa!\n";
-      stream.setstate(std::ios_base::failbit);
+      try {
+        tm = strToTime(timeStr);
+      }
+      catch (const std::exception &e) {
+        std::cout << "Presa!\n";
+        stream.setstate(std::ios_base::failbit);
+      }
     }
     return stream;
   }
@@ -159,6 +153,17 @@ namespace Chrono {
     std::stringstream ss;
     ss << tm;
     return ss.str();
+  }
+
+  Time strToTime(const std::string &str, char sep) {
+    std::vector <std::string> toks = tls::split(str, sep);
+    if (toks.size() != 3) {
+      throw std::invalid_argument("Invalid format");
+    }
+    int hour = std::stoi(toks[0]);
+    int min = std::stoi(toks[1]);
+    int sec = std::stoi(toks[2]);
+    return Time(hour, min, sec);
   }
 
 }
