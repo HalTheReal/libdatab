@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
+#include <tools.h>
 #include <math.h>       // fmod
 
 namespace Chrono {
@@ -42,6 +43,9 @@ namespace Chrono {
   bool operator <= (const Date &dt1, const Date &dt2);
   bool operator > (const Date &dt1, const Date &dt2);
   bool operator >= (const Date &dt1, const Date &dt2);
+
+  std::ostream& operator << (std::ostream &stream, const Date &dt);
+  std::istream& operator >> (std::istream &stream, Date &dt);
 
   std::string toString(const Date &dt, char sep = '/');
   Date strToDate(const std::string &str, char sep = '/');

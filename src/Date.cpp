@@ -168,6 +168,30 @@ namespace Chrono {
     return !(dt1 < dt2);
   }
 
+  std::ostream& operator << (std::ostream &stream, const Date &dt) {
+    stream << dt.day() << '/';
+    stream << dt.month() << '/';
+    stream << dt.year();
+    return stream;
+  }
+
+  std::istream& operator >> (std::istream &stream, Date &dt) {
+    if (!stream.good()) {
+      return stream;
+    }
+    std::string dateStr;
+    if (stream >> dateStr) {
+      try {
+        dt = strToDate(dateStr);
+      }
+      catch (const std::exception &e) {
+        std::cout << "Presa!\n";
+        stream.setstate(std::ios_base::failbit);
+      }
+    }
+    return stream;
+  }
+
   std::string toString(const Date &dt, char sep) {
     std::stringstream ss;
     ss << dt.day() << sep;
@@ -175,4 +199,16 @@ namespace Chrono {
     ss << dt.year();
     return ss.str();
   }
+
+  Date strToDate(const std::string &str, char sep) {
+    std::vector <std::string> toks = tls::split(str, sep);
+    if (toks.size() != 3) {
+      throw std::invalid_argument("Invalid format");
+    }
+    int day = std::stoi(toks[0]);
+    int month = std::stoi(toks[1]);
+    int year = std::stoi(toks[2]);
+    return Date(day, month, year);
+  }
+
 }
