@@ -12,12 +12,10 @@ namespace Chrono {
     , timeNow(hr, mi, sc)
   {}
 
-  DateTime::DateTime(const Time &tm, const Date &dt)
-    : DateTime()
-  {
-    dateNow = dt;
-    timeNow = tm;
-  }
+  DateTime::DateTime(const Date &dt, const Time &tm)
+    : dateNow(dt)
+    , timeNow(tm)
+  {}
 
   int DateTime::day() const {
     return dateNow.day();
@@ -87,24 +85,22 @@ namespace Chrono {
     return (Time(dtt.hour(), dtt.min(), dtt.sec()));
   }
 
-  std::string toString(const DateTime &dtt, char dateSep) {
+  std::string toString(const DateTime &dtt, char dtSep, char tmSep) {
+    std::string dtStr = toString(toDate(dtt), dtSep);
+    std::string tmStr = toString(toTime(dtt), tmSep);
     std::stringstream ss;
-    ss << dtt.day() << dateSep;
-    ss << dtt.month() << dateSep;
-    ss << dtt.year() << ' ';
-    if (dtt.hour() < 10) {
-      ss << '0';
-    }
-    ss << dtt.hour() << ':';
-    if (dtt.min() < 10) {
-      ss << '0';
-    }
-    ss << dtt.min() << ':';
-    if (dtt.sec() < 10) {
-      ss << '0';
-    }
-    ss << dtt.sec();
+    ss << dtStr << ' ' << tmStr;
     return ss.str();
+  }
+
+  DateTime strToDateTime(const std::string &str, char dtSep, char tmSep) {
+    std::stringstream ss;
+    ss << str;
+    std::string dtStr, tmStr;
+    ss >> dtStr >> tmStr;
+    Time tm = strToTime(tmStr, tmSep);
+    Date dt = strToDate(dtStr, dtSep);
+    return DateTime(dt, tm);
   }
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2) {
@@ -143,6 +139,26 @@ namespace Chrono {
 
   bool operator >= (const DateTime &dtt1, const DateTime &dtt2) {
     return !(dtt1 < dtt2);
+  }
+
+  std::ostream& operator << (std::ostream &stream, const DateTime &dtt) {
+    if(!stream.good()) {
+      return stream;
+    }
+    stream << toDate(dtt) << ' ' << toTime(dtt);
+    return stream;
+  }
+
+  std::istream& operator >> (std::istream &stream, DateTime &dtt) {
+    if(!stream.good()) {
+      return stream;
+    }
+    Time tm;
+    Date dt;
+    if (stream >> dt && stream >> tm) {
+      dtt = DateTime(dt, tm);
+    }
+    return stream;
   }
 
 }

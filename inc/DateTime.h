@@ -16,7 +16,7 @@ namespace Chrono {
     public:
       DateTime();
       DateTime(int dy, int mn, int yr, int hr, int mi, int sc);
-      DateTime(const Time &tm, const Date &dt);
+      DateTime(const Date &dt, const Time &tm);
 
       DateTime& addDay(int toAdd);
       DateTime& addSec(int toAdd);
@@ -37,7 +37,8 @@ namespace Chrono {
   Time toTime(const DateTime &dtt);
 
   int toUnix(DateTime dtt);
-  std::string toString(const DateTime &dtt, char dateSep = '/');
+  std::string toString(const DateTime &dtt, char dtSep = '/', char tmSep = ':');
+  DateTime strToDateTime(const std::string &str, char dtSep = '/', char tmSep = ':');
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2);
   bool operator != (const DateTime &dtt1, const DateTime &dtt2);
@@ -46,6 +47,8 @@ namespace Chrono {
   bool operator > (const DateTime &dtt1, const DateTime &dtt2);
   bool operator >= (const DateTime &dtt1, const DateTime &dtt2);
 
+  std::ostream& operator << (std::ostream &stream, const DateTime &dtt);
+  std::istream& operator >> (std::istream &stream, DateTime &dtt);
 }
 
 #endif
