@@ -99,7 +99,7 @@ namespace Chrono {
     std::string dtStr, tmStr;
     ss >> dtStr >> tmStr;
     Time tm = strToTime(tmStr, tmSep);
-    Date dt = strToDate(dtStr, dtSep);
+    Date dt = strToDate(dtStr);
     return DateTime(dt, tm);
   }
 

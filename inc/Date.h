@@ -48,7 +48,7 @@ namespace Chrono {
   std::istream& operator >> (std::istream &stream, Date &dt);
 
   std::string toString(const Date &dt, char sep = '/');
-  Date strToDate(const std::string &str, char sep = '/');
+  Date strToDate(const std::string &str);
 
 }
 
