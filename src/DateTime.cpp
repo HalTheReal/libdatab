@@ -93,14 +93,15 @@ namespace Chrono {
     return ss.str();
   }
 
-  DateTime strToDateTime(const std::string &str, char dtSep, char tmSep) {
+  DateTime strToDateTime(const std::string &str) {
     std::stringstream ss;
     ss << str;
-    std::string dtStr, tmStr;
-    ss >> dtStr >> tmStr;
-    Time tm = strToTime(tmStr, tmSep);
-    Date dt = strToDate(dtStr);
-    return DateTime(dt, tm);
+    Date dt;
+    Time tm;
+    if (ss >> dt >> tm) {
+      return DateTime(dt, tm);
+    }
+    throw std::invalid_argument("Invalid format");
   }
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2) {
@@ -150,12 +151,12 @@ namespace Chrono {
   }
 
   std::istream& operator >> (std::istream &stream, DateTime &dtt) {
-    if(!stream.good()) {
+    if(!stream) {
       return stream;
     }
     Time tm;
     Date dt;
-    if (stream >> dt && stream >> tm) {
+    if (stream >> dt >> tm) {
       dtt = DateTime(dt, tm);
     }
     return stream;

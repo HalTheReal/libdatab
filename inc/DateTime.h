@@ -38,7 +38,7 @@ namespace Chrono {
 
   int toUnix(DateTime dtt);
   std::string toString(const DateTime &dtt, char dtSep = '/', char tmSep = ':');
-  DateTime strToDateTime(const std::string &str, char dtSep = '/', char tmSep = ':');
+  DateTime strToDateTime(const std::string &str);
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2);
   bool operator != (const DateTime &dtt1, const DateTime &dtt2);

@@ -133,18 +133,21 @@ namespace Chrono {
   }
 
   std::istream& operator >> (std::istream &stream, Time &tm) {
-    if (!stream.good()) {
+    char s1, s2;
+    int hour, min, sec;
+    stream >> hour >> s1 >> min >> s2 >> sec;
+    if (!stream) {
       return stream;
     }
-    std::string timeStr;
-    if (stream >> timeStr) {
-      try {
-        tm = strToTime(timeStr);
-      }
-      catch (const std::exception &e) {
-        std::cout << "Presa!\n";
-        stream.setstate(std::ios_base::failbit);
-      }
+    if (s1 != s2) {
+      stream.setstate(std::ios_base::failbit);
+      return stream;
+    }
+    try {
+      tm = Time(hour, min, sec);
+    }
+    catch (const std::exception &e) {
+      stream.setstate(std::ios_base::failbit);
     }
     return stream;
   }
@@ -166,15 +169,13 @@ namespace Chrono {
     return ss.str();
   }
 
-  Time strToTime(const std::string &str, char sep) {
-    std::vector <std::string> toks = tls::split(str, sep);
-    if (toks.size() != 3) {
-      throw std::invalid_argument("Invalid format");
+  Time strToTime(const std::string &str) {
+    std::stringstream ss(str);
+    Time tm;
+    if (ss >> tm) {
+      return tm;
     }
-    int hour = std::stoi(toks[0]);
-    int min = std::stoi(toks[1]);
-    int sec = std::stoi(toks[2]);
-    return Time(hour, min, sec);
+    throw std::invalid_argument("Invalid format");
   }
 
 }

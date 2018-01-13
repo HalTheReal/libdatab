@@ -43,7 +43,7 @@ namespace Chrono {
 
   int toInt(const Time &tm);
   std::string toString(const Time &tm, char sep = ':');
-  Time strToTime(const std::string &str, char sep = ':');
+  Time strToTime(const std::string &str);
 }
 
 #endif
