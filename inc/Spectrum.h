@@ -9,6 +9,7 @@
 #include <iomanip>      //setw, setprecision
 #include <random>
 #include <chrono>
+#include <stdexcept>    // Eccezioni
 #include <tools.h>
 
 namespace Spectrometry {
