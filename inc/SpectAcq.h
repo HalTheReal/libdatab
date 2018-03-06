@@ -3,7 +3,7 @@
 
 #include <Spectrum.h>
 #include <stdexcept>    // Eccezioni
-#include <Data.h>
+#include <DateTime.h>
 
 namespace Spectrometry {
 
@@ -11,15 +11,16 @@ namespace Spectrometry {
 
     public:
       SpectAcq();
-      SpectAcq(const std::vector <int> &hist, const Data &date, float t);
-      SpectAcq(const std::vector <float> &hist, const Data &date, float t);
-      SpectAcq(const std::vector <double> &hist, const Data &date, float t);
+      SpectAcq(const std::vector <int> &hist, const Chrono::DateTime &date, float t);
+      SpectAcq(const std::vector <float> &hist, const Chrono::DateTime &date, float t);
+      SpectAcq(const std::vector <double> &hist, const Chrono::DateTime &date, float t);
 
       float getDT() const;
-      Data getDate() const;
+      //Data getDate() const;   // Legacy support?
+      Chrono::DateTime getDateTime() const;
 
     private:
-      Data dataSp;
+      Chrono::DateTime dataSp;
       float dT;
   };
 
