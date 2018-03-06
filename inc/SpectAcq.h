@@ -11,16 +11,16 @@ namespace Spectrometry {
 
     public:
       SpectAcq();
-      SpectAcq(const std::vector <int> &hist, const Chrono::DateTime &date, float t);
-      SpectAcq(const std::vector <float> &hist, const Chrono::DateTime &date, float t);
-      SpectAcq(const std::vector <double> &hist, const Chrono::DateTime &date, float t);
+      SpectAcq(const std::vector <int> &hist, const Epoch::DateTime &date, float t);
+      SpectAcq(const std::vector <float> &hist, const Epoch::DateTime &date, float t);
+      SpectAcq(const std::vector <double> &hist, const Epoch::DateTime &date, float t);
 
       float getDT() const;
       //Data getDate() const;   // Legacy support?
-      Chrono::DateTime getDateTime() const;
+      Epoch::DateTime getDateTime() const;
 
     private:
-      Chrono::DateTime dataSp;
+      Epoch::DateTime dataSp;
       float dT;
   };
 

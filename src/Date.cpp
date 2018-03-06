@@ -1,6 +1,6 @@
 #include "Date.h"
 
-namespace Chrono {
+namespace Epoch {
 
   Date::Date()
     : dDay(1)

@@ -9,7 +9,7 @@
 #include <math.h>       // fmod
 #include <tools.h>
 
-namespace Chrono {
+namespace Epoch {
 
   class Time {
     public:

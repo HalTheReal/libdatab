@@ -1,6 +1,6 @@
 #include "Time.h"
 
-namespace Chrono {
+namespace Epoch {
 
   Time::Time()
     : hours(0)

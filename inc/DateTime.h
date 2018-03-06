@@ -9,7 +9,7 @@
 #include <Time.h>
 #include <Date.h>
 
-namespace Chrono {
+namespace Epoch {
 
   class DateTime {
 

@@ -1,6 +1,6 @@
 #include "DateTime.h"
 
-namespace Chrono {
+namespace Epoch {
 
   DateTime::DateTime()
     : dateNow()
