@@ -2,12 +2,12 @@
 
 GSList::GSList()
   : dT(0)
-  , dataGS(0)
+  , dataGS()
 {}
 
 GSList::GSList(const char * nomeFile)
   : dT(0)
-  , dataGS(0)
+  , dataGS()
 {
   readFile(nomeFile);
 }
@@ -28,12 +28,12 @@ int GSList::readFile(const char * nomeFile) {
   }
   catch (std::invalid_argument& e) {
     std::cout << "Invalid argument exception while reading file:\n";
-    std::cout << nomeFile << std::endl;
+    std::cout << nomeFile << '\n';
     defaultInit();
   }
   catch (std::out_of_range& e) {
     std::cout << "Out of range exception while reading file:\n";
-    std::cout << nomeFile << std::endl;
+    std::cout << nomeFile << '\n';
     defaultInit();
   }
   return 0;
@@ -41,7 +41,7 @@ int GSList::readFile(const char * nomeFile) {
 
 void GSList::defaultInit() {
   dT = 0;
-  dataGS = Data(0);
+  dataGS = Epoch::DateTime();
   event.clear();
   clk.clear();
 }
@@ -62,17 +62,18 @@ int GSList::readLST(const char * nomeFile) {
   clk.clear();
   event.clear();
 
-  std::string riga;
-  while (std::getline(file,riga)) {
-    std::vector <std::string> toks = tls::splitWhite(riga);
-    if (toks[0].compare("#StartTime:") == 0) {
-      std::vector <std::string> dateToks = tls::split(toks[1], 'T');
-      dataGS = Data(dateToks[0], dateToks[1], '-', ':', 'B');
+  std::string token;
+  do {
+    file >> token;
+    if (token.compare("#StartTime:") == 0) {
+      int yr, mn, dy;
+      char sep;
+      Epoch::Time tm;
+      file >> yr >> sep >> mn >> sep >> dy >> sep >> tm;
+      Epoch::Date dt(dy, mn, yr);
+      dataGS = Epoch::DateTime (dt, tm);
     }
-    else if (toks[0].compare("#Fields:") == 0) {
-      break;
-    }
-  }
+  } while (token.compare("Gain") != 0);
   long timeTok;
   double gainTok;
   int energyTok;
@@ -92,13 +93,13 @@ void GSList::writeLST(const char * nomeFile) {
   if (outfile) {
     outfile << "#GammaStream 1.0 LIST\n";
     outfile << "#StartTime: ";
-    outfile << dataGS.dateToString('-','B') << "T";
-    outfile << dataGS.hourToString() << endl;
-    outfile << "#Fields\tTime\tEnergy\tGain" << endl;
+    outfile << dataGS.year() << '-' << dataGS.month() << '-';
+    outfile << dataGS.day() << 'T' << Epoch::toTime(dataGS) << '\n';
+    outfile << "#Fields: Time\tEnergy\tGain" << '\n';
     for (unsigned i = 0; i < clk.size(); ++i) {
       outfile << right << setw(9) << clk[i] << '\t';
       outfile << setw(6) << event[i] << '\t';
-      outfile << "1.000" << endl;
+      outfile << "1.000" << '\n';
     }
   }
 }
@@ -114,11 +115,13 @@ void GSList::writeSPE(const char * nomeFile) {
   outfile.open(nomeFile);
   if (outfile) {
     outfile << "$SPEC_ID:\nGSList.cpp\n";
-    outfile << "$DATE_MEA:\n" << dataGS.toString('-', ':', 'B') << endl;
-    outfile << "$MEAS_TIM:\n" << round(dT) << " " << round(dT) << endl;
-    outfile << "$DATA:\n" << 0 << " " << canali - 1 << endl;
+    outfile << "$DATE_MEA:\n";
+    outfile << dataGS.year() << '-' << dataGS.month() << '-';
+    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS) << '\n';
+    outfile << "$MEAS_TIM:\n" << round(dT) << " " << round(dT) << '\n';
+    outfile << "$DATA:\n" << 0 << " " << canali - 1 << '\n';
     for (int i = 0; i < canali; ++i) {
-      outfile << bin[i] << endl;
+      outfile << bin[i] << '\n';
     }
   }
   outfile.close();
@@ -135,13 +138,18 @@ void GSList::writeSPT(const char * nomeFile) {
   outfile.open(nomeFile);
   if (outfile) {
     outfile << canali << " " << round(dT);
-    outfile << " false " << "0 1.0" << endl;
-    outfile << "# S_TIME: 000 " << dataGS.toString('-', ':', 'B') << endl;
-    outfile << "# " << dataGS.toString('-', ':', 'B') << "# DET # Spettro.cpp" << endl;
+    outfile << " false " << "0 1.0" << '\n';
+    outfile << "# S_TIME: 000 ";
+    outfile << dataGS.year() << '-' << dataGS.month() << '-';
+    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS) << '\n';
+    outfile << "# ";
+    outfile << dataGS.year() << '-' << dataGS.month() << '-';
+    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS);
+    outfile << "# DET # GSList.cpp\n";
     for (int i = 0; i < canali; ++i) {
       outfile << bin[i];
       if (i % 8 == 7) {
-        outfile << endl;
+        outfile << '\n';
       }
       else {
         outfile << " ";
@@ -165,7 +173,7 @@ GSList& GSList::timeCut(int from, int to) {
   }
   event = tEvent;
   clk = tClock;
-  dataGS.sum(from);
+  dataGS.addSec(from);
   if (clk.size() != 0) {
     dT = clk.back() * 16E-9;
   }
@@ -175,15 +183,15 @@ GSList& GSList::timeCut(int from, int to) {
   return *this;
 }
 
-GSList& GSList::timeCut(Data &from, int to) {
-  Data toData = from;
-  toData.sum(to);
-  return timeCut(from, toData);
+GSList& GSList::timeCut(const Epoch::DateTime &from, int to) {
+  Epoch::DateTime toDT = from;
+  toDT.addSec(to);
+  return timeCut(from, toDT);
 }
 
-GSList& GSList::timeCut(Data &from, Data &to) {
-  int fromInt = from.toUnix() - dataGS.toUnix();
-  int toInt = to.toUnix() - dataGS.toUnix();
+GSList& GSList::timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to) {
+  int fromInt = toUnix(from) - toUnix(dataGS);
+  int toInt = toUnix(to) - toUnix(dataGS);
   return timeCut(fromInt, toInt);
 }
 
@@ -193,7 +201,7 @@ GSList& GSList::append(const GSList & toApp) {
     return *this;
   }
   event.insert(event.end(), toApp.event.begin(), toApp.event.end());
-  long last = (toApp.dataGS.toUnix() - dataGS.toUnix()) / 16E-9;
+  long last = (toUnix(toApp.dataGS) - toUnix(dataGS)) / 16E-9;
   for (long val : toApp.clk) {
     clk.push_back(val + last);
   }
@@ -201,10 +209,10 @@ GSList& GSList::append(const GSList & toApp) {
   return *this;
 }
 
-float GSList::getdT() const {
+float GSList::getDT() const {
   return dT;
 }
 
-Data GSList::getDate() const {
+Epoch::DateTime GSList::getDateTime() const {
   return dataGS;
 }

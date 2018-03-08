@@ -8,7 +8,7 @@
 #include <iomanip>      //setw, setprecision
 
 #include <GSList.h>
-#include <Data.h>
+#include <DateTime.h>
 #include <tools.h>
 
 class GSList {
@@ -16,7 +16,7 @@ class GSList {
     float dT;
     std::vector <long> clk;
     std::vector <int> event;
-    Data dataGS;
+    Epoch::DateTime dataGS;
 
     void defaultInit();
     bool isEmpty() const;
@@ -32,11 +32,11 @@ class GSList {
 
     GSList& append(const GSList& toApp);
     GSList& timeCut(int from, int to);
-    GSList& timeCut(Data &from, int to);
-    GSList& timeCut(Data &from, Data &to);
+    GSList& timeCut(const Epoch::DateTime &from, int to);
+    GSList& timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to);
 
-    float getdT() const;
-    Data getDate() const;
+    float getDT() const;
+    Epoch::DateTime getDateTime() const;
 
     void writeLST(const char * nomeFile);
     void writeSPE(const char * nomeFile);
