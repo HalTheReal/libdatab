@@ -2,19 +2,19 @@
 
 namespace Spectrometry {
 
-  SpectAcq::SpectAcq(const std::vector <int> &hist, const Data &date, float t)
+  SpectAcq::SpectAcq(const std::vector <int> &hist, const Epoch::DateTime &date, float t)
     : Spectrum(hist)
     , dataSp(date)
     , dT(t)
   {}
 
-  SpectAcq::SpectAcq(const std::vector <float> &hist, const Data &date, float t)
+  SpectAcq::SpectAcq(const std::vector <float> &hist, const Epoch::DateTime &date, float t)
     : Spectrum(hist)
     , dataSp(date)
     , dT(t)
   {}
 
-  SpectAcq::SpectAcq(const std::vector <double> &hist, const Data &date, float t)
+  SpectAcq::SpectAcq(const std::vector <double> &hist, const Epoch::DateTime &date, float t)
     : Spectrum(hist)
     , dataSp(date)
     , dT(t)
@@ -24,7 +24,7 @@ namespace Spectrometry {
     return dT;
   }
 
-  Data SpectAcq::getDate() const {
+  Epoch::DateTime SpectAcq::getDateTime() const {
     return dataSp;
   }
 
@@ -42,14 +42,18 @@ namespace Spectrometry {
       throw std::runtime_error("Unable to open file!");
     }
     std::vector <double> bin;
-    Data dataSpt;
+    Epoch::DateTime dataSpt;
     float dT;
     std::string riga;
     while (file >> riga) {
       if (riga.compare("$DATE_MEA:") == 0) {
-        std::string dtStr, hrStr;
-        file >> dtStr >> hrStr;
-        dataSpt = Data(dtStr, hrStr, '-', ':', 'B');
+        int yr, mn, dy;
+        char sep;
+        Epoch::Time tm;
+        file >> yr >> sep >> mn >> sep >> dy;
+        file >> tm;
+        Epoch::Date dt(dy, mn, yr);
+        dataSpt = Epoch::DateTime(dt, tm);
       }
       else if (riga.compare("$SPEC_ID:") == 0) {
         file >> riga;
@@ -76,31 +80,28 @@ namespace Spectrometry {
     if (!file) {
       throw std::runtime_error("Unable to open file!");
     }
-    std::vector <double> bin;
-    Data acqDate;
+    int channels;
     float dT;
     double qS, mS;
     std::string riga;
-    while (std::getline(file,riga)) {
-      std::vector <std::string> toks = tls::splitWhite(riga);
-      if (toks.size() == 5) {
-        if (toks[1].compare("S_TIME:") == 0) {
-          acqDate = Data(toks[3], toks[4], '-', ':', 'B');
-        }
-        else {
-          dT = std::stof(toks[1]);
-          qS = std::stod(toks[3]);
-          mS = std::stod(toks[4]);
-        }
-      }
-      else if (toks.size() == 8) {
-        for (int i = 0; i < 8; ++i) {
-          bin.push_back(std::stof(toks[i]));
-        }
-      }
+    file >> channels >> dT >> riga >> qS >> mS;
+
+    Epoch::Time acqTime;
+    char sep;
+    int yr, mn, dy;
+    file >> sep >> riga >> riga >> yr >> sep >> mn >> sep >> dy >> acqTime;
+    Epoch::Date acqDate(dy, mn, yr);
+    file.ignore(1, '\n');
+    file.ignore(256, '\n');
+
+    std::vector <double> bin;
+    bin.reserve(channels);
+    double events;
+    while (file >> events) {
+      bin.push_back(events);
     }
     file.close();
-    SpectAcq ret(bin, acqDate, dT);
+    SpectAcq ret(bin, Epoch::DateTime(acqDate, acqTime), dT);
     ret.calibrateWith(mS, qS);
     return ret;
   }
@@ -111,17 +112,20 @@ namespace Spectrometry {
       throw std::runtime_error("Unable to open file!");
     }
     std::vector <int> bin(2048, 0);
-    Data acqDate;
+    Epoch::DateTime acqDate;
     float dT;
     std::string token;
     do {
       file >> token;
       if (token.compare("#StartTime:") == 0) {
-        file >> token;
-        std::vector <std::string> dateToks = tls::split(token, 'T');
-        acqDate = Data(dateToks[0], dateToks[1], '-', ':', 'B');
+        int yr, mn, dy;
+        char sep;
+        Epoch::Time tm;
+        file >> yr >> sep >> mn >> sep >> dy >> sep >> tm;
+        Epoch::Date dt(dy, mn, yr);
+        acqDate = Epoch::DateTime (dt, tm);
       }
-    } while (token != "Gain");
+    } while (token.compare("Gain") != 0);
 
     long timeTok;
     double gainTok;
@@ -140,7 +144,10 @@ namespace Spectrometry {
     outfile.open(nomeFile);
     if (outfile) {
       outfile << "$SPEC_ID:\nSpectrum.cpp\n";
-      outfile << "$DATE_MEA:\n" << sp.getDate().toString('-', ':', 'B') << '\n';
+      outfile << "$DATE_MEA:\n";
+      Epoch::DateTime dtt = sp.getDateTime();
+      outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
+      outfile << dtt.hour() << ':' << dtt.min() << ':' << dtt.sec() << '\n';
       outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
       outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
       for (int i = 0; i < sp.channels(); ++i) {
@@ -162,8 +169,15 @@ namespace Spectrometry {
         outfile << " false ";
       }
       outfile << sp.getQ() << " " << sp.getM() << '\n';
-      outfile << "# S_TIME: 000 " << sp.getDate().toString('-', ':', 'B') << '\n';
-      outfile << "# " << sp.getDate().toString('-', ':', 'B') << "# DET # Spectrum.cpp" << '\n';
+      outfile << "# S_TIME: 000 ";
+      Epoch::DateTime dtt = sp.getDateTime();
+      outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
+      outfile << toTime(dtt) << '\n';
+      outfile << "# ";
+      outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
+      outfile << toTime(dtt) << "# DET # Spectrum.cpp" << '\n';
+
+      std::cout << "Canali letti: " << sp.channels() << '\n';
       for (int i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i);
         if (i % 8 == 7) {

@@ -39,21 +39,21 @@ namespace Spectrometry {
   }
   
   Spectrum& Spectrum::operator+=(const Spectrum& rhs) {
+    if (rhs.canali != canali) {
+      throw std::invalid_argument("Spectrum channels must be equals");
+    }
     for (int i = 0; i < canali; ++i) {
       bin[i] += rhs.bin[i];
-      if (bin[i] < 0) {
-        bin[i] = 0;
-      }
     }
     return *this;
   }
 
   Spectrum& Spectrum::operator-=(const Spectrum& rhs) {
+    if (rhs.canali != canali) {
+      throw std::invalid_argument("Spectrum channels must be equals");
+    }
     for (int i = 0; i < canali; ++i) {
       bin[i] -= rhs.bin[i];
-      if (bin[i] < 0) {
-        bin[i] = 0;
-      }
     }
     return *this;
   }
