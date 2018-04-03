@@ -6,38 +6,10 @@ namespace Spectrometry {
       : canali(0)
       , mCal(1)
       , qCal(0)
+      , startTime()
+      , dT(0)
   {}
 
-  Spectrum::Spectrum(const std::vector <int> &hist)
-      : Spectrum()
-  {
-    bin.reserve(hist.size());
-    for (int v : hist) {
-      bin.push_back(v);
-    }
-    canali = bin.size();
-  }
-
-  Spectrum::Spectrum(const std::vector <float> &hist)
-      : Spectrum()
-  {
-    bin.reserve(hist.size());
-    for (float v : hist) {
-      bin.push_back(v);
-    }
-    canali = bin.size();
-  }
-
-  Spectrum::Spectrum(const std::vector <double> &hist)
-      : Spectrum()
-  {
-    bin.reserve(hist.size());
-    for (double v : hist) {
-      bin.push_back(v);
-    }
-    canali = bin.size();
-  }
-  
   double Spectrum::getM() const {
     return mCal;
   }
@@ -45,7 +17,6 @@ namespace Spectrometry {
   double Spectrum::getQ() const {
     return qCal;
   }
-
 
   Spectrum& Spectrum::calibrateWith(double m, double q) {
     mCal = m;

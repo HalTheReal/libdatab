@@ -10,7 +10,7 @@
 #include <random>
 #include <chrono>
 #include <stdexcept>    // Eccezioni
-#include <tools.h>
+#include <DateTime.h>
 
 namespace Spectrometry {
 
@@ -18,9 +18,12 @@ namespace Spectrometry {
 
     public:
       Spectrum();
-      Spectrum(const std::vector <int> &hist);
-      Spectrum(const std::vector <float> &hist);
-      Spectrum(const std::vector <double> &hist);
+
+      template <typename T>
+      Spectrum(const std::vector <T> &hist);
+
+      template <typename T>
+      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float dT);
 
       Spectrum& calibrateWith(double m, double q);
       Spectrum& rebin(double gain);
@@ -37,7 +40,25 @@ namespace Spectrometry {
       int canali;
       double mCal;
       double qCal;
+      Epoch::DateTime startTime;
+      float dT;
   };
+
+  template <typename T>
+  Spectrum::Spectrum(const std::vector <T> &hist)
+      : Spectrum()
+  {
+    bin = hist;
+    canali = bin.size();
+  }
+
+  template <typename T>
+    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float dT)
+      : Spectrum(hist)
+  {
+    startTime = start;
+    dT = dT;
+  }
 
   int energyToBin(const Spectrum &sp, double en);
   double binIntegral(const Spectrum &sp, int from, int to);
