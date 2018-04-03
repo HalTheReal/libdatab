@@ -22,9 +22,6 @@ namespace Spectrometry {
       Spectrum(const std::vector <float> &hist);
       Spectrum(const std::vector <double> &hist);
 
-      Spectrum& operator+=(const Spectrum& rhs);
-      Spectrum& operator-=(const Spectrum& rhs);
-
       Spectrum& calibrateWith(double m, double q);
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
@@ -41,9 +38,6 @@ namespace Spectrometry {
       double mCal;
       double qCal;
   };
-
-  Spectrum operator+(Spectrum lhs, const Spectrum& rhs);
-  Spectrum operator-(Spectrum lhs, const Spectrum& rhs);
 
   int energyToBin(const Spectrum &sp, double en);
   double binIntegral(const Spectrum &sp, int from, int to);

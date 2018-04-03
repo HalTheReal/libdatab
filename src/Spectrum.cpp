@@ -38,26 +38,6 @@ namespace Spectrometry {
     canali = bin.size();
   }
   
-  Spectrum& Spectrum::operator+=(const Spectrum& rhs) {
-    if (rhs.canali != canali) {
-      throw std::invalid_argument("Spectrum channels must be equals");
-    }
-    for (int i = 0; i < canali; ++i) {
-      bin[i] += rhs.bin[i];
-    }
-    return *this;
-  }
-
-  Spectrum& Spectrum::operator-=(const Spectrum& rhs) {
-    if (rhs.canali != canali) {
-      throw std::invalid_argument("Spectrum channels must be equals");
-    }
-    for (int i = 0; i < canali; ++i) {
-      bin[i] -= rhs.bin[i];
-    }
-    return *this;
-  }
-
   double Spectrum::getM() const {
     return mCal;
   }
@@ -106,16 +86,6 @@ namespace Spectrometry {
 
   int Spectrum::channels() const {
     return canali;
-  }
-
-  Spectrum operator+(Spectrum lhs, const Spectrum& rhs) {
-    lhs += rhs;
-    return lhs;
-  }
-
-  Spectrum operator-(Spectrum lhs, const Spectrum& rhs) {
-    lhs -= rhs;
-    return lhs;
   }
 
   int energyToBin(const Spectrum &sp, double en) {
