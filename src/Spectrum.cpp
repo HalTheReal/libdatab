@@ -59,6 +59,14 @@ namespace Spectrometry {
     return canali;
   }
 
+  Epoch::DateTime Spectrum::getDateTime() const {
+    return startTime;
+  }
+
+  double Spectrum::getDT() const {
+    return dT;
+  }
+
   int energyToBin(const Spectrum &sp, double en) {
     return (en - sp.getQ()) / sp.getM();
   }
@@ -80,6 +88,117 @@ namespace Spectrometry {
     int from = energyToBin(sp, en1);
     int to = energyToBin(sp, en2);
     return (binIntegral(sp, from, to));
+  }
+
+  double cps(const Spectrum &sp, double en1) {
+    return (counts(sp, en1) / sp.getDT());
+  }
+
+  double cps(const Spectrum &sp, double en1, double en2) {
+    return (counts(sp, en1, en2) / sp.getDT());
+  }
+
+  Spectrum readSPE(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      throw std::runtime_error("Unable to open file!");
+    }
+    std::vector <double> bin;
+    Epoch::DateTime dataSpt;
+    float dT;
+    std::string riga;
+    while (file >> riga) {
+      if (riga.compare("$DATE_MEA:") == 0) {
+        int yr, mn, dy;
+        char sep;
+        Epoch::Time tm;
+        file >> yr >> sep >> mn >> sep >> dy;
+        file >> tm;
+        Epoch::Date dt(dy, mn, yr);
+        dataSpt = Epoch::DateTime(dt, tm);
+      }
+      else if (riga.compare("$SPEC_ID:") == 0) {
+        file >> riga;
+      }
+      else if (riga.compare("$MEAS_TIM:") == 0) {
+        file >> dT >> dT;
+      }
+      else if (riga.compare("$DATA:") == 0) {
+        int fstChn, lstChn;
+        file >> fstChn >> lstChn;
+        bin.reserve(lstChn + 1);
+      }
+      else {
+        bin.push_back(stof(riga));
+      }
+    }
+    file.close();
+    Spectrum ret(bin, dataSpt, dT);
+    return ret;
+  }
+
+  Spectrum readSPT(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      throw std::runtime_error("Unable to open file!");
+    }
+    int channels;
+    float dT;
+    double qS, mS;
+    std::string riga;
+    file >> channels >> dT >> riga >> qS >> mS;
+
+    Epoch::Time acqTime;
+    char sep;
+    int yr, mn, dy;
+    file >> sep >> riga >> riga >> yr >> sep >> mn >> sep >> dy >> acqTime;
+    Epoch::Date acqDate(dy, mn, yr);
+    file.ignore(1, '\n');
+    file.ignore(256, '\n');
+
+    std::vector <double> bin;
+    bin.reserve(channels);
+    double events;
+    while (file >> events) {
+      bin.push_back(events);
+    }
+    file.close();
+    Spectrum ret(bin, Epoch::DateTime(acqDate, acqTime), dT);
+    ret.calibrateWith(mS, qS);
+    return ret;
+  }
+
+  Spectrum readLST(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      throw std::runtime_error("Unable to open file!");
+    }
+    std::vector <int> bin(2048, 0);
+    Epoch::DateTime acqDate;
+    float dT;
+    std::string token;
+    do {
+      file >> token;
+      if (token.compare("#StartTime:") == 0) {
+        int yr, mn, dy;
+        char sep;
+        Epoch::Time tm;
+        file >> yr >> sep >> mn >> sep >> dy >> sep >> tm;
+        Epoch::Date dt(dy, mn, yr);
+        acqDate = Epoch::DateTime (dt, tm);
+      }
+    } while (token.compare("Gain") != 0);
+
+    long timeTok;
+    double gainTok;
+    int energyTok;
+    while (file >> timeTok >> energyTok >> gainTok) {
+      ++bin[energyTok];
+    }
+    file.close();
+    dT = timeTok * 16E-9;
+    Spectrum ret(bin, acqDate, dT);
+    return ret;
   }
 
 }

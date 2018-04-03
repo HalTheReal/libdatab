@@ -25,15 +25,16 @@ namespace Spectrometry {
       template <typename T>
       Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float dT);
 
+      double binAt(int b1) const;
+      int channels() const;
+      double getM() const;
+      double getQ() const;
+      Epoch::DateTime getDateTime() const;
+      double getDT() const;
+
       Spectrum& calibrateWith(double m, double q);
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
-
-      double getM() const;
-      double getQ() const;
-      int channels() const;
-
-      double binAt(int b1) const;
 
     private:
       std::vector <float> bin;
@@ -48,7 +49,10 @@ namespace Spectrometry {
   Spectrum::Spectrum(const std::vector <T> &hist)
       : Spectrum()
   {
-    bin = hist;
+    bin.reserve(hist.size());
+    for(auto val : hist) {
+      bin.push_back(val);
+    }
     canali = bin.size();
   }
 
@@ -64,6 +68,16 @@ namespace Spectrometry {
   double binIntegral(const Spectrum &sp, int from, int to);
   double counts(const Spectrum &sp, double en);
   double counts(const Spectrum &sp, double en1, double en2);
+
+  double cps(const Spectrum &sp, double en1);
+  double cps(const Spectrum &sp, double en1, double en2);
+
+  Spectrum readSPE(const char * nomeFile);
+  Spectrum readSPT(const char * nomeFile);
+  Spectrum readLST(const char * nomeFile);
+
+  void writeSPE(const Spectrum &sp, const char * nomeFile);
+  void writeSPT(const Spectrum &sp, const char * nomeFile);
 
 }
 #endif
