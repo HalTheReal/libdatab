@@ -12,6 +12,14 @@ GSList::GSList(const char * nomeFile)
   readFile(nomeFile);
 }
 
+Spectrometry::SpectAcq GSList::toSpectrum() const {
+  std::vector <int> bin(2048, 0);
+  for (int val : this->event) {
+    ++bin[val];
+  }
+  return Spectrometry::SpectAcq(bin, this->dataGS, this->dT);
+}
+
 int GSList::readFile(const char * nomeFile) {
   std::string filename(nomeFile);
   std::string::size_type idx;
@@ -102,61 +110,6 @@ void GSList::writeLST(const char * nomeFile) {
       outfile << "1.000" << '\n';
     }
   }
-}
-
-void GSList::writeSPE(const char * nomeFile) {
-  int canali = 2048;
-  std::vector <int> bin(canali, 0);
-  for (int val : event) {
-    ++bin[val];
-  }
-  using namespace std;
-  ofstream outfile;
-  outfile.open(nomeFile);
-  if (outfile) {
-    outfile << "$SPEC_ID:\nGSList.cpp\n";
-    outfile << "$DATE_MEA:\n";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS) << '\n';
-    outfile << "$MEAS_TIM:\n" << round(dT) << " " << round(dT) << '\n';
-    outfile << "$DATA:\n" << 0 << " " << canali - 1 << '\n';
-    for (int i = 0; i < canali; ++i) {
-      outfile << bin[i] << '\n';
-    }
-  }
-  outfile.close();
-}
-
-void GSList::writeSPT(const char * nomeFile) {
-  int canali = 2048;
-  std::vector <int> bin(canali, 0);
-  for (int val : event) {
-    ++bin[val];
-  }
-  using namespace std;
-  ofstream outfile;
-  outfile.open(nomeFile);
-  if (outfile) {
-    outfile << canali << " " << round(dT);
-    outfile << " false " << "0 1.0" << '\n';
-    outfile << "# S_TIME: 000 ";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS) << '\n';
-    outfile << "# ";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS);
-    outfile << "# DET # GSList.cpp\n";
-    for (int i = 0; i < canali; ++i) {
-      outfile << bin[i];
-      if (i % 8 == 7) {
-        outfile << '\n';
-      }
-      else {
-        outfile << " ";
-      }
-    }
-  }
-  outfile.close();
 }
 
 GSList& GSList::timeCut(int from, int to) {

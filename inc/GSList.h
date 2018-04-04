@@ -5,10 +5,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <iomanip>      //setw, setprecision
+#include <iomanip>      //  setw, setprecision
+#include <exception>
+#include <utility>      //  std::pair
 
 #include <GSList.h>
 #include <DateTime.h>
+#include <SpectAcq.h>
 #include <tools.h>
 
 class GSList {
@@ -21,12 +24,14 @@ class GSList {
     void defaultInit();
     bool isEmpty() const;
 
-  protected:
     int readLST(const char * nomeFile);
 
   public:
     GSList();
+    GSList(std::pair <std::vector <long>, std::vector <int>> events, const Epoch::DateTime &start);
     GSList(const char * nomeFile);
+
+    Spectrometry::SpectAcq toSpectrum() const;
 
     int readFile(const char * nomeFile);
 
@@ -39,8 +44,6 @@ class GSList {
     Epoch::DateTime getDateTime() const;
 
     void writeLST(const char * nomeFile);
-    void writeSPE(const char * nomeFile);
-    void writeSPT(const char * nomeFile);
 };
 
 #endif
