@@ -1,4 +1,5 @@
 #include "GSList.h"
+namespace Spectrometry {
 
 GSList::GSList()
   : dT(0)
@@ -94,7 +95,7 @@ int GSList::readLST(const char * nomeFile) {
   return 1;
 }
 
-void GSList::writeLST(const char * nomeFile) {
+void GSList::writeLST(const char * nomeFile) const {
   using namespace std;
   ofstream outfile;
   outfile.open(nomeFile);
@@ -162,10 +163,20 @@ GSList& GSList::append(const GSList & toApp) {
   return *this;
 }
 
-float GSList::getDT() const {
+double GSList::getDT() const {
   return dT;
 }
 
 Epoch::DateTime GSList::getDateTime() const {
   return dataGS;
+}
+
+void writeSPE(const GSList &lst, const char * nomeFile) {
+  return writeSPE(lst.toSpectrum(), nomeFile);
+}
+
+void writeSPT(const GSList &lst, const char * nomeFile) {
+  return writeSPT(lst.toSpectrum(), nomeFile);
+}
+
 }

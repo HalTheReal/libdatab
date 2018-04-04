@@ -14,36 +14,44 @@
 #include <SpectAcq.h>
 #include <tools.h>
 
-class GSList {
-  private:
-    float dT;
-    std::vector <long> clk;
-    std::vector <int> event;
-    Epoch::DateTime dataGS;
+namespace Spectrometry {
 
-    void defaultInit();
-    bool isEmpty() const;
+  class GSList {
 
-    int readLST(const char * nomeFile);
+    public:
+      GSList();
+      GSList(std::pair <std::vector <long>, std::vector <int>> events, const Epoch::DateTime &start);
+      GSList(const char * nomeFile);
 
-  public:
-    GSList();
-    GSList(std::pair <std::vector <long>, std::vector <int>> events, const Epoch::DateTime &start);
-    GSList(const char * nomeFile);
+      int readFile(const char * nomeFile);
 
-    Spectrometry::SpectAcq toSpectrum() const;
+      GSList& append(const GSList& toApp);
+      GSList& timeCut(int from, int to);
+      GSList& timeCut(const Epoch::DateTime &from, int to);
+      GSList& timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to);
 
-    int readFile(const char * nomeFile);
+      double getDT() const;
+      Epoch::DateTime getDateTime() const;
 
-    GSList& append(const GSList& toApp);
-    GSList& timeCut(int from, int to);
-    GSList& timeCut(const Epoch::DateTime &from, int to);
-    GSList& timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to);
+      void writeLST(const char * nomeFile) const;
 
-    float getDT() const;
-    Epoch::DateTime getDateTime() const;
+      Spectrometry::SpectAcq toSpectrum() const;
 
-    void writeLST(const char * nomeFile);
-};
+    private:
+      float dT;
+      std::vector <long> clk;
+      std::vector <int> event;
+      Epoch::DateTime dataGS;
 
+      void defaultInit();
+      bool isEmpty() const;
+
+      int readLST(const char * nomeFile);
+
+  };
+
+  void writeSPE(const GSList &lst, const char * nomeFile);
+  void writeSPT(const GSList &lst, const char * nomeFile);
+
+}
 #endif
