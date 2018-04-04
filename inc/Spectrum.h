@@ -23,7 +23,7 @@ namespace Spectrometry {
       Spectrum(const std::vector <T> &hist);
 
       template <typename T>
-      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float dT);
+      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm);
 
       double binAt(int b1) const;
       int channels() const;
@@ -57,11 +57,11 @@ namespace Spectrometry {
   }
 
   template <typename T>
-    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float dT)
+    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm)
       : Spectrum(hist)
   {
     startTime = start;
-    dT = dT;
+    dT = tm;
   }
 
   int energyToBin(const Spectrum &sp, double en);
@@ -71,6 +71,8 @@ namespace Spectrometry {
 
   double cps(const Spectrum &sp, double en1);
   double cps(const Spectrum &sp, double en1, double en2);
+
+  Spectrum sum(const Spectrum &sp1, const Spectrum &sp2);
 
   Spectrum readSPE(const char * nomeFile);
   Spectrum readSPT(const char * nomeFile);

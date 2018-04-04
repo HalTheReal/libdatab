@@ -98,6 +98,19 @@ namespace Spectrometry {
     return (counts(sp, en1, en2) / sp.getDT());
   }
 
+  Spectrum sum(const Spectrum &sp1, const Spectrum &sp2) {
+    if (sp1.channels() != sp2.channels()) {
+      throw std::invalid_argument("Channels must be the same");
+    }
+    std::vector <double> newBins(sp1.channels(), 0);
+    for(int i = 0; i < sp1.channels(); ++i) {
+      newBins[i] = sp1.binAt(i) + sp2.binAt(i);
+    }
+    Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT());
+    ret.calibrateWith(sp1.getM(), sp1.getQ());
+    return ret;
+  }
+
   Spectrum readSPE(const char * nomeFile) {
     std::ifstream file(nomeFile);
     if (!file) {
@@ -199,6 +212,57 @@ namespace Spectrometry {
     dT = timeTok * 16E-9;
     Spectrum ret(bin, acqDate, dT);
     return ret;
+  }
+
+  void writeSPE(const Spectrum &sp, const char * nomeFile) {
+    std::ofstream outfile;
+    outfile.open(nomeFile);
+    if (outfile) {
+      outfile << "$SPEC_ID:\nSpectrum.cpp\n";
+      outfile << "$DATE_MEA:\n";
+      Epoch::DateTime dtt = sp.getDateTime();
+      outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
+      outfile << dtt.hour() << ':' << dtt.min() << ':' << dtt.sec() << '\n';
+      outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
+      outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
+      for (int i = 0; i < sp.channels(); ++i) {
+        outfile << sp.binAt(i) << '\n';
+      }
+    }
+    outfile.close();
+  }
+
+  void writeSPT(const Spectrum &sp, const char * nomeFile) {
+    std::ofstream outfile;
+    outfile.open(nomeFile);
+    if (outfile) {
+      outfile << sp.channels() << " " << sp.getDT();
+      if (sp.getM() != 1) {
+        outfile << " true ";
+      }
+      else {
+        outfile << " false ";
+      }
+      outfile << sp.getQ() << " " << sp.getM() << '\n';
+      outfile << "# S_TIME: 000 ";
+      Epoch::DateTime dtt = sp.getDateTime();
+      outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
+      outfile << toTime(dtt) << '\n';
+      outfile << "# ";
+      outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
+      outfile << toTime(dtt) << "# DET # Spectrum.cpp" << '\n';
+
+      for (int i = 0; i < sp.channels(); ++i) {
+        outfile << sp.binAt(i);
+        if (i % 8 == 7) {
+          outfile << '\n';
+        }
+        else {
+          outfile << " ";
+        }
+      }
+    }
+    outfile.close();
   }
 
 }
