@@ -9,23 +9,79 @@ GSList::GSList()
 GSList::GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start)
   : GSList()
 {
-  clk.reserve(events.size());
-  event.reserve(events.size());
-  for(auto &pr : events) {
-    clk.push_back(pr.first);
-    event.push_back(pr.second);
-  }
+  evtList = events;
   dataGS = start;
-  // Si assume che sia ordinato!
-  dT = clk.back() * 16E-9;
+  dT = evtList.back().first * 16E-9;
 }
 
 Spectrometry::SpectAcq GSList::toSpectrum() const {
   std::vector <int> bin(2048, 0);
-  for (int val : this->event) {
-    ++bin[val];
+  for (auto &pair : this->evtList) {
+    ++bin[pair.second];
   }
   return Spectrometry::SpectAcq(bin, this->dataGS, this->dT);
+}
+
+GSList& GSList::erase(long from, long to) {
+  if(to < from) {
+    std::swap(from, to);
+  }
+  if(to <= 0) {
+    return *this;
+  }
+  auto eraseFrom = std::lower_bound(evtList.begin(), evtList.end(), from / 16E-9, isLess);
+  auto eraseTo = std::lower_bound(evtList.begin(), evtList.end(), to / 16E-9, isLess);
+  evtList.erase(eraseFrom, eraseTo);
+  if(from <= 0) {
+    dataGS.addSec(to);
+    for(auto &pair : evtList) {
+      pair.first -= to / 16E-9;
+    }
+  }
+  dT = evtList.back().first * 16E-9;
+  return *this;
+}
+
+GSList& GSList::merge(const GSList &gsl) {
+  int offset = std::abs(Epoch::toUnix(dataGS) - Epoch::toUnix(gsl.dataGS));
+  if(dataGS > gsl.dataGS) {
+    for(auto &pair : evtList) {
+      pair.first += offset / 16E-9;
+    }
+    for(auto pair : gsl.evtList) {
+      evtList.push_back(pair);
+    }
+    dataGS = gsl.dataGS;
+  }
+  else {
+    for(auto pair : gsl.evtList) {
+      pair.first += offset / 16E-9;
+      evtList.push_back(pair);
+    }
+  }
+  std::sort(evtList.begin(), evtList.end());
+  return *this;
+}
+
+GSList GSList::copy(long from, long to) const {
+  if(to < from) {
+    std::swap(from, to);
+  }
+  if(to <= 0) {
+    return GSList();
+  }
+  auto copyFrom = std::lower_bound(evtList.begin(), evtList.end(), from / 16E-9, isLess);
+  auto copyTo = std::lower_bound(evtList.begin(), evtList.end(), to / 16E-9, isLess);
+  std::vector <std::pair <long, int>> copied(copyFrom, copyTo);
+  std::cerr << "Size: " << copied.size() << '\n';
+  Epoch::DateTime dtt = dataGS;
+  if(from > 0) {
+    dtt.addSec(from);
+    for(auto &pair : copied) {
+      pair.first -= from / 16E-9;
+    }
+  }
+  return GSList(copied, dtt);
 }
 
 void GSList::writeLST(const char * nomeFile) const {
@@ -38,9 +94,9 @@ void GSList::writeLST(const char * nomeFile) const {
     outfile << dataGS.year() << '-' << dataGS.month() << '-';
     outfile << dataGS.day() << 'T' << Epoch::toTime(dataGS) << '\n';
     outfile << "#Fields: Time\tEnergy\tGain" << '\n';
-    for (unsigned i = 0; i < clk.size(); ++i) {
-      outfile << right << setw(9) << clk[i] << '\t';
-      outfile << setw(6) << event[i] << '\t';
+    for (auto &pair : this->evtList) {
+      outfile << right << setw(9) << pair.first << '\t';
+      outfile << setw(6) << pair.second << '\t';
       outfile << "1.000" << '\n';
     }
   }
@@ -90,6 +146,10 @@ void writeSPE(const GSList &lst, const char * nomeFile) {
 
 void writeSPT(const GSList &lst, const char * nomeFile) {
   return writeSPT(lst.toSpectrum(), nomeFile);
+}
+
+bool isLess(std::pair <long, int> pair, long val) {
+  return (pair.first < val);
 }
 
 }

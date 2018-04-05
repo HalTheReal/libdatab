@@ -8,8 +8,9 @@
 #include <iomanip>      //  setw, setprecision
 #include <exception>
 #include <utility>      //  std::pair
+#include <algorithm>    //  std::sort
+#include <cmath>
 
-#include <GSList.h>
 #include <DateTime.h>
 #include <SpectAcq.h>
 #include <tools.h>
@@ -26,16 +27,21 @@ namespace Spectrometry {
       Epoch::DateTime getDateTime() const;
       Spectrometry::SpectAcq toSpectrum() const;
 
+      GSList& erase(long from, long to);
+      GSList& merge(const GSList &gsl);
+      GSList copy(long from, long to) const;
+
       void writeLST(const char * nomeFile) const;
 
     private:
       float dT;
-      std::vector <long> clk;
-      std::vector <int> event;
+      std::vector <std::pair <long, int>> evtList;  // clk, energy
       Epoch::DateTime dataGS;
+
 
   };
 
+  bool isLess(std::pair <long, int> pair, long val);
   GSList readGSL(const char * nomeFile);
   void writeSPE(const GSList &lst, const char * nomeFile);
   void writeSPT(const GSList &lst, const char * nomeFile);
