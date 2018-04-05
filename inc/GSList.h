@@ -20,7 +20,7 @@ namespace Spectrometry {
 
     public:
       GSList();
-      GSList(std::pair <std::vector <long>, std::vector <int>> events, const Epoch::DateTime &start);
+      GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start);
       GSList(const char * nomeFile);
 
       int readFile(const char * nomeFile);
@@ -50,6 +50,7 @@ namespace Spectrometry {
 
   };
 
+  GSList readGSL(const char * nomeFile);
   void writeSPE(const GSList &lst, const char * nomeFile);
   void writeSPT(const GSList &lst, const char * nomeFile);
 

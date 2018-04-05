@@ -13,6 +13,20 @@ GSList::GSList(const char * nomeFile)
   readFile(nomeFile);
 }
 
+GSList::GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start)
+  : GSList()
+{
+  clk.reserve(events.size());
+  event.reserve(events.size());
+  for(auto &pr : events) {
+    clk.push_back(pr.first);
+    event.push_back(pr.second);
+  }
+  dataGS = start;
+  // Si assume che sia ordinato!
+  dT = clk.back() * 16E-9;
+}
+
 Spectrometry::SpectAcq GSList::toSpectrum() const {
   std::vector <int> bin(2048, 0);
   for (int val : this->event) {
@@ -169,6 +183,36 @@ double GSList::getDT() const {
 
 Epoch::DateTime GSList::getDateTime() const {
   return dataGS;
+}
+
+GSList readGSL(const char * nomeFile) {
+  std::ifstream file(nomeFile);
+  if (!file) {
+    throw std::invalid_argument("Unable to open file!");
+  }
+  std::vector <std::pair <long, int>> coppie;
+  Epoch::DateTime dataGS;
+
+  std::string token;
+  do {
+    file >> token;
+    if (token.compare("#StartTime:") == 0) {
+      int yr, mn, dy;
+      char sep;
+      Epoch::Time tm;
+      file >> yr >> sep >> mn >> sep >> dy >> sep >> tm;
+      Epoch::Date dt(dy, mn, yr);
+      dataGS = Epoch::DateTime(dt, tm);
+    }
+  } while (token.compare("Gain") != 0);
+  long timeTok;
+  double gainTok;
+  int energyTok;
+  while (file >> timeTok >> energyTok >> gainTok) {
+    coppie.push_back(std::make_pair(timeTok, energyTok));
+  }
+  file.close();
+  return GSList(coppie, dataGS);
 }
 
 void writeSPE(const GSList &lst, const char * nomeFile) {
