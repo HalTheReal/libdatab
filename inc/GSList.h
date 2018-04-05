@@ -21,32 +21,18 @@ namespace Spectrometry {
     public:
       GSList();
       GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start);
-      GSList(const char * nomeFile);
-
-      int readFile(const char * nomeFile);
-
-      GSList& append(const GSList& toApp);
-      GSList& timeCut(int from, int to);
-      GSList& timeCut(const Epoch::DateTime &from, int to);
-      GSList& timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to);
 
       double getDT() const;
       Epoch::DateTime getDateTime() const;
+      Spectrometry::SpectAcq toSpectrum() const;
 
       void writeLST(const char * nomeFile) const;
-
-      Spectrometry::SpectAcq toSpectrum() const;
 
     private:
       float dT;
       std::vector <long> clk;
       std::vector <int> event;
       Epoch::DateTime dataGS;
-
-      void defaultInit();
-      bool isEmpty() const;
-
-      int readLST(const char * nomeFile);
 
   };
 
