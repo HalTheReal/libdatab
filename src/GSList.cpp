@@ -2,24 +2,21 @@
 namespace Spectrometry {
 
 GSList::GSList()
-  : dT(0)
+  : evtList()
   , dataGS()
 {}
 
 GSList::GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start)
-  : GSList()
-{
-  evtList = events;
-  dataGS = start;
-  dT = evtList.back().first * 16E-9;
-}
+  : evtList(events)
+  , dataGS(start)
+{}
 
 Spectrometry::SpectAcq GSList::toSpectrum() const {
   std::vector <int> bin(2048, 0);
   for (auto &pair : this->evtList) {
     ++bin[pair.second];
   }
-  return Spectrometry::SpectAcq(bin, this->dataGS, this->dT);
+  return Spectrometry::SpectAcq(bin, this->dataGS, getDT());
 }
 
 GSList& GSList::erase(long from, long to) {
@@ -38,7 +35,6 @@ GSList& GSList::erase(long from, long to) {
       pair.first -= to / 16E-9;
     }
   }
-  dT = evtList.back().first * 16E-9;
   return *this;
 }
 
@@ -103,7 +99,7 @@ void GSList::writeLST(const char * nomeFile) const {
 }
 
 double GSList::getDT() const {
-  return dT;
+  return evtList.back().first * 16E-9;
 }
 
 Epoch::DateTime GSList::getDateTime() const {

@@ -34,10 +34,8 @@ namespace Spectrometry {
       void writeLST(const char * nomeFile) const;
 
     private:
-      float dT;
       std::vector <std::pair <long, int>> evtList;  // clk, energy
       Epoch::DateTime dataGS;
-
 
   };
 
