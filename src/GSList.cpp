@@ -69,7 +69,6 @@ GSList GSList::copy(long from, long to) const {
   auto copyFrom = std::lower_bound(evtList.begin(), evtList.end(), from / 16E-9, isLess);
   auto copyTo = std::lower_bound(evtList.begin(), evtList.end(), to / 16E-9, isLess);
   std::vector <std::pair <long, int>> copied(copyFrom, copyTo);
-  std::cerr << "Size: " << copied.size() << '\n';
   Epoch::DateTime dtt = dataGS;
   if(from > 0) {
     dtt.addSec(from);
@@ -80,9 +79,8 @@ GSList GSList::copy(long from, long to) const {
   return GSList(copied, dtt);
 }
 
-void GSList::writeLST(const char * nomeFile) const {
-  using namespace std;
-  ofstream outfile;
+void GSList::writeGSL(const char * nomeFile) const {
+  std::ofstream outfile;
   outfile.open(nomeFile);
   if (outfile) {
     outfile << "#GammaStream 1.0 LIST\n";
@@ -91,8 +89,8 @@ void GSList::writeLST(const char * nomeFile) const {
     outfile << dataGS.day() << 'T' << Epoch::toTime(dataGS) << '\n';
     outfile << "#Fields: Time\tEnergy\tGain" << '\n';
     for (auto &pair : this->evtList) {
-      outfile << right << setw(9) << pair.first << '\t';
-      outfile << setw(6) << pair.second << '\t';
+      outfile << std::right << std::setw(9) << pair.first << '\t';
+      outfile << std::setw(6) << pair.second << '\t';
       outfile << "1.000" << '\n';
     }
   }

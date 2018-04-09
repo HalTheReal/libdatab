@@ -31,7 +31,7 @@ namespace Spectrometry {
       GSList& merge(const GSList &gsl);
       GSList copy(long from, long to) const;
 
-      void writeLST(const char * nomeFile) const;
+      void writeGSL(const char * nomeFile) const;
 
     private:
       std::vector <std::pair <long, int>> evtList;  // clk, energy
