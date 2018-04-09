@@ -73,6 +73,7 @@ namespace Spectrometry {
   double cps(const Spectrum &sp, double en1, double en2);
 
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2);
+  Spectrum subtract(const Spectrum &sp1, const Spectrum &sp2);
 
   Spectrum readSPE(const char * nomeFile);
   Spectrum readSPT(const char * nomeFile);

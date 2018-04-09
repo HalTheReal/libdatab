@@ -102,9 +102,27 @@ namespace Spectrometry {
     if (sp1.channels() != sp2.channels()) {
       throw std::invalid_argument("Channels must be the same");
     }
+    double scale = sp1.getDT() / sp2.getDT();
     std::vector <double> newBins(sp1.channels(), 0);
     for(int i = 0; i < sp1.channels(); ++i) {
-      newBins[i] = sp1.binAt(i) + sp2.binAt(i);
+      newBins[i] = sp1.binAt(i) + scale * sp2.binAt(i);
+    }
+    Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT());
+    ret.calibrateWith(sp1.getM(), sp1.getQ());
+    return ret;
+  }
+
+  Spectrum subtract(const Spectrum &sp1, const Spectrum &sp2) {
+    if (sp1.channels() != sp2.channels()) {
+      throw std::invalid_argument("Channels must be the same");
+    }
+    double scale = sp1.getDT() / sp2.getDT();
+    std::vector <double> newBins(sp1.channels(), 0);
+    for(int i = 0; i < sp1.channels(); ++i) {
+      newBins[i] = sp1.binAt(i) - scale * sp2.binAt(i);
+      if (newBins[i] < 0) {
+        newBins[i] = 0;
+      }
     }
     Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT());
     ret.calibrateWith(sp1.getM(), sp1.getQ());
