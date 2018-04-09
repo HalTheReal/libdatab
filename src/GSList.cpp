@@ -11,12 +11,20 @@ GSList::GSList(const std::vector <std::pair <long, int>> &events, const Epoch::D
   , dataGS(start)
 {}
 
-Spectrometry::SpectAcq GSList::toSpectrum() const {
+std::vector <int> GSList::getEventHist() const {
   std::vector <int> bin(2048, 0);
   for (auto &pair : this->evtList) {
     ++bin[pair.second];
   }
-  return Spectrometry::SpectAcq(bin, this->dataGS, getDT());
+  return bin;
+}
+
+Epoch::DateTime GSList::getDateTime() const {
+  return dataGS;
+}
+
+double GSList::getDT() const {
+  return evtList.back().first * 16E-9;
 }
 
 GSList& GSList::erase(long from, long to) {
@@ -96,12 +104,16 @@ void GSList::writeGSL(const char * nomeFile) const {
   }
 }
 
-double GSList::getDT() const {
-  return evtList.back().first * 16E-9;
+Spectrometry::SpectAcq toSpectrum(const GSList &gsl) {
+  return Spectrometry::SpectAcq(gsl.getEventHist(), gsl.getDateTime(), gsl.getDT());
 }
 
-Epoch::DateTime GSList::getDateTime() const {
-  return dataGS;
+void writeSPE(const GSList &lst, const char * nomeFile) {
+  return writeSPE(toSpectrum(lst), nomeFile);
+}
+
+void writeSPT(const GSList &lst, const char * nomeFile) {
+  return writeSPT(toSpectrum(lst), nomeFile);
 }
 
 GSList readGSL(const char * nomeFile) {
@@ -132,14 +144,6 @@ GSList readGSL(const char * nomeFile) {
   }
   file.close();
   return GSList(coppie, dataGS);
-}
-
-void writeSPE(const GSList &lst, const char * nomeFile) {
-  return writeSPE(lst.toSpectrum(), nomeFile);
-}
-
-void writeSPT(const GSList &lst, const char * nomeFile) {
-  return writeSPT(lst.toSpectrum(), nomeFile);
 }
 
 bool isLess(std::pair <long, int> pair, long val) {

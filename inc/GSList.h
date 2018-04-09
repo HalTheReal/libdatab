@@ -23,9 +23,9 @@ namespace Spectrometry {
       GSList();
       GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start);
 
-      double getDT() const;
+      std::vector <int> getEventHist() const;
       Epoch::DateTime getDateTime() const;
-      Spectrometry::SpectAcq toSpectrum() const;
+      double getDT() const;
 
       GSList& erase(long from, long to);
       GSList& merge(const GSList &gsl);
@@ -39,10 +39,11 @@ namespace Spectrometry {
 
   };
 
-  bool isLess(std::pair <long, int> pair, long val);
-  GSList readGSL(const char * nomeFile);
+  Spectrometry::SpectAcq toSpectrum();
   void writeSPE(const GSList &lst, const char * nomeFile);
   void writeSPT(const GSList &lst, const char * nomeFile);
+  GSList readGSL(const char * nomeFile);
 
+  bool isLess(std::pair <long, int> pair, long val);
 }
 #endif
