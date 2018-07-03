@@ -41,7 +41,7 @@ ROIB toROIB(const ROIE &roi, double m, double q) {
   return ROIB(left, right);
 }
 
-double counts(const Spectrum &sp, const ROIB &roi) {
+double integral(const Spectrum &sp, const ROIB &roi) {
   double tot = 0;
   for(int i = roi.lower(); i <= roi.upper(); ++i) {
     tot += sp.binAt(i);
@@ -49,13 +49,13 @@ double counts(const Spectrum &sp, const ROIB &roi) {
   return tot;
 }
 
-double counts(const Spectrum &sp, const ROIE &roi) {
+double integral(const Spectrum &sp, const ROIE &roi) {
   ROIB roib = toROIB(roi, sp.getM(), sp.getQ());
-  return counts(sp, roib);
+  return integral(sp, roib);
 }
 
 double cps(const Spectrum &sp, const ROIB &roi) {
-  return counts(sp, roi) / sp.getDT();
+  return integral(sp, roi) / sp.getDT();
 }
 
 double cps(const Spectrum &sp, const ROIE &roi) {
