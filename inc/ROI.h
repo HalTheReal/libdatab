@@ -56,31 +56,30 @@ T width(const ROI<T> &roi) {
 
 int width(const ROIB &roi);
 
-template <typename T>
-ROI<T>& inflate(ROI<T> &roi, T inf) {
+template <typename T, typename R>
+ROI<T>& inflate(ROI<T> &roi, R inf) {
   roi.setUpper(roi.upper() + inf);
   roi.setLower(roi.lower() - inf);
   return roi;
 }
 
-template <typename T>
-ROI<T>& shift(ROI<T> &roi, T inf) {
+template <typename T, typename R>
+ROI<T>& shift(ROI<T> &roi, R inf) {
   roi.setUpper(roi.upper() + inf);
   roi.setLower(roi.lower() + inf);
   return roi;
 }
 
-template <typename T>
-ROI<T> centerByWidth(T center, T width) {
-  T left = center - (width / 2.0);
-  T right = center + (width / 2.0);
-  return ROI<T>(left, right);
-}
-
+ROIE centerByWidth(double center, double width);
 ROIB centerByWidth(int center, int width);
 
 ROIE toROIE(const ROIB &roi, double m, double q);
 ROIB toROIB(const ROIE &roi, double m, double q);
+
+double counts(const Spectrum &sp, const ROIB &roi);
+double counts(const Spectrum &sp, const ROIE &roi);
+double cps(const Spectrum &sp, const ROIB &roi);
+double cps(const Spectrum &sp, const ROIE &roi);
 
 }
 
