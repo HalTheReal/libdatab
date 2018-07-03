@@ -2,6 +2,14 @@
 
 namespace Spectrometry {
 
+ROIB::ROIB(int leftEdge, int rightEdge)
+  : ROI<int>(leftEdge, rightEdge)
+{}
+
+ROIE::ROIE(double leftEdge, double rightEdge)
+  : ROI<double>(leftEdge, rightEdge)
+{}
+
 int width(const ROIB &roi) {
   return roi.upper() - roi.lower() + 1;
 }
@@ -9,7 +17,7 @@ int width(const ROIB &roi) {
 ROIE centerByWidth(double center, double width) {
   double left = center - (width / 2.0);
   double right = center + (width / 2.0);
-  return ROI<double>(left, right);
+  return ROIE(left, right);
 }
 
 ROIB centerByWidth(int center, int width) {

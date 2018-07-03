@@ -6,20 +6,19 @@
 namespace Spectrometry {
 
 template <typename T>
+
 class ROI {
   public:
-    ROI(T leftEdge, T rightEdge);
     T lower() const;
     T upper() const;
     ROI& setLower(T set);
     ROI& setUpper(T set);
+  protected:
+    ROI(T leftEdge, T rightEdge);
   private:
     T left;
     T right;
 };
-
-typedef ROI<int> ROIB;
-typedef ROI<double> ROIE;
 
 template <typename T>
 ROI<T>::ROI(T leftEdge, T rightEdge)
@@ -49,13 +48,6 @@ ROI<T>& ROI<T>::setUpper(T set) {
   return *this;
 }
 
-template <typename T>
-T width(const ROI<T> &roi) {
-  return roi.upper() - roi.lower();
-}
-
-int width(const ROIB &roi);
-
 template <typename T, typename R>
 ROI<T>& inflate(ROI<T> &roi, R inf) {
   roi.setUpper(roi.upper() + inf);
@@ -70,8 +62,23 @@ ROI<T>& shift(ROI<T> &roi, R inf) {
   return roi;
 }
 
-ROIE centerByWidth(double center, double width);
+class ROIB : public ROI<int> {
+  public:
+    ROIB(int leftEdge, int rightEdge);
+};
+
+int width(const ROIB &roi);
 ROIB centerByWidth(int center, int width);
+
+class ROIE : public ROI<double> {
+  public:
+    ROIE(double leftEdge, double rightEdge);
+};
+
+double width(const ROIE &roi);
+ROIE centerByWidth(double center, double width);
+
+// ------ Da mettere in Spectrum ------
 
 ROIE toROIE(const ROIB &roi, double m, double q);
 ROIB toROIB(const ROIE &roi, double m, double q);
@@ -80,6 +87,8 @@ double counts(const Spectrum &sp, const ROIB &roi);
 double counts(const Spectrum &sp, const ROIE &roi);
 double cps(const Spectrum &sp, const ROIB &roi);
 double cps(const Spectrum &sp, const ROIE &roi);
+
+// ------------------------------------
 
 }
 
