@@ -30,15 +30,23 @@ ROIB centerByWidth(int center, int width) {
 }
 
 ROIE toROIE(const ROIB &roi, double m, double q) {
-  double left = (roi.lower() * m ) + q;
-  double right = (roi.upper() * m) + q;
+  double left = binToEnergy(m, q, roi.lower());
+  double right = binToEnergy(m, q, roi.upper());
   return ROIE(left, right);
 }
 
 ROIB toROIB(const ROIE &roi, double m, double q) {
-  int left = (roi.lower() - q) / m;
-  int right = (roi.upper() - q) / m;
+  int left = energyToBin(m, q, roi.lower());
+  int right = energyToBin(m, q, roi.upper());
   return ROIB(left, right);
+}
+
+ROIE toROIE(const ROIB &roi, const Spectrum &sp) {
+  return toROIE(roi, sp.getM(), sp.getQ());
+}
+
+ROIB toROIB(const ROIE &roi, const Spectrum &sp) {
+  return toROIB(roi, sp.getM(), sp.getQ());
 }
 
 double integral(const Spectrum &sp, const ROIB &roi) {

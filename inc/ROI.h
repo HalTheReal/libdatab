@@ -94,12 +94,15 @@ ROIE centerByWidth(double center, double width);
 ROIE toROIE(const ROIB &roi, double m, double q);
 ROIB toROIB(const ROIE &roi, double m, double q);
 
-// ------ Da mettere in Spectrum ------
+// ----- Da mettere in Spectrum ? -----
 
 double integral(const Spectrum &sp, const ROIB &roi);
 double integral(const Spectrum &sp, const ROIE &roi);
 double cps(const Spectrum &sp, const ROIB &roi);
 double cps(const Spectrum &sp, const ROIE &roi);
+
+ROIE toROIE(const ROIB &roi, const Spectrum &sp);
+ROIB toROIB(const ROIE &roi, const Spectrum &sp);
 
 // ------------------------------------
 
