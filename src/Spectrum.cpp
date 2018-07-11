@@ -67,35 +67,20 @@ namespace Spectrometry {
     return dT;
   }
 
+  int energyToBin(double m, double q, double en) {
+    return round((en - q) / m);
+  }
+
   int energyToBin(const Spectrum &sp, double en) {
-    return (en - sp.getQ()) / sp.getM();
+    return energyToBin(sp.getM(), sp.getQ(), en);
   }
 
-  double binIntegral(const Spectrum &sp, int from, int to) {
-    double integral = 0;
-    for (int i = from; i <= to; ++i) {
-      integral += sp.binAt(i);
-    }
-    return (integral);
+  double binToEnergy(double m, double q, int bin) {
+    return (bin * m) + q;
   }
 
-  double counts(const Spectrum &sp, double en) {
-    int binIdx = energyToBin(sp, en);
-    return (sp.binAt(binIdx));
-  }
-
-  double counts(const Spectrum &sp, double en1, double en2) {
-    int from = energyToBin(sp, en1);
-    int to = energyToBin(sp, en2);
-    return (binIntegral(sp, from, to));
-  }
-
-  double cps(const Spectrum &sp, double en1) {
-    return (counts(sp, en1) / sp.getDT());
-  }
-
-  double cps(const Spectrum &sp, double en1, double en2) {
-    return (counts(sp, en1, en2) / sp.getDT());
+  double binToEnergy(const Spectrum &sp, int bin) {
+    return binToEnergy(sp.getM(), sp.getQ(), bin);
   }
 
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2) {

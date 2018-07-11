@@ -64,13 +64,11 @@ namespace Spectrometry {
     dT = tm;
   }
 
+  int energyToBin(double m, double q, double en);
   int energyToBin(const Spectrum &sp, double en);
-  double binIntegral(const Spectrum &sp, int from, int to);
-  double counts(const Spectrum &sp, double en);
-  double counts(const Spectrum &sp, double en1, double en2);
 
-  double cps(const Spectrum &sp, double en1);
-  double cps(const Spectrum &sp, double en1, double en2);
+  double binToEnergy(double m, double q, int bin);
+  double binToEnergy(const Spectrum &sp, int bin);
 
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2);
   Spectrum subtract(const Spectrum &sp1, const Spectrum &sp2);
