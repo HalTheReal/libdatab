@@ -15,6 +15,7 @@ class ROI {
     ROI& setLower(T set);
     ROI& setUpper(T set);
   protected:
+    ROI();
     ROI(T leftEdge, T rightEdge);
   private:
     void invariant();
@@ -23,11 +24,10 @@ class ROI {
 };
 
 template <typename T>
-void ROI<T>::invariant() {
-  if(left > right) {
-    std::swap(left, right);
-  }
-}
+ROI<T>::ROI()
+  : left(0)
+  , right(0)
+{}
 
 template <typename T>
 ROI<T>::ROI(T leftEdge, T rightEdge)
@@ -35,6 +35,13 @@ ROI<T>::ROI(T leftEdge, T rightEdge)
   , right(rightEdge)
 {
   invariant();
+}
+
+template <typename T>
+void ROI<T>::invariant() {
+  if(left > right) {
+    std::swap(left, right);
+  }
 }
 
 template <typename T>
@@ -84,6 +91,7 @@ std::ostream& operator << (std::ostream &stream, const ROI<T> &roi) {
 
 class ROIB : public ROI<int> {
   public:
+    ROIB();
     ROIB(int leftEdge, int rightEdge);
 };
 
@@ -93,6 +101,7 @@ std::istream& operator >> (std::istream &stream, ROIB &roi);
 
 class ROIE : public ROI<double> {
   public:
+    ROIE();
     ROIE(double leftEdge, double rightEdge);
 };
 

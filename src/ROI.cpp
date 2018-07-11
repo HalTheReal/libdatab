@@ -2,33 +2,16 @@
 
 namespace Spectrometry {
 
+ROIB::ROIB()
+  : ROI<int>()
+{}
+
 ROIB::ROIB(int leftEdge, int rightEdge)
   : ROI<int>(leftEdge, rightEdge)
 {}
 
-ROIE::ROIE(double leftEdge, double rightEdge)
-  : ROI<double>(leftEdge, rightEdge)
-{}
-
 int width(const ROIB &roi) {
   return roi.upper() - roi.lower() + 1;
-}
-
-ROIE centerByWidth(double center, double width) {
-  double left = center - (width / 2.0);
-  double right = center + (width / 2.0);
-  return ROIE(left, right);
-}
-
-std::istream& operator >> (std::istream &stream, ROIE &roi) {
-    char s1;
-    double low, up;
-    stream >> low >> s1 >> up;
-    if (!stream) {
-      return stream;
-    }
-    roi = ROIE(low, up);
-    return stream;
 }
 
 ROIB centerByWidth(int center, int width) {
@@ -48,6 +31,35 @@ std::istream& operator >> (std::istream &stream, ROIB &roi) {
       return stream;
     }
     roi = ROIB(low, up);
+    return stream;
+}
+
+ROIE::ROIE()
+  : ROI<double>()
+{}
+
+ROIE::ROIE(double leftEdge, double rightEdge)
+  : ROI<double>(leftEdge, rightEdge)
+{}
+
+double width(const ROIE &roi) {
+  return roi.upper() - roi.lower();
+}
+
+ROIE centerByWidth(double center, double width) {
+  double left = center - (width / 2.0);
+  double right = center + (width / 2.0);
+  return ROIE(left, right);
+}
+
+std::istream& operator >> (std::istream &stream, ROIE &roi) {
+    char s1;
+    double low, up;
+    stream >> low >> s1 >> up;
+    if (!stream) {
+      return stream;
+    }
+    roi = ROIE(low, up);
     return stream;
 }
 
