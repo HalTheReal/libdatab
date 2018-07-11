@@ -10,7 +10,7 @@
 #include <random>
 #include <chrono>
 #include <stdexcept>    // Eccezioni
-#include <tools.h>
+#include <DateTime.h>
 
 namespace Spectrometry {
 
@@ -18,37 +18,67 @@ namespace Spectrometry {
 
     public:
       Spectrum();
-      Spectrum(const std::vector <int> &hist);
-      Spectrum(const std::vector <float> &hist);
-      Spectrum(const std::vector <double> &hist);
 
-      Spectrum& operator+=(const Spectrum& rhs);
-      Spectrum& operator-=(const Spectrum& rhs);
+      template <typename T>
+      Spectrum(const std::vector <T> &hist);
+
+      template <typename T>
+      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm);
+
+      double binAt(int b1) const;
+      int channels() const;
+      double getM() const;
+      double getQ() const;
+      Epoch::DateTime getDateTime() const;
+      double getDT() const;
 
       Spectrum& calibrateWith(double m, double q);
       Spectrum& rebin(double gain);
       Spectrum& rebin(double gain, unsigned seed);
-
-      double getM() const;
-      double getQ() const;
-      int channels() const;
-
-      double binAt(int b1) const;
 
     private:
       std::vector <float> bin;
       int canali;
       double mCal;
       double qCal;
+      Epoch::DateTime startTime;
+      float dT;
   };
 
-  Spectrum operator+(Spectrum lhs, const Spectrum& rhs);
-  Spectrum operator-(Spectrum lhs, const Spectrum& rhs);
+  template <typename T>
+  Spectrum::Spectrum(const std::vector <T> &hist)
+      : Spectrum()
+  {
+    bin.reserve(hist.size());
+    for(auto val : hist) {
+      bin.push_back(val);
+    }
+    canali = bin.size();
+  }
 
+  template <typename T>
+    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm)
+      : Spectrum(hist)
+  {
+    startTime = start;
+    dT = tm;
+  }
+
+  int energyToBin(double m, double q, double en);
   int energyToBin(const Spectrum &sp, double en);
-  double binIntegral(const Spectrum &sp, int from, int to);
-  double counts(const Spectrum &sp, double en);
-  double counts(const Spectrum &sp, double en1, double en2);
+
+  double binToEnergy(double m, double q, int bin);
+  double binToEnergy(const Spectrum &sp, int bin);
+
+  Spectrum sum(const Spectrum &sp1, const Spectrum &sp2);
+  Spectrum subtract(const Spectrum &sp1, const Spectrum &sp2);
+
+  Spectrum readSPE(const char * nomeFile);
+  Spectrum readSPT(const char * nomeFile);
+  Spectrum readLST(const char * nomeFile);
+
+  void writeSPE(const Spectrum &sp, const char * nomeFile);
+  void writeSPT(const Spectrum &sp, const char * nomeFile);
 
 }
 #endif
