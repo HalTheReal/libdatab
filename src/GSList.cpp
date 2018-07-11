@@ -104,8 +104,8 @@ void GSList::writeGSL(const char * nomeFile) const {
   }
 }
 
-Spectrometry::SpectAcq toSpectrum(const GSList &gsl) {
-  return Spectrometry::SpectAcq(gsl.getEventHist(), gsl.getDateTime(), gsl.getDT());
+Spectrometry::Spectrum toSpectrum(const GSList &gsl) {
+  return Spectrometry::Spectrum(gsl.getEventHist(), gsl.getDateTime(), gsl.getDT());
 }
 
 void writeSPE(const GSList &lst, const char * nomeFile) {

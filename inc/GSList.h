@@ -12,7 +12,7 @@
 #include <cmath>
 
 #include <DateTime.h>
-#include <SpectAcq.h>
+#include <Spectrum.h>
 #include <tools.h>
 
 namespace Spectrometry {
@@ -39,7 +39,7 @@ namespace Spectrometry {
 
   };
 
-  Spectrometry::SpectAcq toSpectrum();
+  Spectrometry::Spectrum toSpectrum();
   void writeSPE(const GSList &lst, const char * nomeFile);
   void writeSPT(const GSList &lst, const char * nomeFile);
   GSList readGSL(const char * nomeFile);
