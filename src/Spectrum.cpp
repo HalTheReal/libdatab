@@ -52,7 +52,7 @@ namespace Spectrometry {
   }
 
   double Spectrum::binAt(int b1) const {
-    return bin[b1];
+    return bin.at(b1);
   }
 
   int Spectrum::channels() const {
