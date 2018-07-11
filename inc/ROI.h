@@ -75,6 +75,13 @@ ROI<T>& shift(ROI<T> &roi, R inf) {
   return roi;
 }
 
+template <typename T>
+std::ostream& operator << (std::ostream &stream, const ROI<T> &roi) {
+  stream << roi.lower() << '-';
+  stream << roi.upper();
+  return stream;
+}
+
 class ROIB : public ROI<int> {
   public:
     ROIB(int leftEdge, int rightEdge);
@@ -82,6 +89,7 @@ class ROIB : public ROI<int> {
 
 int width(const ROIB &roi);
 ROIB centerByWidth(int center, int width);
+std::istream& operator >> (std::istream &stream, ROIB &roi);
 
 class ROIE : public ROI<double> {
   public:
@@ -90,6 +98,7 @@ class ROIE : public ROI<double> {
 
 double width(const ROIE &roi);
 ROIE centerByWidth(double center, double width);
+std::istream& operator >> (std::istream &stream, ROIE &roi);
 
 ROIE toROIE(const ROIB &roi, double m, double q);
 ROIB toROIB(const ROIE &roi, double m, double q);

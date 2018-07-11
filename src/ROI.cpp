@@ -20,6 +20,17 @@ ROIE centerByWidth(double center, double width) {
   return ROIE(left, right);
 }
 
+std::istream& operator >> (std::istream &stream, ROIE &roi) {
+    char s1;
+    double low, up;
+    stream >> low >> s1 >> up;
+    if (!stream) {
+      return stream;
+    }
+    roi = ROIE(low, up);
+    return stream;
+}
+
 ROIB centerByWidth(int center, int width) {
   int left = center - (width / 2);
   int right = center + (width / 2);
@@ -27,6 +38,17 @@ ROIB centerByWidth(int center, int width) {
     --right;
   }
   return ROIB(left, right);
+}
+
+std::istream& operator >> (std::istream &stream, ROIB &roi) {
+    char s1;
+    int low, up;
+    stream >> low >> s1 >> up;
+    if (!stream) {
+      return stream;
+    }
+    roi = ROIB(low, up);
+    return stream;
 }
 
 ROIE toROIE(const ROIB &roi, double m, double q) {
