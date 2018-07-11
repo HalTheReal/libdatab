@@ -83,9 +83,15 @@ ROI<T>& shift(ROI<T> &roi, R inf) {
 }
 
 template <typename T>
+std::string to_string(const ROI<T> &roi, char sep = '-') {
+  std::stringstream ss;
+  ss << roi.lower() << sep << roi.upper();
+  return ss.str();
+}
+
+template <typename T>
 std::ostream& operator << (std::ostream &stream, const ROI<T> &roi) {
-  stream << roi.lower() << '-';
-  stream << roi.upper();
+  stream << to_string(roi);
   return stream;
 }
 
