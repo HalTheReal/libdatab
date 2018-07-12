@@ -169,9 +169,7 @@ namespace Epoch {
   }
 
   std::ostream& operator << (std::ostream &stream, const Date &dt) {
-    stream << dt.day() << '/';
-    stream << dt.month() << '/';
-    stream << dt.year();
+    stream << to_string(dt);
     return stream;
   }
 
@@ -195,7 +193,7 @@ namespace Epoch {
     return stream;
   }
 
-  std::string toString(const Date &dt, char sep) {
+  std::string to_string(const Date &dt, char sep) {
     std::stringstream ss;
     ss << dt.day() << sep;
     ss << dt.month() << sep;

@@ -42,7 +42,7 @@ namespace Epoch {
   std::istream& operator >> (std::istream &stream, Time &tm);
 
   int toInt(const Time &tm);
-  std::string toString(const Time &tm, char sep = ':');
+  std::string to_string(const Time &tm, char sep = ':');
   Time strToTime(const std::string &str);
 }
 

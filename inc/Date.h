@@ -47,7 +47,7 @@ namespace Epoch {
   std::ostream& operator << (std::ostream &stream, const Date &dt);
   std::istream& operator >> (std::istream &stream, Date &dt);
 
-  std::string toString(const Date &dt, char sep = '/');
+  std::string to_string(const Date &dt, char sep = '/');
   Date strToDate(const std::string &str);
 
 }

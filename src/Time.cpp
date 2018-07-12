@@ -117,18 +117,7 @@ namespace Epoch {
   }
 
   std::ostream& operator << (std::ostream &stream, const Time &tm) {
-    if (tm.hour() < 10) {
-      stream << '0';
-    }
-    stream << tm.hour() << ':';
-    if (tm.min() < 10) {
-      stream << '0';
-    }
-    stream << tm.min() << ':';
-    if (tm.sec() < 10) {
-      stream << '0';
-    }
-    stream << tm.sec();
+    stream << to_string(tm);
     return stream;
   }
 
@@ -152,7 +141,7 @@ namespace Epoch {
     return stream;
   }
 
-  std::string toString(const Time &tm, char sep) {
+  std::string to_string(const Time &tm, char sep) {
     std::stringstream ss;
     if (tm.hour() < 10) {
       ss << '0';

@@ -37,7 +37,7 @@ namespace Epoch {
   Time toTime(const DateTime &dtt);
 
   int toUnix(DateTime dtt);
-  std::string toString(const DateTime &dtt, char dtSep = '/', char tmSep = ':');
+  std::string to_string(const DateTime &dtt, char dtSep = '/', char tmSep = ':');
   DateTime strToDateTime(const std::string &str);
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2);

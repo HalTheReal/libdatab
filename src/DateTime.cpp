@@ -85,9 +85,9 @@ namespace Epoch {
     return (Time(dtt.hour(), dtt.min(), dtt.sec()));
   }
 
-  std::string toString(const DateTime &dtt, char dtSep, char tmSep) {
-    std::string dtStr = toString(toDate(dtt), dtSep);
-    std::string tmStr = toString(toTime(dtt), tmSep);
+  std::string to_string(const DateTime &dtt, char dtSep, char tmSep) {
+    std::string dtStr = to_string(toDate(dtt), dtSep);
+    std::string tmStr = to_string(toTime(dtt), tmSep);
     std::stringstream ss;
     ss << dtStr << ' ' << tmStr;
     return ss.str();
@@ -146,7 +146,7 @@ namespace Epoch {
     if(!stream.good()) {
       return stream;
     }
-    stream << toDate(dtt) << ' ' << toTime(dtt);
+    stream << to_string(dtt);
     return stream;
   }
 
