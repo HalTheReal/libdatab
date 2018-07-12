@@ -34,9 +34,8 @@ namespace Spectrometry {
       void writeGSL(const char * nomeFile) const;
 
     private:
-      std::vector <std::pair <long, int>> evtList;  // clk, energy
+      std::vector <std::pair <long, int>> evtList;  // time [s / 10^9], energy [keV]
       Epoch::DateTime dataGS;
-
   };
 
   Spectrometry::Spectrum toSpectrum();
@@ -45,5 +44,6 @@ namespace Spectrometry {
   GSList readGSL(const char * nomeFile);
 
   bool isLess(std::pair <long, int> pair, long val);
+  long tousec(long sec);
 }
 #endif
