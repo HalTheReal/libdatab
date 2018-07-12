@@ -5,42 +5,45 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <iomanip>      //setw, setprecision
+#include <iomanip>      //  setw, setprecision
+#include <exception>
+#include <utility>      //  std::pair
+#include <algorithm>    //  std::sort
+#include <cmath>
 
-#include <GSList.h>
 #include <DateTime.h>
+#include <Spectrum.h>
 #include <tools.h>
 
-class GSList {
-  private:
-    float dT;
-    std::vector <long> clk;
-    std::vector <int> event;
-    Epoch::DateTime dataGS;
+namespace Spectrometry {
 
-    void defaultInit();
-    bool isEmpty() const;
+  class GSList {
 
-  protected:
-    int readLST(const char * nomeFile);
+    public:
+      GSList();
+      GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start);
 
-  public:
-    GSList();
-    GSList(const char * nomeFile);
+      std::vector <int> getEventHist() const;
+      Epoch::DateTime getDateTime() const;
+      double getDT() const;
 
-    int readFile(const char * nomeFile);
+      GSList& erase(long from, long to);
+      GSList& merge(const GSList &gsl);
+      GSList copy(long from, long to) const;
 
-    GSList& append(const GSList& toApp);
-    GSList& timeCut(int from, int to);
-    GSList& timeCut(const Epoch::DateTime &from, int to);
-    GSList& timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to);
+      void writeGSL(const char * nomeFile) const;
 
-    float getDT() const;
-    Epoch::DateTime getDateTime() const;
+    private:
+      std::vector <std::pair <long, int>> evtList;  // time [s / 10^9], energy [keV]
+      Epoch::DateTime dataGS;
+  };
 
-    void writeLST(const char * nomeFile);
-    void writeSPE(const char * nomeFile);
-    void writeSPT(const char * nomeFile);
-};
+  Spectrometry::Spectrum toSpectrum();
+  void writeSPE(const GSList &lst, const char * nomeFile);
+  void writeSPT(const GSList &lst, const char * nomeFile);
+  GSList readGSL(const char * nomeFile);
 
+  bool isLess(std::pair <long, int> pair, long val);
+  long tousec(long sec);
+}
 #endif

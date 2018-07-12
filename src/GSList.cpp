@@ -1,66 +1,132 @@
 #include "GSList.h"
+namespace Spectrometry {
 
 GSList::GSList()
-  : dT(0)
+  : evtList()
   , dataGS()
 {}
 
-GSList::GSList(const char * nomeFile)
-  : dT(0)
-  , dataGS()
-{
-  readFile(nomeFile);
+GSList::GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start)
+  : evtList(events)
+  , dataGS(start)
+{}
+
+long tousec(long sec) {
+  return sec / 1E-9;
 }
 
-int GSList::readFile(const char * nomeFile) {
-  std::string filename(nomeFile);
-  std::string::size_type idx;
+std::vector <int> GSList::getEventHist() const {
+  std::vector <int> bin(2048, 0);
+  for (auto &pair : this->evtList) {
+    ++bin[pair.second];
+  }
+  return bin;
+}
 
-  idx = filename.rfind('.');
-  try {
-    if(idx != std::string::npos) {
-      std::string extension = filename.substr(idx+1);
-      if (extension.compare("txt") == 0) {
-        return readLST(nomeFile);
-      }
+Epoch::DateTime GSList::getDateTime() const {
+  return dataGS;
+}
+
+double GSList::getDT() const {
+  return evtList.back().first * 1E-9;
+}
+
+GSList& GSList::erase(long from, long to) {
+  if(to < from) {
+    std::swap(from, to);
+  }
+  if(to <= 0) {
+    return *this;
+  }
+  auto eraseFrom = std::lower_bound(evtList.begin(), evtList.end(), tousec(from), isLess);
+  auto eraseTo = std::lower_bound(evtList.begin(), evtList.end(), tousec(to), isLess);
+  evtList.erase(eraseFrom, eraseTo);
+  if(from <= 0) {
+    dataGS.addSec(to);
+    for(auto &pair : evtList) {
+      pair.first -= tousec(to);
     }
-    std::cout << nomeFile << " is not a valid file!\n";
   }
-  catch (std::invalid_argument& e) {
-    std::cout << "Invalid argument exception while reading file:\n";
-    std::cout << nomeFile << '\n';
-    defaultInit();
-  }
-  catch (std::out_of_range& e) {
-    std::cout << "Out of range exception while reading file:\n";
-    std::cout << nomeFile << '\n';
-    defaultInit();
-  }
-  return 0;
+  return *this;
 }
 
-void GSList::defaultInit() {
-  dT = 0;
-  dataGS = Epoch::DateTime();
-  event.clear();
-  clk.clear();
-}
-
-bool GSList::isEmpty() const {
-  if (clk.size() == 0 || event.size() == 0) {
-    return true;
+GSList& GSList::merge(const GSList &gsl) {
+  long offset = tousec(std::abs(Epoch::toUnix(dataGS) - Epoch::toUnix(gsl.dataGS)));
+  if(dataGS > gsl.dataGS) {
+    for(auto &pair : evtList) {
+      pair.first += offset;
+    }
+    for(auto pair : gsl.evtList) {
+      evtList.push_back(pair);
+    }
+    dataGS = gsl.dataGS;
   }
-  return false;
+  else {
+    for(auto pair : gsl.evtList) {
+      pair.first += offset;
+      evtList.push_back(pair);
+    }
+  }
+  std::sort(evtList.begin(), evtList.end());
+  return *this;
 }
 
-int GSList::readLST(const char * nomeFile) {
+GSList GSList::copy(long from, long to) const {
+  if(to < from) {
+    std::swap(from, to);
+  }
+  if(to <= 0) {
+    return GSList();
+  }
+  auto copyFrom = std::lower_bound(evtList.begin(), evtList.end(), tousec(from), isLess);
+  auto copyTo = std::lower_bound(evtList.begin(), evtList.end(), tousec(to), isLess);
+  std::vector <std::pair <long, int>> copied(copyFrom, copyTo);
+  Epoch::DateTime dtt = dataGS;
+  if(from > 0) {
+    dtt.addSec(from);
+    for(auto &pair : copied) {
+      pair.first -= tousec(from);
+    }
+  }
+  return GSList(copied, dtt);
+}
+
+void GSList::writeGSL(const char * nomeFile) const {
+  std::ofstream outfile;
+  outfile.open(nomeFile);
+  if (outfile) {
+    outfile << "#GammaStream 1.0 LIST\n";
+    outfile << "#StartTime: ";
+    outfile << dataGS.year() << '-' << dataGS.month() << '-';
+    outfile << dataGS.day() << 'T' << Epoch::toTime(dataGS) << '\n';
+    outfile << "#Fields: Time\tEnergy\tGain" << '\n';
+    for (auto &pair : this->evtList) {
+      outfile << std::right << std::setw(9) << pair.first / 16 << '\t';   // 1 ciclo clock = 16us
+      outfile << std::setw(6) << pair.second << '\t';
+      outfile << "1.000" << '\n';
+    }
+  }
+}
+
+Spectrometry::Spectrum toSpectrum(const GSList &gsl) {
+  return Spectrometry::Spectrum(gsl.getEventHist(), gsl.getDateTime(), gsl.getDT());
+}
+
+void writeSPE(const GSList &lst, const char * nomeFile) {
+  return writeSPE(toSpectrum(lst), nomeFile);
+}
+
+void writeSPT(const GSList &lst, const char * nomeFile) {
+  return writeSPT(toSpectrum(lst), nomeFile);
+}
+
+GSList readGSL(const char * nomeFile) {
   std::ifstream file(nomeFile);
   if (!file) {
-    fprintf(stderr, "Impossibile aprire il file:\n%s\n", nomeFile);
-    return 0;
+    throw std::invalid_argument("Unable to open file!");
   }
-  clk.clear();
-  event.clear();
+  std::vector <std::pair <long, int>> coppie;
+  Epoch::DateTime dataGS;
 
   std::string token;
   do {
@@ -71,148 +137,21 @@ int GSList::readLST(const char * nomeFile) {
       Epoch::Time tm;
       file >> yr >> sep >> mn >> sep >> dy >> sep >> tm;
       Epoch::Date dt(dy, mn, yr);
-      dataGS = Epoch::DateTime (dt, tm);
+      dataGS = Epoch::DateTime(dt, tm);
     }
   } while (token.compare("Gain") != 0);
   long timeTok;
   double gainTok;
   int energyTok;
   while (file >> timeTok >> energyTok >> gainTok) {
-    clk.push_back(timeTok);
-    event.push_back(energyTok);
+    coppie.push_back(std::make_pair(timeTok * 16, energyTok));  // 1 ciclo clock = 16us
   }
-  dT = timeTok * 16E-9;
   file.close();
-  return 1;
+  return GSList(coppie, dataGS);
 }
 
-void GSList::writeLST(const char * nomeFile) {
-  using namespace std;
-  ofstream outfile;
-  outfile.open(nomeFile);
-  if (outfile) {
-    outfile << "#GammaStream 1.0 LIST\n";
-    outfile << "#StartTime: ";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << 'T' << Epoch::toTime(dataGS) << '\n';
-    outfile << "#Fields: Time\tEnergy\tGain" << '\n';
-    for (unsigned i = 0; i < clk.size(); ++i) {
-      outfile << right << setw(9) << clk[i] << '\t';
-      outfile << setw(6) << event[i] << '\t';
-      outfile << "1.000" << '\n';
-    }
-  }
+bool isLess(std::pair <long, int> pair, long val) {
+  return (pair.first < val);
 }
 
-void GSList::writeSPE(const char * nomeFile) {
-  int canali = 2048;
-  std::vector <int> bin(canali, 0);
-  for (int val : event) {
-    ++bin[val];
-  }
-  using namespace std;
-  ofstream outfile;
-  outfile.open(nomeFile);
-  if (outfile) {
-    outfile << "$SPEC_ID:\nGSList.cpp\n";
-    outfile << "$DATE_MEA:\n";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS) << '\n';
-    outfile << "$MEAS_TIM:\n" << round(dT) << " " << round(dT) << '\n';
-    outfile << "$DATA:\n" << 0 << " " << canali - 1 << '\n';
-    for (int i = 0; i < canali; ++i) {
-      outfile << bin[i] << '\n';
-    }
-  }
-  outfile.close();
-}
-
-void GSList::writeSPT(const char * nomeFile) {
-  int canali = 2048;
-  std::vector <int> bin(canali, 0);
-  for (int val : event) {
-    ++bin[val];
-  }
-  using namespace std;
-  ofstream outfile;
-  outfile.open(nomeFile);
-  if (outfile) {
-    outfile << canali << " " << round(dT);
-    outfile << " false " << "0 1.0" << '\n';
-    outfile << "# S_TIME: 000 ";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS) << '\n';
-    outfile << "# ";
-    outfile << dataGS.year() << '-' << dataGS.month() << '-';
-    outfile << dataGS.day() << ' ' << Epoch::toTime(dataGS);
-    outfile << "# DET # GSList.cpp\n";
-    for (int i = 0; i < canali; ++i) {
-      outfile << bin[i];
-      if (i % 8 == 7) {
-        outfile << '\n';
-      }
-      else {
-        outfile << " ";
-      }
-    }
-  }
-  outfile.close();
-}
-
-GSList& GSList::timeCut(int from, int to) {
-  if (from < 0) {
-    from = 0;
-  }
-  std::vector <long> tClock;
-  std::vector <int> tEvent;
-  for (unsigned i = 0; i < clk.size(); i++) {
-    if (clk[i] * 16E-9 >= from && clk[i] * 16E-9 <= to) {
-      tClock.push_back(clk[i] - (from / 16E-9));
-      tEvent.push_back(event[i]);
-    }
-  }
-  event = tEvent;
-  clk = tClock;
-  dataGS.addSec(from);
-  if (clk.size() != 0) {
-    dT = clk.back() * 16E-9;
-  }
-  else {
-    dT = 0;
-  }
-  return *this;
-}
-
-GSList& GSList::timeCut(const Epoch::DateTime &from, int to) {
-  Epoch::DateTime toDT = from;
-  toDT.addSec(to);
-  return timeCut(from, toDT);
-}
-
-GSList& GSList::timeCut(const Epoch::DateTime &from, const Epoch::DateTime &to) {
-  int fromInt = toUnix(from) - toUnix(dataGS);
-  int toInt = toUnix(to) - toUnix(dataGS);
-  return timeCut(fromInt, toInt);
-}
-
-GSList& GSList::append(const GSList & toApp) {
-  if (dataGS > toApp.dataGS) {
-    std::cout << "Unable to append!\n";
-    return *this;
-  }
-  event.insert(event.end(), toApp.event.begin(), toApp.event.end());
-  long last = (toUnix(toApp.dataGS) - toUnix(dataGS)) / 16E-9;
-  for (long val : toApp.clk) {
-    clk.push_back(val + last);
-  }
-  dT += toApp.dT;
-  return *this;
-}
-
-float GSList::getDT() const {
-  return dT;
-}
-
-Epoch::DateTime GSList::getDateTime() const {
-  return dataGS;
 }
