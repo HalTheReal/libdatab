@@ -2,7 +2,7 @@
 
 namespace MMZ {
 
-Function::Function(std::vector <double> prs)
+Function::Function(const std::vector <double> &prs)
   : parameters(prs)
 {}
 
@@ -10,8 +10,18 @@ double Function::eval(double in) const {
   return myEval(in);
 }
 
+int Function::parNum() const {
+  return parameters.size();
+}
+
 double Function::par(unsigned idx) const {
   return parameters[idx];
+}
+
+Line::Line(const std::vector <double> &prs)
+  : Function(prs)
+{
+  // prs.size == 2, altrimenti eccezione!
 }
 
 Line::Line(double ml, double mq)
