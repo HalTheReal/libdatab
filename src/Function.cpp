@@ -2,6 +2,10 @@
 
 namespace MMZ {
 
+Function::Function()
+  : parameters(0)
+{}
+
 Function::Function(const std::vector <double> &prs)
   : parameters(prs)
 {}
@@ -17,6 +21,10 @@ int Function::parNum() const {
 double Function::par(unsigned idx) const {
   return parameters[idx];
 }
+
+Line::Line()
+  : Function()
+{}
 
 Line::Line(const std::vector <double> &prs)
   : Function(prs)
@@ -38,6 +46,21 @@ double Line::getQ() const {
 
 double Line::myEval(double xx) const {
   return xx * this->getM() + this->getQ();
+}
+
+double r_squared(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn) {
+  double rq = 0;
+  for(unsigned i = 0; i < xx.size(); ++i) {
+    rq += pow(ob[i] - fn.eval(xx[i]), 2); 
+  }
+  return rq;
+}
+
+double changeProb(double en1, double en2, double temp) {
+  if(en2 < en1) {
+    return 1;
+  }
+  return exp(-(en2 - en1) / temp);
 }
 
 }
