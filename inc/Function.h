@@ -4,6 +4,8 @@
 #include <vector>
 #include <chrono>
 #include <random>
+#include <algorithm>
+#include <iostream>
 
 namespace MMZ {
 
@@ -47,7 +49,7 @@ FunctionGenerator<Fn>::FunctionGenerator(const Fn &lower, const Fn &upper)
   , generator(seed)
   , distributions(0)
 {
-  // check lower.parNum() == upper.parNum() ?
+  // check lower.parNum() == upper.parNum() ? non serve perchè Fn dev'essere lo stesso tipo
   for(int i = 0; i < lower.parNum(); ++i) {
     distributions.push_back(std::uniform_real_distribution <double>(lower.par(i), upper.par(i)));
   }
@@ -65,6 +67,76 @@ Fn FunctionGenerator<Fn>::generate() {
 // Puntatore a funzione di fitness
 typedef double (*fitnessFunction)(const std::vector <double> &, const std::vector <double> &, const Function &);
 double r_squared(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn);
+
+// Confronto generale sul secondo elemento di std::pair
+template <typename T1, typename T2, typename Pred = std::less<T2>>
+struct sort_second_pred {
+  bool operator()(const std::pair<T1, T2> &left, const std::pair<T1, T2> &right) {
+    Pred p;
+    return p(left.second, right.second);
+  }
+};
+
+template <typename Fn>
+bool isWithin(const Fn &test, const Fn &lower, const Fn &upper) {
+  for( int i = 0; i < test.parNum(); ++i) {
+    if(test.par(i) < lower.par(i)) {
+      return false;
+    }
+    if(test.par(i) > upper.par(i)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+template <typename Fn>
+Fn fnMix(const std::vector<std::pair<Fn, double>> &shuf, size_t n) {
+  int nPars = shuf.begin()->first.parNum();
+  std::vector<double> newPars(nPars, 0);
+  for (int i = 0; i < n-1; ++i) {
+    for(int j = 0; j < nPars; ++j) {
+      newPars[j] += shuf[i].first.par(j);
+    }
+  }
+  for(int i = 0; i < nPars; ++i) {
+    newPars[i] /= (n - 1);              // Calcolo centroide G
+    newPars[i] *= 2;                    // 2G
+    newPars[i] -= shuf[n].first.par(i); // 2G - shuf[end]
+  }
+  return Fn(newPars);
+}
+
+template <typename Fn>
+Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = r_squared) {
+  FunctionGenerator <Fn> fnGen(fL, fH);
+  int N = 10 * (fL.parNum() + 1);                 // Numero soluzioni random iniziali
+  std::vector<std::pair<Fn, double>> NSol(N);     // Insieme delle soluzioni random e valore del fit
+  for(int i = 0; i < N; ++i) {
+    auto frnd = fnGen.generate();
+    NSol[i] = std::make_pair(frnd, fitF(xx, ob, frnd));
+  }
+  int iter = 0;
+  while(iter < 10000) {
+    std::sort(NSol.begin(), NSol.end(), sort_second_pred<Fn, double>()); // LE = *NSol.begin(), ME = *NSol.end()
+    auto shuffled = NSol;                                                // Vettore da mescolare
+    std::random_shuffle(shuffled.begin() + 1, shuffled.end());  // Mescolo il vettore senza toccare il primo elemento, cioè LE!
+    auto newFn = fnMix(shuffled, fL.parNum() + 1);              // Servono almeno parNum + 1 punti per convergere velocemente
+    if(isWithin(newFn, fL, fH)) {
+      double fitness = fitF(xx, ob, newFn);
+      if(fitness < NSol[N-1].second) {
+        NSol[N-1] = std::make_pair(newFn, fitness);
+        std::cout << iter << '\n';
+      }
+    }
+    ++iter;
+  }
+  std::sort(NSol.begin(), NSol.end(), sort_second_pred<Fn, double>());
+  for(auto p : NSol) {
+    std::cout << "M: " << p.first.par(0) << " Q: " << p.first.par(1) << " F: " << p.second << '\n';
+  }
+  return NSol[0].first; // Ritorno il migliore
+}
 
 double changeProb(double en1, double en2, double temp);
 
