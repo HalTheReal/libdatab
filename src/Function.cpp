@@ -32,7 +32,9 @@ Line::Line()
 Line::Line(const std::vector <double> &prs)
   : Function(prs)
 {
-  // prs.size == 2, altrimenti eccezione!
+  if (prs.size() != 2) {
+    throw std::runtime_error("Invalid Line parameters");
+  }
 }
 
 Line::Line(double ml, double mq)
