@@ -13,7 +13,8 @@ class Function {
   public:
     Function();
     Function(const std::vector <double> &prs);
-    double eval(double in) const;
+    virtual ~Function();
+    double operator()(double in) const;
     int parNum() const;
     double par(unsigned idx) const;
   private:

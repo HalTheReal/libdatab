@@ -10,7 +10,10 @@ Function::Function(const std::vector <double> &prs)
   : parameters(prs)
 {}
 
-double Function::eval(double in) const {
+Function::~Function()
+{}
+
+double Function::operator()(double in) const {
   return myEval(in);
 }
 
@@ -51,7 +54,7 @@ double Line::myEval(double xx) const {
 double r_squared(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn) {
   double rq = 0;
   for(unsigned i = 0; i < xx.size(); ++i) {
-    rq += pow(ob[i] - fn.eval(xx[i]), 2); 
+    rq += pow(ob[i] - fn(xx[i]), 2); 
   }
   return rq;
 }
