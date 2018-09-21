@@ -78,7 +78,8 @@ Fn FunctionGenerator<Fn>::generate() {
 
 // Puntatore a funzione di fitness
 typedef double (*fitnessFunction)(const std::vector <double> &, const std::vector <double> &, const Function &);
-double r_squared(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn);
+double mse(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn);
+double rmse(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn);
 
 // Confronto generale sul secondo elemento di std::pair
 template <typename T1, typename T2, typename Pred = std::less<T2>>
@@ -120,7 +121,7 @@ Fn fnMix(const std::vector<std::pair<Fn, double>> &shuf, size_t n) {
 }
 
 template <typename Fn>
-Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = r_squared) {
+Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = mse) {
   FunctionGenerator <Fn> fnGen(fL, fH);
   int N = 10 * (fL.parNum() + 1);                 // Numero soluzioni random iniziali
   std::vector<std::pair<Fn, double>> NSol(N);     // Insieme delle soluzioni random e valore del fit
@@ -153,7 +154,7 @@ Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std:
 double changeProb(double en1, double en2, double temp);
 
 template <typename Fn>
-Fn SAFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = r_squared) {
+Fn SAFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = mse) {
   double temp = 100;
   FunctionGenerator <Fn> fnGen(fL, fH);
   std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());

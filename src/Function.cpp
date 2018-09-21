@@ -76,12 +76,16 @@ double Line::getQ() const {
   return par(0);
 }
 
-double r_squared(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn) {
-  double rq = 0;
+double mse(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn) {
+  double tot = 0;
   for(unsigned i = 0; i < xx.size(); ++i) {
-    rq += pow(ob[i] - fn(xx[i]), 2); 
+    tot += pow(ob[i] - fn(xx[i]), 2); 
   }
-  return rq;
+  return tot / xx.size();
+}
+
+double rmse(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn) {
+  return sqrt(mse(xx, ob, fn));
 }
 
 double changeProb(double en1, double en2, double temp) {
