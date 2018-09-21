@@ -16,11 +16,20 @@ class Function {
     Function(const std::vector <double> &prs);
     virtual ~Function();
     double operator()(double in) const;
-    int parNum() const;
+    unsigned parNum() const;
     double par(unsigned idx) const;
   private:
     std::vector <double> parameters;
     virtual double myEval(double xx) const = 0;
+};
+
+class Poly : public Function {
+  public:
+    Poly();
+    Poly(const std::vector <double> &prs);
+    virtual ~Poly();
+  private:
+    double myEval(double xx) const override;
 };
 
 class Line : public Function {

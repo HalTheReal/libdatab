@@ -17,12 +17,31 @@ double Function::operator()(double in) const {
   return myEval(in);
 }
 
-int Function::parNum() const {
+unsigned Function::parNum() const {
   return parameters.size();
 }
 
 double Function::par(unsigned idx) const {
   return parameters[idx];
+}
+
+Poly::Poly()
+  : Function()
+{}
+
+Poly::Poly(const std::vector <double> &prs)
+  : Function(prs)
+{}
+
+Poly::~Poly()
+{}
+
+double Poly::myEval(double xx) const {
+  double tot = 0;
+  for(unsigned i = 0; i < parNum(); ++i) {
+    tot += pow(xx, i) * par(i);
+  }
+  return tot;
 }
 
 Line::Line()
