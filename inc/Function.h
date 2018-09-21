@@ -13,6 +13,7 @@ namespace MMZ {
 class Function {
   public:
     Function();
+    Function(std::initializer_list<double> il);
     Function(const std::vector <double> &prs);
     virtual ~Function();
     double operator()(double in) const;
@@ -26,6 +27,7 @@ class Function {
 class Poly : public Function {
   public:
     Poly();
+    Poly(std::initializer_list<double> il);
     Poly(const std::vector <double> &prs);
     virtual ~Poly();
   private:
@@ -36,7 +38,7 @@ class Line : public Function {
   public:
     Line();
     Line(const std::vector <double> &prs);
-    Line(double ml, double mq);
+    Line(double ml, double ql);
     double getM() const;
     double getQ() const;
   private:
@@ -61,6 +63,7 @@ FunctionGenerator<Fn>::FunctionGenerator(const Fn &lower, const Fn &upper)
   , distributions(0)
 {
   // check lower.parNum() == upper.parNum() ? non serve perchè Fn dev'essere lo stesso tipo
+  // serve se confronto due polinomi di grado diverso
   for(int i = 0; i < lower.parNum(); ++i) {
     distributions.push_back(std::uniform_real_distribution <double>(lower.par(i), upper.par(i)));
   }

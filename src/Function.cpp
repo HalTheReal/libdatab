@@ -6,6 +6,10 @@ Function::Function()
   : parameters(0)
 {}
 
+Function::Function(std::initializer_list<double> il)
+ : parameters(il)
+{}
+
 Function::Function(const std::vector <double> &prs)
   : parameters(prs)
 {}
@@ -27,6 +31,10 @@ double Function::par(unsigned idx) const {
 
 Poly::Poly()
   : Function()
+{}
+
+Poly::Poly(std::initializer_list<double> il)
+  : Function(il)
 {}
 
 Poly::Poly(const std::vector <double> &prs)
@@ -56,8 +64,8 @@ Line::Line(const std::vector <double> &prs)
   }
 }
 
-Line::Line(double ml, double mq)
-  : Function(std::vector <double> {ml, mq})
+Line::Line(double ml, double ql)
+  : Function{ml, ql}
 {}
 
 double Line::getM() const {
