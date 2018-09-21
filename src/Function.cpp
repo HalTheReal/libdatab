@@ -53,11 +53,11 @@ double Poly::myEval(double xx) const {
 }
 
 Line::Line()
-  : Function()
+  : Poly()
 {}
 
 Line::Line(const std::vector <double> &prs)
-  : Function(prs)
+  : Poly(prs)
 {
   if (prs.size() != 2) {
     throw std::runtime_error("Invalid Line parameters");
@@ -65,19 +65,15 @@ Line::Line(const std::vector <double> &prs)
 }
 
 Line::Line(double ml, double ql)
-  : Function{ml, ql}
+  : Poly{ml, ql}
 {}
 
 double Line::getM() const {
-  return par(0);
-}
-
-double Line::getQ() const {
   return par(1);
 }
 
-double Line::myEval(double xx) const {
-  return xx * this->getM() + this->getQ();
+double Line::getQ() const {
+  return par(0);
 }
 
 double r_squared(const std::vector <double> &xx, const std::vector <double> &ob, const Function &fn) {

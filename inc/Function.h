@@ -12,16 +12,16 @@ namespace MMZ {
 
 class Function {
   public:
-    Function();
+    Function();                                   // Mandatorio per classi derivate
     Function(std::initializer_list<double> il);
-    Function(const std::vector <double> &prs);
+    Function(const std::vector <double> &prs);    // Mandatorio per classi derivate
     virtual ~Function();
     double operator()(double in) const;
     unsigned parNum() const;
     double par(unsigned idx) const;
   private:
     std::vector <double> parameters;
-    virtual double myEval(double xx) const = 0;
+    virtual double myEval(double xx) const = 0;   // Mandatorio per classi derivate
 };
 
 class Poly : public Function {
@@ -34,15 +34,13 @@ class Poly : public Function {
     double myEval(double xx) const override;
 };
 
-class Line : public Function {
+class Line : public Poly {
   public:
     Line();
     Line(const std::vector <double> &prs);
     Line(double ml, double ql);
     double getM() const;
     double getQ() const;
-  private:
-    double myEval(double xx) const override;
 };
 
 template <typename Fn>
