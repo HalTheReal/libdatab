@@ -29,6 +29,22 @@ double Function::par(unsigned idx) const {
   return parameters[idx];
 }
 
+Gauss::Gauss()
+  : Function()
+{}
+
+Gauss::Gauss(std::initializer_list<double> il)
+  : Function(il)
+{}
+
+Gauss::Gauss(const std::vector <double> &prs)
+  : Function(prs)
+{}
+
+double Gauss::myEval(double xx) const {
+  return par(0) * exp(- pow(xx - par(1), 2) / (2 * pow(par(2), 2)));
+}
+
 Poly::Poly()
   : Function()
 {}

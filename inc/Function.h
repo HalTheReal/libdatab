@@ -24,6 +24,15 @@ class Function {
     virtual double myEval(double xx) const = 0;   // Mandatorio per classi derivate
 };
 
+class Gauss : public Function {
+  public:
+    Gauss();
+    Gauss(std::initializer_list<double> il);
+    Gauss(const std::vector <double> &prs);
+  private:
+    double myEval(double xx) const override;
+};
+
 class Poly : public Function {
   public:
     Poly();
@@ -130,8 +139,11 @@ Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std:
     NSol[i] = std::make_pair(frnd, fitF(xx, ob, frnd));
   }
   int iter = 0;
-  while(iter < 10000) {
+  while(iter < 1000000) {
     std::sort(NSol.begin(), NSol.end(), sort_second_pred<Fn, double>()); // LE = *NSol.begin(), ME = *NSol.end()
+    if(abs(NSol[0].second - NSol[N-1].second) < 1e-6) {
+      break;
+    }
     auto shuffled = NSol;                                                // Vettore da mescolare
     std::random_shuffle(shuffled.begin() + 1, shuffled.end());  // Mescolo il vettore senza toccare il primo elemento, cioè LE!
     auto newFn = fnMix(shuffled, fL.parNum() + 1);              // Servono almeno parNum + 1 punti per convergere velocemente
