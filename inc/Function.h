@@ -139,9 +139,9 @@ Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std:
     NSol[i] = std::make_pair(frnd, fitF(xx, ob, frnd));
   }
   int iter = 0;
-  while(iter < 1000000) {
+  while(iter < 100000) {
     std::sort(NSol.begin(), NSol.end(), sort_second_pred<Fn, double>()); // LE = *NSol.begin(), ME = *NSol.end()
-    if(abs(NSol[0].second - NSol[N-1].second) < 1e-6) {
+    if(fabs(NSol[0].second - NSol[N-1].second) < 1e-6) {
       break;
     }
     auto shuffled = NSol;                                                // Vettore da mescolare
@@ -151,15 +151,17 @@ Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std:
       double fitness = fitF(xx, ob, newFn);
       if(fitness < NSol[N-1].second) {
         NSol[N-1] = std::make_pair(newFn, fitness);
-        std::cout << iter << '\n';
       }
     }
     ++iter;
   }
   std::sort(NSol.begin(), NSol.end(), sort_second_pred<Fn, double>());
-  for(auto p : NSol) {
-    std::cout << "M: " << p.first.par(0) << " Q: " << p.first.par(1) << " F: " << p.second << '\n';
-  }
+//  for(auto p : NSol) {    // Print del set finale di soluzioni
+//    for(int i = 0; i < fL.parNum(); ++i) {
+//      std::cout << "par(" << i << "): " << p.first.par(i) << ' ';
+//    }
+//    std::cout << "F: " << p.second << '\n';
+//  }
   return NSol[0].first; // Ritorno il migliore
 }
 
