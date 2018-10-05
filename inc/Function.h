@@ -27,8 +27,8 @@ class Function {
 class Gauss : public Function {
   public:
     Gauss();
-    Gauss(std::initializer_list<double> il);
     Gauss(const std::vector <double> &prs);
+    Gauss(double aa, double bb, double cc);
   private:
     double myEval(double xx) const override;
 };
@@ -36,8 +36,8 @@ class Gauss : public Function {
 class Poly : public Function {
   public:
     Poly();
-    Poly(std::initializer_list<double> il);
     Poly(const std::vector <double> &prs);
+    Poly(std::initializer_list<double> il);
     virtual ~Poly();
   private:
     double myEval(double xx) const override;

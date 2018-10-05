@@ -33,12 +33,16 @@ Gauss::Gauss()
   : Function()
 {}
 
-Gauss::Gauss(std::initializer_list<double> il)
-  : Function(il)
-{}
-
 Gauss::Gauss(const std::vector <double> &prs)
   : Function(prs)
+{
+  if (prs.size() != 3) {
+    throw std::runtime_error("Invalid Gauss parameters");
+  }
+}
+
+Gauss::Gauss(double aa, double bb, double cc)
+  : Function{aa, bb, cc}
 {}
 
 double Gauss::myEval(double xx) const {
