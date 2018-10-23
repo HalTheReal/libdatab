@@ -143,8 +143,8 @@ double cps(const Spectrum &sp, const EnrRange &rng);
 
 class ROI {
   public:
-    ROI(const BinRange &bnrng, double m, double q);
-    ROI(const EnrRange &enrng, double m, double q);
+    ROI(const BinRange &rng, double m, double q);
+    ROI(const EnrRange &rng, double m, double q);
     template <typename S>
       ROI(const BinRange &rng, const S &sp);
     template <typename S>
@@ -162,6 +162,18 @@ class ROI {
     BinRange br;
     EnrRange er;
 };
+
+template <typename S>
+ROI::ROI(const BinRange &rng, const S &sp)
+  : br(rng)
+  , er(toEnrRange(rng, sp))
+{}
+
+template <typename S>
+ROI::ROI(const EnrRange &rng, const S &sp)
+  : br(toBinRange(rng, sp))
+  , er(rng)
+{}
 
 int widthBin(const ROI &roi);
 double widthEnr(const ROI &roi);

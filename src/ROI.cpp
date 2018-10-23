@@ -97,4 +97,14 @@ double cps(const Spectrum &sp, const EnrRange &rng) {
   return cps(sp, brng);
 }
 
+ROI::ROI(const BinRange &rng, double m, double q)
+  : br(rng)
+  , er(toEnrRange(rng, m, q))
+{}
+
+ROI::ROI(const EnrRange &rng, double m, double q)
+  : br(toBinRange(rng, m, q))
+  , er(rng)
+{}
+
 }
