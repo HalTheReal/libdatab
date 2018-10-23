@@ -8,15 +8,15 @@ namespace Spectrometry {
 
 template <typename T>
 
-class ROI {
+class Range {
   public:
     T lower() const;
     T upper() const;
-    ROI& setLower(T set);
-    ROI& setUpper(T set);
+    Range& setLower(T set);
+    Range& setUpper(T set);
   protected:
-    ROI();
-    ROI(T leftEdge, T rightEdge);
+    Range();
+    Range(T leftEdge, T rightEdge);
   private:
     void invariant();
     T left;
@@ -24,13 +24,13 @@ class ROI {
 };
 
 template <typename T>
-ROI<T>::ROI()
+Range<T>::Range()
   : left(0)
   , right(0)
 {}
 
 template <typename T>
-ROI<T>::ROI(T leftEdge, T rightEdge)
+Range<T>::Range(T leftEdge, T rightEdge)
   : left(leftEdge)
   , right(rightEdge)
 {
@@ -38,95 +38,95 @@ ROI<T>::ROI(T leftEdge, T rightEdge)
 }
 
 template <typename T>
-void ROI<T>::invariant() {
+void Range<T>::invariant() {
   if(left > right) {
     std::swap(left, right);
   }
 }
 
 template <typename T>
-T ROI<T>::lower() const {
+T Range<T>::lower() const {
   return left;
 }
 
 template <typename T>
-T ROI<T>::upper() const {
+T Range<T>::upper() const {
   return right;
 }
 
 template <typename T>
-ROI<T>& ROI<T>::setLower(T set) {
+Range<T>& Range<T>::setLower(T set) {
   left = set;
   invariant();
   return *this;
 }
 
 template <typename T>
-ROI<T>& ROI<T>::setUpper(T set) {
+Range<T>& Range<T>::setUpper(T set) {
   right = set;
   invariant();
   return *this;
 }
 
 template <typename T, typename R>
-ROI<T>& inflate(ROI<T> &roi, R inf) {
-  roi.setUpper(roi.upper() + inf);
-  roi.setLower(roi.lower() - inf);
-  return roi;
+Range<T>& inflate(Range<T> &rng, R inf) {
+  rng.setUpper(rng.upper() + inf);
+  rng.setLower(rng.lower() - inf);
+  return rng;
 }
 
 template <typename T, typename R>
-ROI<T>& shift(ROI<T> &roi, R inf) {
-  roi.setUpper(roi.upper() + inf);
-  roi.setLower(roi.lower() + inf);
-  return roi;
+Range<T>& shift(Range<T> &rng, R inf) {
+  rng.setUpper(rng.upper() + inf);
+  rng.setLower(rng.lower() + inf);
+  return rng;
 }
 
 template <typename T>
-std::string to_string(const ROI<T> &roi, char sep = '-') {
+std::string to_string(const Range<T> &rng, char sep = '-') {
   std::stringstream ss;
-  ss << roi.lower() << sep << roi.upper();
+  ss << rng.lower() << sep << rng.upper();
   return ss.str();
 }
 
 template <typename T>
-std::ostream& operator << (std::ostream &stream, const ROI<T> &roi) {
-  stream << to_string(roi);
+std::ostream& operator << (std::ostream &stream, const Range<T> &rng) {
+  stream << to_string(rng);
   return stream;
 }
 
-class ROIB : public ROI<int> {
+class BinRange : public Range<int> {
   public:
-    ROIB();
-    ROIB(int leftEdge, int rightEdge);
+    BinRange();
+    BinRange(int leftEdge, int rightEdge);
 };
 
-int width(const ROIB &roi);
-ROIB centerByWidth(int center, int width);
-std::istream& operator >> (std::istream &stream, ROIB &roi);
+int width(const BinRange &rng);
+BinRange centerByWidth(int center, int width);
+std::istream& operator >> (std::istream &stream, BinRange &rng);
 
-class ROIE : public ROI<double> {
+class EnrRange : public Range<double> {
   public:
-    ROIE();
-    ROIE(double leftEdge, double rightEdge);
+    EnrRange();
+    EnrRange(double leftEdge, double rightEdge);
 };
 
-double width(const ROIE &roi);
-ROIE centerByWidth(double center, double width);
-std::istream& operator >> (std::istream &stream, ROIE &roi);
+double width(const EnrRange &rng);
+EnrRange centerByWidth(double center, double width);
+std::istream& operator >> (std::istream &stream, EnrRange &rng);
 
-ROIE toROIE(const ROIB &roi, double m, double q);
-ROIB toROIB(const ROIE &roi, double m, double q);
+EnrRange toEnrRange(const BinRange &rng, double m, double q);
+BinRange toBinRange(const EnrRange &rng, double m, double q);
 
 // ----- Da mettere in Spectrum ? -----
 
-double integral(const Spectrum &sp, const ROIB &roi);
-double integral(const Spectrum &sp, const ROIE &roi);
-double cps(const Spectrum &sp, const ROIB &roi);
-double cps(const Spectrum &sp, const ROIE &roi);
+double integral(const Spectrum &sp, const BinRange &rng);
+double integral(const Spectrum &sp, const EnrRange &rng);
+double cps(const Spectrum &sp, const BinRange &rng);
+double cps(const Spectrum &sp, const EnrRange &rng);
 
-ROIE toROIE(const ROIB &roi, const Spectrum &sp);
-ROIB toROIB(const ROIE &roi, const Spectrum &sp);
+EnrRange toEnrRange(const BinRange &rng, const Spectrum &sp);
+BinRange toBinRange(const EnrRange &rng, const Spectrum &sp);
 
 // ------------------------------------
 
