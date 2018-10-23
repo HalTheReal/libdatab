@@ -115,8 +115,22 @@ double width(const EnrRange &rng);
 EnrRange centerByWidth(double center, double width);
 std::istream& operator >> (std::istream &stream, EnrRange &rng);
 
+// ----- CONVERSIONI ----- //
+
 EnrRange toEnrRange(const BinRange &rng, double m, double q);
 BinRange toBinRange(const EnrRange &rng, double m, double q);
+
+template <typename S>
+EnrRange toEnrRange(const BinRange &rng, const S &sp) {
+  return toEnrRange(rng, sp.getM(), sp.getQ());
+}
+
+template <typename S>
+BinRange toBinRange(const EnrRange &rng, const S &sp) {
+  return toBinRange(rng, sp.getM(), sp.getQ());
+}
+
+// -----             ----- //
 
 // ----- Da mettere in Spectrum ? -----
 
@@ -125,10 +139,32 @@ double integral(const Spectrum &sp, const EnrRange &rng);
 double cps(const Spectrum &sp, const BinRange &rng);
 double cps(const Spectrum &sp, const EnrRange &rng);
 
-EnrRange toEnrRange(const BinRange &rng, const Spectrum &sp);
-BinRange toBinRange(const EnrRange &rng, const Spectrum &sp);
-
 // ------------------------------------
+
+class ROI {
+  public:
+    ROI(const BinRange &bnrng, double m, double q);
+    ROI(const EnrRange &enrng, double m, double q);
+    template <typename S>
+      ROI(const BinRange &rng, const S &sp);
+    template <typename S>
+      ROI(const EnrRange &rng, const S &sp);
+
+    int lowerBin() const;
+    int upperBin() const;
+    double lowerEnr() const;
+    double upperEnr() const;
+    ROI& setLowerBin(int lw);
+    ROI& setUpperBin(int up);
+    ROI& setLowerEnr(double enr);
+    ROI& setUpperBin(double enr);
+  private:
+    BinRange br;
+    EnrRange er;
+};
+
+int widthBin(const ROI &roi);
+double widthEnr(const ROI &roi);
 
 }
 

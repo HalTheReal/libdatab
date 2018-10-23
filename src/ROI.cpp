@@ -75,14 +75,6 @@ BinRange toBinRange(const EnrRange &rng, double m, double q) {
   return BinRange(left, right);
 }
 
-EnrRange toEnrRange(const BinRange &rng, const Spectrum &sp) {
-  return toEnrRange(rng, sp.getM(), sp.getQ());
-}
-
-BinRange toBinRange(const EnrRange &rng, const Spectrum &sp) {
-  return toBinRange(rng, sp.getM(), sp.getQ());
-}
-
 double integral(const Spectrum &sp, const BinRange &rng) {
   double tot = 0;
   for(int i = rng.lower(); i <= rng.upper(); ++i) {
