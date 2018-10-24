@@ -18,7 +18,7 @@ class Range {
     Range();
     Range(T leftEdge, T rightEdge);
   private:
-    void invariant();
+    // Left <= right
     T left;
     T right;
 };
@@ -34,11 +34,6 @@ Range<T>::Range(T leftEdge, T rightEdge)
   : left(leftEdge)
   , right(rightEdge)
 {
-  invariant();
-}
-
-template <typename T>
-void Range<T>::invariant() {
   if(left > right) {
     std::swap(left, right);
   }
@@ -57,14 +52,18 @@ T Range<T>::upper() const {
 template <typename T>
 Range<T>& Range<T>::setLower(T set) {
   left = set;
-  invariant();
+  if (left > right) {
+    right = left;
+  }
   return *this;
 }
 
 template <typename T>
 Range<T>& Range<T>::setUpper(T set) {
   right = set;
-  invariant();
+  if (left > right) {
+    left = right;
+  }
   return *this;
 }
 
