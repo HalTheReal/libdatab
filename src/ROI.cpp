@@ -106,9 +106,9 @@ ROI::ROI(const BinRange &rng, double m, double q)
 
 ROI::ROI(const EnrRange &rng, double m, double q)
   : brange(toBinRange(rng, m, q))
-  , erange(rng)
-  , mcal(m)
-  , qcal(q)
+  , erange(toEnrRange(brange, m, q))      // Il range di energia è fatto da multipli di mcal!
+  , mcal(m)                               // altrimenti modificare successivamente i bin può
+  , qcal(q)                               // avere conseguenze sulle energie
 {}
 
 int ROI::lowerBin() const {
@@ -145,7 +145,7 @@ ROI& ROI::setLowerEnr(double enr) {
   return *this;
 }
 
-ROI& ROI::setUpperBin(double enr) {
+ROI& ROI::setUpperEnr(double enr) {
   erange.setUpper(enr);
   brange = toBinRange(erange, mcal, qcal);
   return *this;

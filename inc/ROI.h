@@ -157,7 +157,7 @@ class ROI {
     ROI& setLowerBin(int lw);
     ROI& setUpperBin(int up);
     ROI& setLowerEnr(double enr);
-    ROI& setUpperBin(double enr);
+    ROI& setUpperEnr(double enr);
   private:
     BinRange brange;
     EnrRange erange;
@@ -176,9 +176,9 @@ ROI::ROI(const BinRange &rng, const S &sp)
 template <typename S>
 ROI::ROI(const EnrRange &rng, const S &sp)
   : brange(toBinRange(rng, sp))
-  , erange(rng)
-  , mcal(sp.getM())
-  , qcal(sp.getQ())
+  , erange(toEnrRange(brange, sp))    // Il range di energia è fatto da multipli di mcal!
+  , mcal(sp.getM())                   // altrimenti modificare successivamente i bin può
+  , qcal(sp.getQ())                   // avere conseguenze sulle energie
 {}
 
 int widthBin(const ROI &roi);
