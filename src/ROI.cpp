@@ -98,17 +98,57 @@ double cps(const Spectrum &sp, const EnrRange &rng) {
 }
 
 ROI::ROI(const BinRange &rng, double m, double q)
-  : br(rng)
-  , er(toEnrRange(rng, m, q))
+  : brange(rng)
+  , erange(toEnrRange(rng, m, q))
   , mcal(m)
   , qcal(q)
 {}
 
 ROI::ROI(const EnrRange &rng, double m, double q)
-  : br(toBinRange(rng, m, q))
-  , er(rng)
+  : brange(toBinRange(rng, m, q))
+  , erange(rng)
   , mcal(m)
   , qcal(q)
 {}
+
+int ROI::lowerBin() const {
+  return brange.lower();
+}
+
+int ROI::upperBin() const {
+  return brange.upper();
+}
+
+double ROI::lowerEnr() const {
+  return erange.lower();
+}
+
+double ROI::upperEnr() const {
+  return erange.upper();
+}
+
+ROI& ROI::setLowerBin(int lw) {
+  brange.setLower(lw);
+  erange = toEnrRange(brange, mcal, qcal);
+  return *this;
+}
+
+ROI& ROI::setUpperBin(int up) {
+  brange.setUpper(up);
+  erange = toEnrRange(brange, mcal, qcal);
+  return *this;
+}
+
+ROI& ROI::setLowerEnr(double enr) {
+  erange.setLower(enr);
+  brange = toBinRange(erange, mcal, qcal);
+  return *this;
+}
+
+ROI& ROI::setUpperBin(double enr) {
+  erange.setUpper(enr);
+  brange = toBinRange(erange, mcal, qcal);
+  return *this;
+}
 
 }

@@ -159,24 +159,24 @@ class ROI {
     ROI& setLowerEnr(double enr);
     ROI& setUpperBin(double enr);
   private:
-    BinRange br;
-    EnrRange er;
+    BinRange brange;
+    EnrRange erange;
     double mcal;
     double qcal;
 };
 
 template <typename S>
 ROI::ROI(const BinRange &rng, const S &sp)
-  : br(rng)
-  , er(toEnrRange(rng, sp))
+  : brange(rng)
+  , erange(toEnrRange(rng, sp))
   , mcal(sp.getM())
   , qcal(sp.getQ())
 {}
 
 template <typename S>
 ROI::ROI(const EnrRange &rng, const S &sp)
-  : br(toBinRange(rng, sp))
-  , er(rng)
+  : brange(toBinRange(rng, sp))
+  , erange(rng)
   , mcal(sp.getM())
   , qcal(sp.getQ())
 {}
