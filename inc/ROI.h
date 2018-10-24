@@ -161,18 +161,24 @@ class ROI {
   private:
     BinRange br;
     EnrRange er;
+    double mcal;
+    double qcal;
 };
 
 template <typename S>
 ROI::ROI(const BinRange &rng, const S &sp)
   : br(rng)
   , er(toEnrRange(rng, sp))
+  , mcal(sp.getM())
+  , qcal(sp.getQ())
 {}
 
 template <typename S>
 ROI::ROI(const EnrRange &rng, const S &sp)
   : br(toBinRange(rng, sp))
   , er(rng)
+  , mcal(sp.getM())
+  , qcal(sp.getQ())
 {}
 
 int widthBin(const ROI &roi);
