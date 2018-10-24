@@ -142,12 +142,14 @@ ROI& ROI::setUpperBin(int up) {
 ROI& ROI::setLowerEnr(double enr) {
   erange.setLower(enr);
   brange = toBinRange(erange, mcal, qcal);
+  erange = toEnrRange(brange, mcal, qcal);
   return *this;
 }
 
 ROI& ROI::setUpperEnr(double enr) {
   erange.setUpper(enr);
   brange = toBinRange(erange, mcal, qcal);
+  erange = toEnrRange(brange, mcal, qcal);
   return *this;
 }
 
