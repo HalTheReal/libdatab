@@ -153,6 +153,8 @@ class ROI {
     int upperBin() const;
     double lowerEnr() const;
     double upperEnr() const;
+    double getM() const;
+    double getQ() const;
     ROI& setLowerBin(int lw);
     ROI& setUpperBin(int up);
     ROI& setLowerEnr(double enr);

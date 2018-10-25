@@ -127,6 +127,14 @@ double ROI::upperEnr() const {
   return erange.upper();
 }
 
+double ROI::getM() const {
+  return mcal;
+}
+
+double ROI::getQ() const {
+  return qcal;
+}
+
 ROI& ROI::setLowerBin(int lw) {
   brange.setLower(lw);
   erange = toEnrRange(brange, mcal, qcal);
