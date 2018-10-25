@@ -153,4 +153,36 @@ ROI& ROI::setUpperEnr(double enr) {
   return *this;
 }
 
+int widthBin(const ROI &roi) {
+  return roi.upperBin() - roi.lowerBin() + 1;
+}
+
+double widthEnr(const ROI &roi) {
+  return roi.upperEnr() - roi.lowerEnr();
+}
+
+ROI& inflateBin(ROI &roi, int bin) {
+  roi.setLowerBin(roi.lowerBin() - bin);
+  roi.setUpperBin(roi.upperBin() + bin);
+  return roi;
+}
+
+ROI& inflateEnr(ROI &roi, double enr) {
+  roi.setLowerEnr(roi.lowerEnr() - enr);
+  roi.setUpperEnr(roi.upperEnr() + enr);
+  return roi;
+}
+
+ROI& shiftBin(ROI &roi, int bin) {
+  roi.setLowerBin(roi.lowerBin() + bin);
+  roi.setUpperBin(roi.upperBin() + bin);
+  return roi;
+}
+
+ROI& shiftEnr(ROI &roi, double enr) {
+  roi.setLowerEnr(roi.lowerEnr() + enr);
+  roi.setUpperEnr(roi.upperEnr() + enr);
+  return roi;
+}
+
 }

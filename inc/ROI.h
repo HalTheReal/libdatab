@@ -183,6 +183,11 @@ ROI::ROI(const EnrRange &rng, const S &sp)
 int widthBin(const ROI &roi);
 double widthEnr(const ROI &roi);
 
+ROI& inflateBin(ROI &roi, int bin);
+ROI& inflateEnr(ROI &roi, double enr);
+ROI& shiftBin(ROI &roi, int bin);
+ROI& shiftEnr(ROI &roi, double enr);
+
 }
 
 #endif
