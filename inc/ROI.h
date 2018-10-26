@@ -10,13 +10,12 @@ template <typename T>
 
 class Range {
   public:
+    Range();
+    Range(T leftEdge, T rightEdge);
     T lower() const;
     T upper() const;
     Range& setLower(T set);
     Range& setUpper(T set);
-  protected:
-    Range();
-    Range(T leftEdge, T rightEdge);
   private:
     // Left <= right
     T left;
@@ -25,8 +24,8 @@ class Range {
 
 template <typename T>
 Range<T>::Range()
-  : left(0)
-  , right(0)
+  : left()
+  , right()
 {}
 
 template <typename T>
@@ -182,6 +181,7 @@ ROI::ROI(const EnrRange &rng, const S &sp)
   , qcal(sp.getQ())                   // avere conseguenze sulle energie
 {}
 
+// La larghezza di una ROI è sempre almeno 1 bin
 int widthBin(const ROI &roi);
 double widthEnr(const ROI &roi);
 
