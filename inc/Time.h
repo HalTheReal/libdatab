@@ -47,6 +47,7 @@ namespace Epoch {
   Time strToTime(const std::string &str);
 }
 
+int width(const Range<Epoch::Time> &rng);
 template <>
 Range<Epoch::Time>& shift<Epoch::Time>(Range<Epoch::Time> &rng, int sec);
 

@@ -212,6 +212,16 @@ namespace Epoch {
 
 }
 
+int width(const Range<Epoch::Date> &rng) {
+  int ret = 0;
+  auto dt = rng.lower();
+  while (dt < rng.upper()) {
+    dt.addDay(1);
+    ++ret;
+  }
+  return ret;
+}
+
 template <>
 Range<Epoch::Date>& shift<Epoch::Date>(Range<Epoch::Date> &rng, int day) {
   rng.setUpper(rng.upper().addDay(day));

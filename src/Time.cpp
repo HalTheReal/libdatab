@@ -169,6 +169,12 @@ namespace Epoch {
 
 }
 
+int width(const Range<Epoch::Time> &rng) {
+  int upper = toInt(rng.upper());
+  int lower = toInt(rng.lower());
+  return upper - lower;
+}
+
 template <>
 Range<Epoch::Time>& shift<Epoch::Time>(Range<Epoch::Time> &rng, int sec) {
   rng.setUpper(rng.upper().addSec(sec));

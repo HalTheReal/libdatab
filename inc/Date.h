@@ -53,6 +53,7 @@ namespace Epoch {
 
 }
 
+int width(const Range<Epoch::Date> &rng);
 template <>
 Range<Epoch::Date>& shift<Epoch::Date>(Range<Epoch::Date> &rng, int day);
 
