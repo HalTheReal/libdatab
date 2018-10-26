@@ -51,4 +51,7 @@ namespace Epoch {
   std::istream& operator >> (std::istream &stream, DateTime &dtt);
 }
 
+template <>
+Range<Epoch::DateTime>& shift<Epoch::DateTime>(Range<Epoch::DateTime> &rng, int sec);
+
 #endif

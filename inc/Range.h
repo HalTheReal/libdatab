@@ -1,8 +1,9 @@
 #ifndef MY_RANGE_H
 #define MY_RANGE_H
 
+#include <ostream>
+#include <sstream>
 #include <utility>    // std::swap
-#include <DateTime.h>
 
 template <typename T>
 class Range {
@@ -63,6 +64,11 @@ Range<T>& Range<T>::setUpper(T set) {
   return *this;
 }
 
+template <typename T>
+T width(const Range<T> &rng) {
+  return rng.upper() - rng.lower();
+}
+
 template <typename T, typename R>
 Range<T>& inflate(Range<T> &rng, R inf) {
   rng.setUpper(rng.upper() + inf);
@@ -76,16 +82,6 @@ Range<T>& shift(Range<T> &rng, R inf) {
   rng.setLower(rng.lower() + inf);
   return rng;
 }
-
-// Specializzazioni, da mettere nelle rispettive classi?
-template <>
-Range<Epoch::Time>& shift<Epoch::Time>(Range<Epoch::Time> &rng, int sec);
-
-template <>
-Range<Epoch::Date>& shift<Epoch::Date>(Range<Epoch::Date> &rng, int day);
-
-template <>
-Range<Epoch::DateTime>& shift<Epoch::DateTime>(Range<Epoch::DateTime> &rng, int sec);
 
 template <typename T>
 bool isWithin(Range<T> &rng, T &el) {

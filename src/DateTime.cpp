@@ -163,3 +163,10 @@ namespace Epoch {
   }
 
 }
+
+template <>
+Range<Epoch::DateTime>& shift<Epoch::DateTime>(Range<Epoch::DateTime> &rng, int sec) {
+  rng.setUpper(rng.upper().addSec(sec));
+  rng.setLower(rng.lower().addSec(sec));
+  return rng;
+}

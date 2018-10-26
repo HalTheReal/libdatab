@@ -211,3 +211,11 @@ namespace Epoch {
   }
 
 }
+
+template <>
+Range<Epoch::Date>& shift<Epoch::Date>(Range<Epoch::Date> &rng, int day) {
+  rng.setUpper(rng.upper().addDay(day));
+  rng.setLower(rng.lower().addDay(day));
+  return rng;
+}
+

@@ -8,6 +8,7 @@
 #include <iostream>     // std::cout
 #include <math.h>       // fmod
 #include <tools.h>
+#include <Range.h>
 
 namespace Epoch {
 
@@ -45,5 +46,8 @@ namespace Epoch {
   std::string to_string(const Time &tm, char sep = ':');
   Time strToTime(const std::string &str);
 }
+
+template <>
+Range<Epoch::Time>& shift<Epoch::Time>(Range<Epoch::Time> &rng, int sec);
 
 #endif

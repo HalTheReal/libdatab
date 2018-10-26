@@ -8,6 +8,7 @@
 #include <iostream>     // std::cout
 #include <tools.h>
 #include <math.h>       // fmod
+#include <Range.h>
 
 namespace Epoch {
 
@@ -51,5 +52,8 @@ namespace Epoch {
   Date strToDate(const std::string &str);
 
 }
+
+template <>
+Range<Epoch::Date>& shift<Epoch::Date>(Range<Epoch::Date> &rng, int day);
 
 #endif
