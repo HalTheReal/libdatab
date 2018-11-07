@@ -103,6 +103,9 @@ ROI& inflateEnr(ROI &roi, double enr);
 ROI& shiftBin(ROI &roi, int bin);
 ROI& shiftEnr(ROI &roi, double enr);
 
+EnrRange toEnrRange(const ROI &roi);
+BinRange toBinRange(const ROI &roi);
+
 }
 
 #endif

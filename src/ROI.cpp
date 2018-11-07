@@ -82,6 +82,14 @@ BinRange toBinRange(const EnrRange &rng, double m, double q) {
   return BinRange(left, right);
 }
 
+EnrRange toEnrRange(const ROI &roi) {
+  return EnrRange(roi.lowerEnr(), roi.upperEnr());
+}
+
+BinRange toBinRange(const ROI &roi) {
+  return BinRange(roi.lowerBin(), roi.upperBin());
+}
+
 double integral(const Spectrum &sp, const BinRange &rng) {
   double tot = 0;
   for(int i = rng.lower(); i <= rng.upper(); ++i) {
