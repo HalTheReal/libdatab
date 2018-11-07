@@ -8,7 +8,11 @@ BinRange::BinRange()
 
 BinRange::BinRange(int leftEdge, int rightEdge)
   : Range<int>(leftEdge, rightEdge)
-{}
+{
+  if(lower() < 0 || upper() < 0) {
+    throw std::runtime_error("Invalid BinRange");
+  }
+}
 
 int width(const BinRange &rng) {
   return rng.upper() - rng.lower() + 1;
@@ -65,13 +69,16 @@ std::istream& operator >> (std::istream &stream, EnrRange &rng) {
 
 EnrRange toEnrRange(const BinRange &rng, double m, double q) {
   double left = binToEnergy(m, q, rng.lower());
-  double right = binToEnergy(m, q, rng.upper());
+  double right = binToEnergy(m, q, rng.upper() + 1);
   return EnrRange(left, right);
 }
 
 BinRange toBinRange(const EnrRange &rng, double m, double q) {
   int left = energyToBin(m, q, rng.lower());
-  int right = energyToBin(m, q, rng.upper());
+  int right = energyToBin(m, q, rng.upper()) - 1;
+  if(right < left) {
+    right = left;
+  }
   return BinRange(left, right);
 }
 
