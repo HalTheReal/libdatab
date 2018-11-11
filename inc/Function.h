@@ -6,7 +6,7 @@
 #include <random>
 #include <algorithm>
 #include <iostream>       // DA RIMUOVERE
-#include <exception>
+#include <stdexcept>
 
 namespace MMZ {
 
