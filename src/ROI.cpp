@@ -185,15 +185,26 @@ double widthEnr(const ROI &roi) {
 }
 
 ROI& inflateBin(ROI &roi, int bin) {
-  roi.setLowerBin(roi.lowerBin() - bin);
-  roi.setUpperBin(roi.upperBin() + bin);
+  int newLower = roi.lowerBin() - bin;
+  int newUpper = roi.upperBin() + bin;
+  if (newLower < 0) {
+    newLower = 0;
+  }
+  // Si verifica solo se bin è troppo negativo, la roi collassa
+  // al centro, larghezza 1
+  if (newLower > roi.upperBin() || newUpper < roi.lowerBin()) {
+    int center = round((roi.upperBin() + roi.lowerBin()) / 2.0);
+    newLower = center;
+    newUpper = center;
+  }
+  roi.setLowerBin(newLower);
+  roi.setUpperBin(newUpper);
   return roi;
 }
 
 ROI& inflateEnr(ROI &roi, double enr) {
-  roi.setLowerEnr(roi.lowerEnr() - enr);
-  roi.setUpperEnr(roi.upperEnr() + enr);
-  return roi;
+  int bin = energyToBin(roi.getM(), roi.getQ(), enr);
+  return inflateBin(roi, bin);
 }
 
 ROI& shiftBin(ROI &roi, int bin) {
