@@ -54,8 +54,8 @@ double cps(const Spectrum &sp, const EnrRange &rng);
 
 class ROI {
   public:
-    ROI(const BinRange &rng, double m, double q);
-    ROI(const EnrRange &rng, double m, double q);
+    ROI(const BinRange &rng, double m, double q = 0);
+    ROI(const EnrRange &rng, double m, double q = 0);
     template <typename S>
       ROI(const BinRange &rng, const S &sp);
     template <typename S>
