@@ -203,8 +203,21 @@ ROI& inflateBin(ROI &roi, int bin) {
 }
 
 ROI& inflateEnr(ROI &roi, double enr) {
-  int bin = energyToBin(roi.getM(), roi.getQ(), enr);
-  return inflateBin(roi, bin);
+  double newLower = roi.lowerEnr() - enr;
+  double newUpper = roi.upperEnr() + enr;
+  if (newLower < 0) {
+    newLower = 0;
+  }
+  // Si verifica solo se enr è troppo negativo, la roi collassa
+  // al centro, larghezza 1
+  if (newLower > roi.upperEnr() || newUpper < roi.lowerEnr()) {
+    double center = round((roi.upperEnr() + roi.lowerEnr()) / 2.0);
+    newLower = center;
+    newUpper = center;
+  }
+  roi.setLowerEnr(newLower);
+  roi.setUpperEnr(newUpper);
+  return roi;
 }
 
 ROI& shiftBin(ROI &roi, int bin) {
