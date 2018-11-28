@@ -130,7 +130,11 @@ Fn fnMix(const std::vector<std::pair<Fn, double>> &shuf, size_t n) {
 }
 
 template <typename Fn>
-Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = mse) {
+Fn CRSFit(const Fn &fL, const Fn &fH,
+          const std::vector <double> &xx, const std::vector <double> &ob,
+          fitnessFunction fitF = mse,
+          int maxit = 100000, double tol = 1e-6)
+{
   FunctionGenerator <Fn> fnGen(fL, fH);
   int N = 10 * (fL.parNum() + 1);                 // Numero soluzioni random iniziali
   std::vector<std::pair<Fn, double>> NSol(N);     // Insieme delle soluzioni random e valore del fit
@@ -139,9 +143,9 @@ Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std:
     NSol[i] = std::make_pair(frnd, fitF(xx, ob, frnd));
   }
   int iter = 0;
-  while(iter < 100000) {
+  while(iter < maxit) {
     std::sort(NSol.begin(), NSol.end(), sort_second_pred<Fn, double>()); // LE = *NSol.begin(), ME = *NSol.end()
-    if(fabs(NSol[0].second - NSol[N-1].second) < 1e-6) {
+    if(fabs(NSol[0].second - NSol[N-1].second) < tol) {
       break;
     }
     auto shuffled = NSol;                                                // Vettore da mescolare
@@ -168,8 +172,11 @@ Fn CRSFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std:
 double changeProb(double en1, double en2, double temp);
 
 template <typename Fn>
-Fn SAFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::vector <double> &ob, fitnessFunction fitF = mse) {
-  double temp = 100;
+Fn SAFit( const Fn &fL, const Fn &fH, 
+          const std::vector <double> &xx, const std::vector <double> &ob,
+          fitnessFunction fitF = mse,
+          double temp = 1000, double step = 0.1)
+{
   FunctionGenerator <Fn> fnGen(fL, fH);
   std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
   std::uniform_real_distribution <double> distChange(0, 1);
@@ -182,7 +189,7 @@ Fn SAFit(const Fn &fL, const Fn &fH, const std::vector <double> &xx, const std::
       energy = newEnergy;
       guess = newGuess;
     }
-    temp -= 0.0001;
+    temp -= step;
   } while (temp > 0);
   return guess;
 }
