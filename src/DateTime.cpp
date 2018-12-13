@@ -163,3 +163,19 @@ namespace Epoch {
   }
 
 }
+
+int width(const Range<Epoch::DateTime> &rng) {
+  Range<Epoch::Date> dRange(Epoch::toDate(rng.lower()), Epoch::toDate(rng.upper()));
+  Range<Epoch::Time> tRange(Epoch::toTime(rng.lower()), Epoch::toTime(rng.upper()));
+  int days = width(dRange);
+  int secs = width(tRange);
+  secs += days * 24 * 60 * 60;
+  return secs;
+}
+
+template <>
+Range<Epoch::DateTime>& shift<Epoch::DateTime>(Range<Epoch::DateTime> &rng, int sec) {
+  rng.setUpper(rng.upper().addSec(sec));
+  rng.setLower(rng.lower().addSec(sec));
+  return rng;
+}

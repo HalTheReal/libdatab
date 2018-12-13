@@ -1,134 +1,110 @@
 #ifndef ROI_H
 #define ROI_H
 
-#include <utility>    // std::swap
 #include <Spectrum.h>
+#include <Range.h>
 
 namespace Spectrometry {
 
-template <typename T>
-
-class ROI {
+class BinRange : public Range<int> {
   public:
-    T lower() const;
-    T upper() const;
-    ROI& setLower(T set);
-    ROI& setUpper(T set);
-  protected:
-    ROI();
-    ROI(T leftEdge, T rightEdge);
-  private:
-    void invariant();
-    T left;
-    T right;
+    BinRange();
+    BinRange(int leftEdge, int rightEdge);
 };
 
-template <typename T>
-ROI<T>::ROI()
-  : left(0)
-  , right(0)
-{}
+int width(const BinRange &rng);
+BinRange centerByWidth(int center, int width);
+std::istream& operator >> (std::istream &stream, BinRange &rng);
 
-template <typename T>
-ROI<T>::ROI(T leftEdge, T rightEdge)
-  : left(leftEdge)
-  , right(rightEdge)
-{
-  invariant();
-}
-
-template <typename T>
-void ROI<T>::invariant() {
-  if(left > right) {
-    std::swap(left, right);
-  }
-}
-
-template <typename T>
-T ROI<T>::lower() const {
-  return left;
-}
-
-template <typename T>
-T ROI<T>::upper() const {
-  return right;
-}
-
-template <typename T>
-ROI<T>& ROI<T>::setLower(T set) {
-  left = set;
-  invariant();
-  return *this;
-}
-
-template <typename T>
-ROI<T>& ROI<T>::setUpper(T set) {
-  right = set;
-  invariant();
-  return *this;
-}
-
-template <typename T, typename R>
-ROI<T>& inflate(ROI<T> &roi, R inf) {
-  roi.setUpper(roi.upper() + inf);
-  roi.setLower(roi.lower() - inf);
-  return roi;
-}
-
-template <typename T, typename R>
-ROI<T>& shift(ROI<T> &roi, R inf) {
-  roi.setUpper(roi.upper() + inf);
-  roi.setLower(roi.lower() + inf);
-  return roi;
-}
-
-template <typename T>
-std::string to_string(const ROI<T> &roi, char sep = '-') {
-  std::stringstream ss;
-  ss << roi.lower() << sep << roi.upper();
-  return ss.str();
-}
-
-template <typename T>
-std::ostream& operator << (std::ostream &stream, const ROI<T> &roi) {
-  stream << to_string(roi);
-  return stream;
-}
-
-class ROIB : public ROI<int> {
+class EnrRange : public Range<double> {
   public:
-    ROIB();
-    ROIB(int leftEdge, int rightEdge);
+    EnrRange();
+    EnrRange(double leftEdge, double rightEdge);
 };
 
-int width(const ROIB &roi);
-ROIB centerByWidth(int center, int width);
-std::istream& operator >> (std::istream &stream, ROIB &roi);
+double width(const EnrRange &rng);
+EnrRange centerByWidth(double center, double width);
+std::istream& operator >> (std::istream &stream, EnrRange &rng);
 
-class ROIE : public ROI<double> {
-  public:
-    ROIE();
-    ROIE(double leftEdge, double rightEdge);
-};
+// ----- CONVERSIONI ----- //
 
-double width(const ROIE &roi);
-ROIE centerByWidth(double center, double width);
-std::istream& operator >> (std::istream &stream, ROIE &roi);
+EnrRange toEnrRange(const BinRange &rng, double m, double q);
+BinRange toBinRange(const EnrRange &rng, double m, double q);
 
-ROIE toROIE(const ROIB &roi, double m, double q);
-ROIB toROIB(const ROIE &roi, double m, double q);
+template <typename S>
+EnrRange toEnrRange(const BinRange &rng, const S &sp) {
+  return toEnrRange(rng, sp.getM(), sp.getQ());
+}
+
+template <typename S>
+BinRange toBinRange(const EnrRange &rng, const S &sp) {
+  return toBinRange(rng, sp.getM(), sp.getQ());
+}
+
+// -----             ----- //
 
 // ----- Da mettere in Spectrum ? -----
 
-double integral(const Spectrum &sp, const ROIB &roi);
-double integral(const Spectrum &sp, const ROIE &roi);
-double cps(const Spectrum &sp, const ROIB &roi);
-double cps(const Spectrum &sp, const ROIE &roi);
-
-ROIE toROIE(const ROIB &roi, const Spectrum &sp);
-ROIB toROIB(const ROIE &roi, const Spectrum &sp);
+double integral(const Spectrum &sp, const BinRange &rng);
+double integral(const Spectrum &sp, const EnrRange &rng);
+double cps(const Spectrum &sp, const BinRange &rng);
+double cps(const Spectrum &sp, const EnrRange &rng);
 
 // ------------------------------------
+
+class ROI {
+  public:
+    ROI(const BinRange &rng, double m, double q = 0);
+    ROI(const EnrRange &rng, double m, double q = 0);
+    template <typename S>
+      ROI(const BinRange &rng, const S &sp);
+    template <typename S>
+      ROI(const EnrRange &rng, const S &sp);
+
+    int lowerBin() const;
+    int upperBin() const;
+    double lowerEnr() const;
+    double upperEnr() const;
+    double getM() const;
+    double getQ() const;
+    ROI& setLowerBin(int lw);
+    ROI& setUpperBin(int up);
+    ROI& setLowerEnr(double enr);
+    ROI& setUpperEnr(double enr);
+  private:
+    BinRange brange;
+    EnrRange erange;
+    double mcal;
+    double qcal;
+};
+
+template <typename S>
+ROI::ROI(const BinRange &rng, const S &sp)
+  : brange(rng)
+  , erange(toEnrRange(rng, sp))
+  , mcal(sp.getM())
+  , qcal(sp.getQ())
+{}
+
+template <typename S>
+ROI::ROI(const EnrRange &rng, const S &sp)
+  : brange(toBinRange(rng, sp))
+  , erange(toEnrRange(brange, sp))    // Il range di energia è fatto da multipli di mcal!
+  , mcal(sp.getM())                   // altrimenti modificare successivamente i bin può
+  , qcal(sp.getQ())                   // avere conseguenze sulle energie
+{}
+
+// La larghezza di una ROI è sempre almeno 1 bin
+int widthBin(const ROI &roi);
+double widthEnr(const ROI &roi);
+
+ROI& inflateBin(ROI &roi, int bin);
+ROI& inflateEnr(ROI &roi, double enr);
+ROI& shiftBin(ROI &roi, int bin);
+ROI& shiftEnr(ROI &roi, double enr);
+
+EnrRange toEnrRange(const ROI &roi);
+BinRange toBinRange(const ROI &roi);
 
 }
 
