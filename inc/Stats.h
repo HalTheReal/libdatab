@@ -76,6 +76,18 @@ namespace Stats {
       }
       return count == 0 ? nodata : tot;
     }
+
+  template <typename InputIterator>
+    typename std::iterator_traits<InputIterator>::value_type median(InputIterator first, InputIterator last) {
+      std::vector<typename std::iterator_traits<InputIterator>::value_type> tosort(first, last);
+      std::sort(tosort.begin(), tosort.end());
+      if (tosort.size() % 2 == 0) {   // Numero pari di elementi
+        int high = tosort.size() / 2;
+        int low = high - 1;
+        return (tosort[low] + tosort[high]) / 2.0;
+      }
+      return tosort[(tosort.size() / 2) + 1];
+    }
 }
 
 #endif
