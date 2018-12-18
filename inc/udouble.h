@@ -4,6 +4,7 @@
 #include <ostream>
 #include <sstream>
 #include <cmath>
+#include <stdexcept>    // Eccezioni
 
 class udouble {
   public:
@@ -19,5 +20,6 @@ class udouble {
 };
 
 std::ostream& operator << (std::ostream &stream, const udouble &ud);
+std::istream& operator >> (std::istream &stream, udouble &dt);
 
 #endif
