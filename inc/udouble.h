@@ -8,6 +8,7 @@
 
 class udouble {
   public:
+    udouble();
     udouble(double val, double unc);
     double val() const;
     udouble & val(double newval);

@@ -1,5 +1,10 @@
 #include "udouble.h"
 
+udouble::udouble()
+  : value(0)
+  , uncert(0)
+{}
+
 udouble::udouble(double val, double unc)
   : value(val)
   , uncert(fabs(unc))
