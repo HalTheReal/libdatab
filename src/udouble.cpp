@@ -27,6 +27,9 @@ double udouble::val() const {
 
 udouble & udouble::val(double newval) {
   value = newval;
+  if(!isValid()) {
+    throw std::runtime_error("Invalid udouble");
+  }
   return *this;
 }
 
@@ -36,6 +39,9 @@ double udouble::unc() const {
 
 udouble & udouble::unc(double newunc) {
   uncert = newunc;
+  if(!isValid()) {
+    throw std::runtime_error("Invalid udouble");
+  }
   return *this;
 }
 
