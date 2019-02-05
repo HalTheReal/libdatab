@@ -217,6 +217,20 @@ namespace Spectrometry {
     return ret;
   }
 
+  Spectrum readTXT(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      throw std::runtime_error("Unable to open file!");
+    }
+    std::vector <double> bin;
+    double counts;
+    while (file >> counts) {
+      bin.push_back(counts);
+    }
+    file.close();
+    return Spectrum(bin);
+  }
+
   void writeSPE(const Spectrum &sp, const char * nomeFile) {
     std::ofstream outfile;
     outfile.open(nomeFile);
@@ -265,6 +279,17 @@ namespace Spectrometry {
         else {
           outfile << " ";
         }
+      }
+    }
+    outfile.close();
+  }
+
+  void writeTXT(const Spectrum &sp, const char * nomeFile) {
+    std::ofstream outfile;
+    outfile.open(nomeFile);
+    if (outfile) {
+      for (int i = 0; i < sp.channels(); ++i) {
+        outfile << sp.binAt(i) << '\n';
       }
     }
     outfile.close();
