@@ -11,6 +11,7 @@
 #include <chrono>
 #include <stdexcept>    // Eccezioni
 #include <DateTime.h>
+#include <Stats.h>
 
 namespace Spectrometry {
 
@@ -76,9 +77,14 @@ namespace Spectrometry {
   Spectrum readSPE(const char * nomeFile);
   Spectrum readSPT(const char * nomeFile);
   Spectrum readLST(const char * nomeFile);
+  Spectrum readTXT(const char * nomeFile);
 
   void writeSPE(const Spectrum &sp, const char * nomeFile);
   void writeSPT(const Spectrum &sp, const char * nomeFile);
+  void writeTXT(const Spectrum &sp, const char * nomeFile);
+
+  Spectrum medianFilter(const Spectrum &sp, unsigned width);
+  Spectrum movingAvg(const Spectrum &sp, unsigned width);
 
 }
 #endif

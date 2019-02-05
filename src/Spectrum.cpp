@@ -217,6 +217,20 @@ namespace Spectrometry {
     return ret;
   }
 
+  Spectrum readTXT(const char * nomeFile) {
+    std::ifstream file(nomeFile);
+    if (!file) {
+      throw std::runtime_error("Unable to open file!");
+    }
+    std::vector <double> bin;
+    double counts;
+    while (file >> counts) {
+      bin.push_back(counts);
+    }
+    file.close();
+    return Spectrum(bin);
+  }
+
   void writeSPE(const Spectrum &sp, const char * nomeFile) {
     std::ofstream outfile;
     outfile.open(nomeFile);
@@ -225,12 +239,14 @@ namespace Spectrometry {
       outfile << "$DATE_MEA:\n";
       Epoch::DateTime dtt = sp.getDateTime();
       outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
-      outfile << dtt.hour() << ':' << dtt.min() << ':' << dtt.sec() << '\n';
+      outfile << toTime(dtt) << '\n';
       outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
       outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
       for (int i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i) << '\n';
       }
+      outfile << "$ENER_FIT:\n";
+      outfile << sp.getQ() << ' ' << sp.getM() << '\n';
     }
     outfile.close();
   }
@@ -266,6 +282,49 @@ namespace Spectrometry {
       }
     }
     outfile.close();
+  }
+
+  void writeTXT(const Spectrum &sp, const char * nomeFile) {
+    std::ofstream outfile;
+    outfile.open(nomeFile);
+    if (outfile) {
+      for (int i = 0; i < sp.channels(); ++i) {
+        outfile << sp.binAt(i) << '\n';
+      }
+    }
+    outfile.close();
+  }
+
+  Spectrum medianFilter(const Spectrum &sp, unsigned width) {
+    std::vector<float> bins(sp.channels(), 0);
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      bins[i] = sp.binAt(i);
+    }
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      auto beg = bins.begin() + i;
+      auto lower = beg - width / 2;
+      auto upper = beg + width / 2;
+      if (i - width / 2 > 0 && i + width / 2 < bins.size()) {
+        bins[i] = Stats::median(lower, upper);
+      }
+    }
+    return Spectrum(bins, sp.getDateTime(), sp.getDT());
+  }
+
+  Spectrum movingAvg(const Spectrum &sp, unsigned width) {
+    std::vector<float> bins(sp.channels(), 0);
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      bins[i] = sp.binAt(i);
+    }
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      auto beg = bins.begin() + i;
+      auto lower = beg - width / 2;
+      auto upper = beg + width / 2;
+      if (i - width / 2 > 0 && i + width / 2 < bins.size()) {
+        bins[i] = Stats::mean(lower, upper);
+      }
+    }
+    return Spectrum(bins, sp.getDateTime(), sp.getDT());
   }
 
 }
