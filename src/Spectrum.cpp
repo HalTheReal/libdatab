@@ -225,12 +225,14 @@ namespace Spectrometry {
       outfile << "$DATE_MEA:\n";
       Epoch::DateTime dtt = sp.getDateTime();
       outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
-      outfile << dtt.hour() << ':' << dtt.min() << ':' << dtt.sec() << '\n';
+      outfile << toTime(dtt) << '\n';
       outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
       outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
       for (int i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i) << '\n';
       }
+      outfile << "$ENER_FIT:\n";
+      outfile << sp.getQ() << ' ' << sp.getM() << '\n';
     }
     outfile.close();
   }
