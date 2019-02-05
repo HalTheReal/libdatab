@@ -268,4 +268,36 @@ namespace Spectrometry {
     outfile.close();
   }
 
+  Spectrum medianFilter(const Spectrum &sp, unsigned width) {
+    std::vector<float> bins(sp.channels(), 0);
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      bins[i] = sp.binAt(i);
+    }
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      auto beg = bins.begin() + i;
+      auto lower = beg - width / 2;
+      auto upper = beg + width / 2;
+      if (i - width / 2 > 0 && i + width / 2 < bins.size()) {
+        bins[i] = Stats::median(lower, upper);
+      }
+    }
+    return Spectrum(bins, sp.getDateTime(), sp.getDT());
+  }
+
+  Spectrum movingAvg(const Spectrum &sp, unsigned width) {
+    std::vector<float> bins(sp.channels(), 0);
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      bins[i] = sp.binAt(i);
+    }
+    for (unsigned i = 0; i < bins.size(); ++i) {
+      auto beg = bins.begin() + i;
+      auto lower = beg - width / 2;
+      auto upper = beg + width / 2;
+      if (i - width / 2 > 0 && i + width / 2 < bins.size()) {
+        bins[i] = Stats::mean(lower, upper);
+      }
+    }
+    return Spectrum(bins, sp.getDateTime(), sp.getDT());
+  }
+
 }

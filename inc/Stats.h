@@ -1,6 +1,7 @@
 #ifndef MYSTATISTICS_H
 #define MYSTATISTICS_H
 
+#include <algorithm>        // std::sort
 #include <math.h>
 
 namespace Stats {
