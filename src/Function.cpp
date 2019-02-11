@@ -85,7 +85,7 @@ Line::Line(const std::vector <double> &prs)
 }
 
 Line::Line(double ml, double ql)
-  : Poly{ml, ql}
+  : Poly{ql, ml}
 {}
 
 double Line::getM() const {
