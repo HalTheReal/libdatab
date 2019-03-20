@@ -1,4 +1,4 @@
-#include "GSList.h"
+#include "htr_gslist.h"
 namespace Spectrometry {
 
 GSList::GSList()
