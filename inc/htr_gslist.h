@@ -11,9 +11,9 @@
 #include <algorithm>    //  std::sort
 #include <cmath>
 
-#include <DateTime.h>
-#include <Spectrum.h>
-#include <tools.h>
+#include <htr_datetime.h>
+#include <htr_spectrum.h>
+#include <htr_tools.h>
 
 namespace Spectrometry {
 

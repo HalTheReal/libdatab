@@ -10,8 +10,8 @@
 #include <random>
 #include <chrono>
 #include <stdexcept>    // Eccezioni
-#include <DateTime.h>
-#include <Stats.h>
+#include <htr_datetime.h>
+#include <htr_stats.h>
 
 namespace Spectrometry {
 

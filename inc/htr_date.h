@@ -6,9 +6,9 @@
 #include <vector>
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
-#include <tools.h>
 #include <math.h>       // fmod
-#include <Range.h>
+#include <htr_range.h>
+#include <htr_tools.h>
 
 namespace Epoch {
 

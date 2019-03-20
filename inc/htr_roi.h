@@ -1,8 +1,8 @@
 #ifndef ROI_H
 #define ROI_H
 
-#include <Spectrum.h>
-#include <Range.h>
+#include <htr_spectrum.h>
+#include <htr_range.h>
 
 namespace Spectrometry {
 

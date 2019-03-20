@@ -92,15 +92,35 @@ bool isWithin(Range<T> &rng, T &el) {
 }
 
 template <typename T>
-std::string to_string(const Range<T> &rng, char sep = '-') {
+std::string to_string(const Range<T> &rng) {
   std::stringstream ss;
-  ss << rng.lower() << sep << rng.upper();
+  ss << rng;
   return ss.str();
 }
 
 template <typename T>
 std::ostream& operator << (std::ostream &stream, const Range<T> &rng) {
-  stream << to_string(rng);
+  std::stringstream ss;
+  ss.copyfmt(stream);
+  ss << '[' << rng.lower() << ' ' << rng.upper() << ']';
+  stream << ss.str();
+  return stream;
+}
+
+template <typename T>
+std::istream& operator >> (std::istream &stream, Range<T> &rng) {
+  char p1, p2;
+  T lower;
+  T upper;
+  stream >> p1 >> lower >> upper >> p2;
+  if (!stream) {
+    return stream;
+  }
+  if (p1 != '[' || p2 != ']') {
+    stream.setstate(std::ios_base::failbit);
+    return stream;
+  }
+  rng = Range<T>(lower, upper);
   return stream;
 }
 

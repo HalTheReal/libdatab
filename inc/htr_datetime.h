@@ -6,8 +6,8 @@
 #include <vector>
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
-#include <Time.h>
-#include <Date.h>
+#include <htr_time.h>
+#include <htr_date.h>
 
 namespace Epoch {
 

@@ -1,4 +1,4 @@
-#include "Spectrum.h"
+#include "htr_spectrum.h"
 
 namespace Spectrometry {
 

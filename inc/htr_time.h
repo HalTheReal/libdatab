@@ -7,8 +7,8 @@
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
 #include <math.h>       // fmod
-#include <tools.h>
-#include <Range.h>
+#include <htr_tools.h>
+#include <htr_range.h>
 
 namespace Epoch {
 

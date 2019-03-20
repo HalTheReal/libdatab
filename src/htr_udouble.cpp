@@ -1,4 +1,4 @@
-#include "udouble.h"
+#include "htr_udouble.h"
 
 udouble::udouble()
   : value(0)
