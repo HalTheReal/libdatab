@@ -162,6 +162,28 @@ namespace Epoch {
     return stream;
   }
 
+  DateTime to_DateTime(const std::tm &tm) {
+    int month = tm.tm_mon + 1;    // tm_mon = months from Jan
+    int year = tm.tm_year + 1900; // tm_year = years from 1900
+    return DateTime(tm.tm_mday, month, year, tm.tm_hour, tm.tm_min, tm.tm_sec);
+  }
+
+  DateTime local() {
+    using std::chrono::system_clock;
+    system_clock::time_point now = system_clock::now();
+    time_t tt = system_clock::to_time_t(now);
+    std::tm local = *localtime_r(&tt, &local);
+    return to_DateTime(local);
+  }
+
+  DateTime gmt() {
+    using std::chrono::system_clock;
+    system_clock::time_point now = system_clock::now();
+    time_t tt = system_clock::to_time_t(now);
+    std::tm gmt = *gmtime_r(&tt, &gmt);
+    return to_DateTime(gmt);
+  }
+
 }
 
 int width(const Range<Epoch::DateTime> &rng) {

@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
+#include <chrono>
+#include <ctime>
 #include <htr_time.h>
 #include <htr_date.h>
 
@@ -49,6 +51,11 @@ namespace Epoch {
 
   std::ostream& operator << (std::ostream &stream, const DateTime &dtt);
   std::istream& operator >> (std::istream &stream, DateTime &dtt);
+
+  DateTime to_DateTime(const std::tm &tm);
+  DateTime local();
+  DateTime gmt();
+
 }
 
 int width(const Range<Epoch::DateTime> &rng);
