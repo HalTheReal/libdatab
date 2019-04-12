@@ -122,6 +122,7 @@ namespace Spectrometry {
     std::vector <double> bin;
     Epoch::DateTime dataSpt;
     float dT;
+    double q = 0, m = 1;
     std::string riga;
     while (file >> riga) {
       if (riga.compare("$DATE_MEA:") == 0) {
@@ -144,12 +145,16 @@ namespace Spectrometry {
         file >> fstChn >> lstChn;
         bin.reserve(lstChn + 1);
       }
+      else if (riga.compare("$ENER_FIT:") == 0) {
+        file >> q >> m;
+      }
       else {
         bin.push_back(stof(riga));
       }
     }
     file.close();
     Spectrum ret(bin, dataSpt, dT);
+    ret.calibrateWith(m, q);
     return ret;
   }
 

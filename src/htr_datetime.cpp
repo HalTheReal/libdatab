@@ -33,8 +33,8 @@ namespace Epoch {
     return timeNow.hour();
   }
 
-  int DateTime::min() const {
-    return timeNow.min();
+  int DateTime::mnt() const {
+    return timeNow.mnt();
   }
 
   int DateTime::sec() const {
@@ -82,7 +82,7 @@ namespace Epoch {
   }
 
   Time toTime(const DateTime &dtt) {
-    return (Time(dtt.hour(), dtt.min(), dtt.sec()));
+    return (Time(dtt.hour(), dtt.mnt(), dtt.sec()));
   }
 
   std::string to_string(const DateTime &dtt, char dtSep, char tmSep) {
@@ -160,6 +160,40 @@ namespace Epoch {
       dtt = DateTime(dt, tm);
     }
     return stream;
+  }
+
+  DateTime to_DateTime(const std::tm &tm) {
+    int month = tm.tm_mon + 1;    // tm_mon = months from Jan
+    int year = tm.tm_year + 1900; // tm_year = years from 1900
+    return DateTime(tm.tm_mday, month, year, tm.tm_hour, tm.tm_min, tm.tm_sec);
+  }
+
+  DateTime local() {
+    using std::chrono::system_clock;
+    system_clock::time_point now = system_clock::now();
+    time_t tt = system_clock::to_time_t(now);
+#ifdef _WIN32
+    std::tm local;
+    localtime_s(&local, &tt);
+#endif
+#ifdef __linux__
+    std::tm local = *localtime_r(&tt, &local);
+#endif
+    return to_DateTime(local);
+  }
+
+  DateTime gmt() {
+    using std::chrono::system_clock;
+    system_clock::time_point now = system_clock::now();
+    time_t tt = system_clock::to_time_t(now);
+#ifdef _WIN32
+    std::tm gmt;
+    gmtime_s(&gmt, &tt);
+#endif
+#ifdef __linux__
+    std::tm gmt = *gmtime_r(&tt, &gmt);
+#endif
+    return to_DateTime(gmt);
   }
 
 }

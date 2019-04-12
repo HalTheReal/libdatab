@@ -46,7 +46,7 @@ namespace Epoch {
     return hours;
   }
 
-  int Time::min() const {
+  int Time::mnt() const {
     return minutes;
   }
 
@@ -58,13 +58,13 @@ namespace Epoch {
     int base = toInt(*this);
     Time add(base + secs);
     hours = add.hour();
-    minutes = add.min();
+    minutes = add.mnt();
     seconds = add.sec();
     return *this;
   }
 
   bool operator == (const Time &tm1, const Time &tm2) {
-    if (tm1.hour() == tm2.hour() && tm1.min() == tm2.min() && tm1.sec() == tm2.sec()) {
+    if (tm1.hour() == tm2.hour() && tm1.mnt() == tm2.mnt() && tm1.sec() == tm2.sec()) {
       return true;
     }
     return false;
@@ -81,10 +81,10 @@ namespace Epoch {
     if (tm1.hour() > tm2.hour()) {
       return false;
     }
-    if (tm1.min() < tm2.min()) {
+    if (tm1.mnt() < tm2.mnt()) {
       return true;
     }
-    if (tm1.min() > tm2.min()) {
+    if (tm1.mnt() > tm2.mnt()) {
       return false;
     }
     if (tm1.sec() < tm2.sec()) {
@@ -111,7 +111,7 @@ namespace Epoch {
   int toInt(const Time &tm) {
     int ret = 0;
     ret += tm.sec();
-    ret += tm.min() * 60;
+    ret += tm.mnt() * 60;
     ret += tm.hour() * 60 * 60;
     return ret;
   }
@@ -147,10 +147,10 @@ namespace Epoch {
       ss << '0';
     }
     ss << tm.hour() << sep;
-    if (tm.min() < 10) {
+    if (tm.mnt() < 10) {
       ss << '0';
     }
-    ss << tm.min() << sep;
+    ss << tm.mnt() << sep;
     if (tm.sec() < 10) {
       ss << '0';
     }

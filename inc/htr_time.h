@@ -19,7 +19,7 @@ namespace Epoch {
       Time(int hs, int ms, int ss);
 
       int hour() const;
-      int min() const;
+      int mnt() const;
       int sec() const;
       
       Time& addSec(int secs);
