@@ -173,11 +173,11 @@ namespace Epoch {
     system_clock::time_point now = system_clock::now();
     time_t tt = system_clock::to_time_t(now);
 #ifdef _WIN32
-	std::tm local;
-	localtime_s(&local, &tt);
+    std::tm local;
+    localtime_s(&local, &tt);
 #endif
 #ifdef __linux__
-	std::tm local = *localtime_r(&tt, &local);
+    std::tm local = *localtime_r(&tt, &local);
 #endif
     return to_DateTime(local);
   }
@@ -187,11 +187,11 @@ namespace Epoch {
     system_clock::time_point now = system_clock::now();
     time_t tt = system_clock::to_time_t(now);
 #ifdef _WIN32
-	std::tm gmt;
-	gmtime_s(&gmt, &tt);
+    std::tm gmt;
+    gmtime_s(&gmt, &tt);
 #endif
 #ifdef __linux__
-	std::tm gmt = *gmtime_r(&tt, &gmt);
+    std::tm gmt = *gmtime_r(&tt, &gmt);
 #endif
     return to_DateTime(gmt);
   }
