@@ -29,6 +29,7 @@ $(OUT): $(OBJ)
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 
 $(OBJPATH)/%.o: $(SRCPATH)/%.cpp $(INC)
+	@mkdir -p $(@D)
 	$(CC) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 .PHONY: clean cleanall
