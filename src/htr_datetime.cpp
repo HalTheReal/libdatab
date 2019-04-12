@@ -33,8 +33,8 @@ namespace Epoch {
     return timeNow.hour();
   }
 
-  int DateTime::min() const {
-    return timeNow.min();
+  int DateTime::mnt() const {
+    return timeNow.mnt();
   }
 
   int DateTime::sec() const {
@@ -82,7 +82,7 @@ namespace Epoch {
   }
 
   Time toTime(const DateTime &dtt) {
-    return (Time(dtt.hour(), dtt.min(), dtt.sec()));
+    return (Time(dtt.hour(), dtt.mnt(), dtt.sec()));
   }
 
   std::string to_string(const DateTime &dtt, char dtSep, char tmSep) {

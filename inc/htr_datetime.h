@@ -26,7 +26,7 @@ namespace Epoch {
       int month() const;
       int year() const;
       int hour() const;
-      int min() const;
+      int mnt() const;
       int sec() const;
       
     private:
