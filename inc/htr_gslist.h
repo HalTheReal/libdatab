@@ -17,11 +17,35 @@
 
 namespace Spectrometry {
 
+  using ll_int = long long;
+  using Event = std::pair<ll_int, int>;
+  using VecEvent = std::vector <std::pair <ll_int, int>>;
+
+  class EventList {
+
+    public:
+      EventList();
+      EventList(const std::vector <Event> &events);
+
+      EventList copy(ll_int from, ll_int to) const;
+      EventList& merge(const EventList &gsl);
+      EventList& shift(ll_int start);
+
+      ll_int first() const;
+      ll_int last() const;
+      std::size_t entries() const;
+
+      std::vector <int> getHist(std::size_t channels) const;
+
+    private:
+      VecEvent evtList;
+  };
+
   class GSList {
 
     public:
       GSList();
-      GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start);
+      GSList(const std::vector <Event> &events, const Epoch::DateTime &start);
 
       std::vector <int> getEventHist() const;
       Epoch::DateTime getDateTime() const;
@@ -34,7 +58,7 @@ namespace Spectrometry {
       void writeGSL(const char * nomeFile) const;
 
     private:
-      std::vector <std::pair <long, int>> evtList;  // time [s / 10^9], energy [keV]
+      std::vector <Event> evtList;  // time [s / 10^9], energy [keV]
       Epoch::DateTime dataGS;
   };
 
@@ -43,7 +67,7 @@ namespace Spectrometry {
   void writeSPT(const GSList &lst, const char * nomeFile);
   GSList readGSL(const char * nomeFile);
 
-  bool isLess(std::pair <long, int> pair, long val);
+  bool isBefore(Event evt, ll_int val);
   long tousec(long sec);
 }
 #endif

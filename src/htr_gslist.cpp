@@ -1,12 +1,70 @@
 #include "htr_gslist.h"
 namespace Spectrometry {
 
+EventList::EventList()
+  : evtList()
+{}
+
+EventList::EventList(const std::vector <std::pair <ll_int, int>> &events)
+  : evtList(events)
+{
+  std::sort(evtList.begin(), evtList.end());
+}
+
+EventList EventList::copy(ll_int from, ll_int to) const {
+  if(to < from) {
+    std::swap(from, to);
+  }
+  auto copyFrom = std::lower_bound(evtList.begin(), evtList.end(), from, isBefore);
+  auto copyTo = std::lower_bound(evtList.begin(), evtList.end(), to, isBefore);
+  std::vector <std::pair <ll_int, int>> copied(copyFrom, copyTo);
+  return EventList(copied);
+}
+
+EventList& EventList::merge(const EventList &gsl) {
+  for(auto pair : gsl.evtList) {
+    evtList.push_back(pair);
+  }
+  std::sort(evtList.begin(), evtList.end());
+  return *this;
+}
+
+EventList& EventList::shift(ll_int off) {
+  for (auto &pair : this->evtList) {
+    pair.first += off;
+  }
+  return *this;
+}
+
+ll_int EventList::first() const {
+  return evtList.front().first;
+}
+
+ll_int EventList::last() const {
+  return evtList.back().first;
+}
+
+std::size_t EventList::entries() const {
+  return evtList.size();
+}
+
+std::vector <int> EventList::getHist(std::size_t channels) const {
+  std::vector <int> bin(channels, 0);
+  for (auto &pair : this->evtList) {
+    // Warning, pair.second è signed, channels no
+    if (pair.second > 0 && pair.second < channels) {
+      ++bin[pair.second];
+    }
+  }
+  return bin;
+}
+
 GSList::GSList()
   : evtList()
   , dataGS()
 {}
 
-GSList::GSList(const std::vector <std::pair <long, int>> &events, const Epoch::DateTime &start)
+GSList::GSList(const std::vector <Event> &events, const Epoch::DateTime &start)
   : evtList(events)
   , dataGS(start)
 {}
@@ -38,8 +96,8 @@ GSList& GSList::erase(long from, long to) {
   if(to <= 0) {
     return *this;
   }
-  auto eraseFrom = std::lower_bound(evtList.begin(), evtList.end(), tousec(from), isLess);
-  auto eraseTo = std::lower_bound(evtList.begin(), evtList.end(), tousec(to), isLess);
+  auto eraseFrom = std::lower_bound(evtList.begin(), evtList.end(), tousec(from), isBefore);
+  auto eraseTo = std::lower_bound(evtList.begin(), evtList.end(), tousec(to), isBefore);
   evtList.erase(eraseFrom, eraseTo);
   if(from <= 0) {
     dataGS.addSec(to);
@@ -78,9 +136,9 @@ GSList GSList::copy(long from, long to) const {
   if(to <= 0) {
     return GSList();
   }
-  auto copyFrom = std::lower_bound(evtList.begin(), evtList.end(), tousec(from), isLess);
-  auto copyTo = std::lower_bound(evtList.begin(), evtList.end(), tousec(to), isLess);
-  std::vector <std::pair <long, int>> copied(copyFrom, copyTo);
+  auto copyFrom = std::lower_bound(evtList.begin(), evtList.end(), tousec(from), isBefore);
+  auto copyTo = std::lower_bound(evtList.begin(), evtList.end(), tousec(to), isBefore);
+  std::vector <Event> copied(copyFrom, copyTo);
   Epoch::DateTime dtt = dataGS;
   if(from > 0) {
     dtt.addSec(from);
@@ -125,7 +183,7 @@ GSList readGSL(const char * nomeFile) {
   if (!file) {
     throw std::invalid_argument("Unable to open file!");
   }
-  std::vector <std::pair <long, int>> coppie;
+  std::vector <Event> coppie;
   Epoch::DateTime dataGS;
 
   std::string token;
@@ -150,8 +208,8 @@ GSList readGSL(const char * nomeFile) {
   return GSList(coppie, dataGS);
 }
 
-bool isLess(std::pair <long, int> pair, long val) {
-  return (pair.first < val);
+bool isBefore(Event evt, ll_int val) {
+  return (evt.first < val);
 }
 
 }
