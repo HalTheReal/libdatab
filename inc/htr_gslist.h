@@ -48,7 +48,7 @@ namespace Spectrometry {
 
   template <typename T>
   void shift(TimedEvent &evt, const T &offset) {
-    evt.setTime(evt.time() + std::chrono::duration_cast<std::chrono::nanoseconds> (offset));
+    evt.setTime(evt.time() + offset);
   }
 
   bool isBefore(const TimedEvent &ev1, const TimedEvent &ev2);
@@ -57,7 +57,7 @@ namespace Spectrometry {
 
   template <typename T>
   bool isBefore(const TimedEvent &evt, const T &tstamp) {
-    return evt.time() < std::chrono::duration_cast<std::chrono::nanoseconds> (tstamp);
+    return evt.time() < tstamp;
   }
 
   template <typename T>
@@ -67,7 +67,7 @@ namespace Spectrometry {
 
   template <typename T>
   bool isSync(const TimedEvent &evt, const T &tstamp) {
-    return evt.time() == std::chrono::duration_cast<std::chrono::nanoseconds> (tstamp);
+    return evt.time() == tstamp;
   }
 
   std::ostream& operator << (std::ostream &stream, const TimedEvent &evt);
@@ -75,17 +75,50 @@ namespace Spectrometry {
 
   using EventList = std::list<TimedEvent>;
 
+  bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2);
+
   void timeSort(EventList &evl);
-//
-//  bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2);
-//  bool isBeforeTime(const TimedEvent &ev1, long long time);
-//  EventList timeCut(EventList &evl, long long from, long long to);
-//  EventList timeCopy(const EventList &evl, long long from, long long to);
-//  void timeShift(EventList &evl, long long offset);
-//  void append(EventList &dest, EventList &toApp);
-//  std::vector <int> toHistogram(const EventList &evl, std::size_t channels);
-//
-//  EventList readASCII(const char * filename);
+
+  template <typename T>
+  void timeShift(EventList &evl, const T &tstamp) {
+    for (auto &event : evl) {
+      shift(event, tstamp);
+    }
+  }
+
+  template <typename T>
+  bool isBeforeTime(const TimedEvent &ev1, const T &tstamp) {
+    return isBefore(ev1, tstamp);
+  }
+
+  template <typename T1, typename T2>
+  EventList timeCut(EventList &evl, const T1 &fromTime, const T2 &toTime) {
+    EventList cut;
+    if (fromTime < toTime) {
+      auto cutFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      auto cutTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      cut.splice(cut.begin(), evl, cutFrom, cutTo);
+    }
+    else {
+      auto cutFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      auto cutTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      cut.splice(cut.begin(), evl, cutFrom, cutTo);
+    }
+    return cut;
+  }
+
+  template <typename T1, typename T2>
+  EventList timeCopy(const EventList &evl, const T1 &fromTime, const T2 &toTime) {
+    auto copyFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+    auto copyTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+    return EventList(copyFrom, copyTo);
+  }
+
+  void append(EventList &dest, EventList &toApp);
+  std::vector <int> toHistogram(const EventList &evl, std::size_t channels);
+  EventList readASCII(const char * filename);
+  EventList readASCII(const std::string &filename);
+
 //
 //  class GSList {
 //

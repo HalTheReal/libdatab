@@ -36,55 +36,62 @@ bool isSync(const TimedEvent &ev1, const TimedEvent &ev2) {
   return ev1.time() == ev2.time();
 }
 
-void timeSort(EventList &evl) {
-  evl.sort([](const TimedEvent &ev1, const TimedEvent &ev2) -> bool {
-    return ev1.time() < ev2.time();
-    });
+std::ostream& operator << (std::ostream &stream, const TimedEvent &evt) {
+  std::stringstream ss;
+  ss.copyfmt(stream);
+  ss << evt.time().count() << ' ' << evt.energy();
+  stream << ss.str();
+  return stream;
 }
 
-////EventList timeCut(EventList &evl, long long from, long long to) {
-//  if(to < from) {
-//    std::swap(from, to);
-//  }
-//  auto cutFrom = std::lower_bound(evl.begin(), evl.end(), from, isBeforeTime);
-//  auto cutTo = std::lower_bound(evl.begin(), evl.end(), to, isBeforeTime);
-//  EventList cut;
-//  cut.splice(cut.begin(), evl, cutFrom, cutTo);
-//  return cut;
-//}
-//
-//EventList timeCopy(const EventList &evl, long long from, long long to) {
-//  if(to < from) {
-//    std::swap(from, to);
-//  }
-//  auto copyFrom = std::lower_bound(evl.begin(), evl.end(), from, isBeforeTime);
-//  auto copyTo = std::lower_bound(evl.begin(), evl.end(), to, isBeforeTime);
-//  return EventList(copyFrom, copyTo);
-//}
-//
-//void timeShift(EventList &evl, long long offset) {
-//  for (auto &event : evl) {
-//    shift(event, offset);
-//  }
-//}
-//
-//void append(EventList &dest, EventList &toApp) {
-//  long long end = dest.back().time();
-//  timeShift(toApp, end);
-//  dest.merge(toApp, isBeforeEvent);
-//}
-//
-//std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
-//  std::vector <int> hist(channels, 0);
-//  for (auto &evt : evl) {
-//    if (evt.energy() < channels) {
-//      ++hist[evt.energy()];
-//    }
-//  }
-//  return hist;
-//}
-//
-//EventList readASCII(const char * filename);
+std::istream& operator >> (std::istream &stream, TimedEvent &evt) {
+  int64_t tstamp;
+  unsigned energy;
+  stream >> tstamp >> energy;
+  if (!stream) {
+    return stream;
+  }
+  evt = TimedEvent(std::chrono::nanoseconds(tstamp), energy);
+  return stream;
+}
+
+bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2) {
+  return isBefore(ev1, ev2);
+}
+
+void timeSort(EventList &evl) {
+  evl.sort(isBeforeEvent);
+}
+
+void append(EventList &dest, EventList &toApp) {
+  auto end = dest.back().time();
+  timeShift(toApp, end);
+  dest.merge(toApp, isBeforeEvent);
+}
+
+std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
+  std::vector <int> hist(channels, 0);
+  for (auto &evt : evl) {
+    if (evt.energy() < channels) {
+      ++hist[evt.energy()];
+    }
+  }
+  return hist;
+}
+
+EventList readASCII(const char * filename) {
+  EventList evtList;
+  TimedEvent evt;
+  std::ifstream file(filename);
+  while(file >> evt) {
+    evtList.push_back(evt);
+  }
+  return evtList;
+}
+
+EventList readASCII(const std::string &filename) {
+  return readASCII(filename.c_str());
+}
 
 //GSList::GSList()
 //  : eventList()
