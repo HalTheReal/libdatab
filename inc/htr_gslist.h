@@ -109,9 +109,16 @@ namespace Spectrometry {
 
   template <typename T1, typename T2>
   EventList timeCopy(const EventList &evl, const T1 &fromTime, const T2 &toTime) {
-    auto copyFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-    auto copyTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-    return EventList(copyFrom, copyTo);
+    if (fromTime < toTime) {
+      auto copyFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      auto copyTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      return EventList(copyFrom, copyTo);
+    }
+    else {
+      auto copyFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      auto copyTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      return EventList(copyFrom, copyTo);
+    }
   }
 
   void append(EventList &dest, EventList &toApp);
@@ -119,34 +126,51 @@ namespace Spectrometry {
   EventList readASCII(const char * filename);
   EventList readASCII(const std::string &filename);
 
-//
-//  class GSList {
-//
-//    public:
-//      GSList();
-//      GSList(const EventList &evl, const Epoch::DateTime &start);
-//
-//      GSList copy(int fromSec, int toSec) const;
-//      GSList& erase(const GSList &gsl, int fromSec, int toSec);
-//      GSList& merge(const GSList &gsl);
-//
-//      std::vector <int> getHistogram() const;
-//      Epoch::DateTime getDateTime() const;
-//      double getDT() const;
-//
-//      void writeGSL(const char * nomeFile) const;
-//
-//    private:
-//      EventList eventList;    // 1E-9 [s], [keV]
-//      Epoch::DateTime dataGS;
-//      
-//      long tousec(int sec) const;
-//  };
-//
-//  Spectrometry::Spectrum toSpectrum();
-//  void writeSPE(const GSList &lst, const char * nomeFile);
-//  void writeSPT(const GSList &lst, const char * nomeFile);
-//  GSList readGSL(const char * nomeFile);
+
+  class GSList {
+
+    public:
+      GSList();
+      GSList(EventList evl, Epoch::DateTime start);
+
+      GSList copy(int fromSec, int toSec) const;
+      GSList copy(const Epoch::DateTime from, int toSec) const;
+      GSList copy(int fromSec, const Epoch::DateTime &to) const;
+      GSList copy(const Epoch::DateTime from, const Epoch::DateTime &to) const;
+
+      GSList cut(int fromSec, int toSec);
+      GSList cut(const Epoch::DateTime from, int toSec);
+      GSList cut(int fromSec, const Epoch::DateTime &to);
+      GSList cut(const Epoch::DateTime from, const Epoch::DateTime &to);
+
+      GSList& merge(GSList &gsl);
+      GSList& append(GSList &gsl);
+
+      std::vector <int> toHistogram() const;
+      Epoch::DateTime getDateTime() const;
+
+      template <typename T = std::chrono::seconds>
+      T getLT() const {
+        return std::chrono::duration_cast<T> (eventList.back().time());
+      }
+
+      void writeGSL(const char * nomeFile) const;
+      void writeGSL(const std::string &nomeFile) const;
+
+    private:
+      EventList eventList;
+      Epoch::DateTime dataGS;
+  };
+
+  GSList readGSL(const char * nomeFile);
+  GSList readGSL(const std::string &nomeFile);
+
+  Spectrometry::Spectrum toSpectrum();
+
+  void writeSPE(const GSList &lst, const char * nomeFile);
+  void writeSPE(const GSList &lst, const std::string &nomeFile);
+  void writeSPT(const GSList &lst, const char * nomeFile);
+  void writeSPT(const GSList &lst, const std::string &nomeFile);
 }
 
 #endif
