@@ -32,7 +32,7 @@ namespace Spectrometry {
   Spectrum& Spectrum::rebin(double gain, unsigned seed) {
     std::default_random_engine generator(seed);
     std::vector <float> newBin(canali, 0);
-    for (int i = 0; i < canali; ++i) {
+    for (std::size_t i = 0; i < canali; ++i) {
       double E0 = i * mCal + 0.5 * mCal + qCal;
       double Emin = E0 - 0.5 * mCal;
       double Emax = E0 + 0.5 * mCal;
@@ -55,7 +55,7 @@ namespace Spectrometry {
     return bin.at(b1);
   }
 
-  int Spectrum::channels() const {
+  std::size_t Spectrum::channels() const {
     return canali;
   }
 
@@ -89,7 +89,7 @@ namespace Spectrometry {
     }
     double scale = sp1.getDT() / sp2.getDT();
     std::vector <double> newBins(sp1.channels(), 0);
-    for(int i = 0; i < sp1.channels(); ++i) {
+    for(std::size_t i = 0; i < sp1.channels(); ++i) {
       newBins[i] = sp1.binAt(i) + scale * sp2.binAt(i);
     }
     Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT());
@@ -103,7 +103,7 @@ namespace Spectrometry {
     }
     double scale = sp1.getDT() / sp2.getDT();
     std::vector <double> newBins(sp1.channels(), 0);
-    for(int i = 0; i < sp1.channels(); ++i) {
+    for(std::size_t i = 0; i < sp1.channels(); ++i) {
       newBins[i] = sp1.binAt(i) - scale * sp2.binAt(i);
       if (newBins[i] < 0) {
         newBins[i] = 0;
@@ -247,7 +247,7 @@ namespace Spectrometry {
       outfile << toTime(dtt) << '\n';
       outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
       outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
-      for (int i = 0; i < sp.channels(); ++i) {
+      for (std::size_t i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i) << '\n';
       }
       outfile << "$ENER_FIT:\n";
@@ -276,7 +276,7 @@ namespace Spectrometry {
       outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
       outfile << toTime(dtt) << "# DET # Spectrum.cpp" << '\n';
 
-      for (int i = 0; i < sp.channels(); ++i) {
+      for (std::size_t i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i);
         if (i % 8 == 7) {
           outfile << '\n';
@@ -293,7 +293,7 @@ namespace Spectrometry {
     std::ofstream outfile;
     outfile.open(nomeFile);
     if (outfile) {
-      for (int i = 0; i < sp.channels(); ++i) {
+      for (std::size_t i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i) << '\n';
       }
     }

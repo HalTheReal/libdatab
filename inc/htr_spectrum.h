@@ -27,7 +27,7 @@ namespace Spectrometry {
       Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm);
 
       double binAt(int b1) const;
-      int channels() const;
+      std::size_t channels() const;
       double getM() const;
       double getQ() const;
       Epoch::DateTime getDateTime() const;
@@ -39,7 +39,7 @@ namespace Spectrometry {
 
     private:
       std::vector <float> bin;
-      int canali;
+      std::size_t canali;
       double mCal;
       double qCal;
       Epoch::DateTime startTime;
@@ -64,6 +64,7 @@ namespace Spectrometry {
     startTime = start;
     dT = tm;
   }
+
 
   int energyToBin(double m, double q, double en);
   int energyToBin(const Spectrum &sp, double en);
