@@ -41,17 +41,6 @@ BinRange toBinRange(const EnrRange &rng, const S &sp) {
   return toBinRange(rng, sp.getM(), sp.getQ());
 }
 
-// -----             ----- //
-
-// ----- Da mettere in Spectrum ? -----
-
-double integral(const Spectrum &sp, const BinRange &rng);
-double integral(const Spectrum &sp, const EnrRange &rng);
-double cps(const Spectrum &sp, const BinRange &rng);
-double cps(const Spectrum &sp, const EnrRange &rng);
-
-// ------------------------------------
-
 class ROI {
   public:
     ROI(const BinRange &rng, double m, double q = 0);
@@ -105,6 +94,13 @@ ROI& shiftEnr(ROI &roi, double enr);
 
 EnrRange toEnrRange(const ROI &roi);
 BinRange toBinRange(const ROI &roi);
+
+double integral(const Spectrum &sp, const BinRange &rng);
+double integral(const Spectrum &sp, const EnrRange &rng);
+double integral(const Spectrum &sp, const ROI &roi);
+double cps(const Spectrum &sp, const BinRange &rng);
+double cps(const Spectrum &sp, const EnrRange &rng);
+double cps(const Spectrum &sp, const ROI &roi);
 
 }
 
