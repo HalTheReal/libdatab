@@ -1,4 +1,5 @@
-#include "htr_gslist.h"
+#include "htr_listmode.h"
+
 namespace Spectrometry {
 
 TimedEvent::TimedEvent()

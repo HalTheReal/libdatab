@@ -1,5 +1,5 @@
-#ifndef GSLIST
-#define GSLIST
+#ifndef HTR_LISTMODE
+#define HTR_LISTMODE
 
 #include <string>
 #include <iostream>
