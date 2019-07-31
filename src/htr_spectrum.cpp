@@ -31,7 +31,7 @@ namespace Spectrometry {
 
   Spectrum& Spectrum::rebin(double gain, unsigned seed) {
     std::default_random_engine generator(seed);
-    std::vector <float> newBin(canali, 0);
+    std::vector <double> newBin(canali, 0);
     for (std::size_t i = 0; i < canali; ++i) {
       double E0 = i * mCal + 0.5 * mCal + qCal;
       double Emin = E0 - 0.5 * mCal;
@@ -121,7 +121,7 @@ namespace Spectrometry {
     }
     std::vector <double> bin;
     Epoch::DateTime dataSpt;
-    float dT;
+    double dT;
     double q = 0, m = 1;
     std::string riga;
     while (file >> riga) {
@@ -164,7 +164,7 @@ namespace Spectrometry {
       throw std::runtime_error("Unable to open file!");
     }
     int channels;
-    float dT;
+    double dT;
     double qS, mS;
     std::string riga;
     file >> channels >> dT >> riga >> qS >> mS;
@@ -196,7 +196,7 @@ namespace Spectrometry {
     }
     std::vector <int> bin(2048, 0);
     Epoch::DateTime acqDate;
-    float dT;
+    double dT;
     std::string token;
     do {
       file >> token;
@@ -301,7 +301,7 @@ namespace Spectrometry {
   }
 
   Spectrum medianFilter(const Spectrum &sp, unsigned width) {
-    std::vector<float> bins(sp.channels(), 0);
+    std::vector<double> bins(sp.channels(), 0);
     for (unsigned i = 0; i < bins.size(); ++i) {
       bins[i] = sp.binAt(i);
     }
@@ -317,7 +317,7 @@ namespace Spectrometry {
   }
 
   Spectrum movingAvg(const Spectrum &sp, unsigned width) {
-    std::vector<float> bins(sp.channels(), 0);
+    std::vector<double> bins(sp.channels(), 0);
     for (unsigned i = 0; i < bins.size(); ++i) {
       bins[i] = sp.binAt(i);
     }
