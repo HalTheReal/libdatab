@@ -90,28 +90,6 @@ BinRange toBinRange(const ROI &roi) {
   return BinRange(roi.lowerBin(), roi.upperBin());
 }
 
-double integral(const Spectrum &sp, const BinRange &rng) {
-  double tot = 0;
-  for(int i = rng.lower(); i <= rng.upper(); ++i) {
-    tot += sp.binAt(i);
-  }
-  return tot;
-}
-
-double integral(const Spectrum &sp, const EnrRange &rng) {
-  BinRange brng = toBinRange(rng, sp.getM(), sp.getQ());
-  return integral(sp, brng);
-}
-
-double cps(const Spectrum &sp, const BinRange &rng) {
-  return integral(sp, rng) / sp.getDT();
-}
-
-double cps(const Spectrum &sp, const EnrRange &rng) {
-  BinRange brng = toBinRange(rng, sp.getM(), sp.getQ());
-  return cps(sp, brng);
-}
-
 ROI::ROI(const BinRange &rng, double m, double q)
   : brange(rng)
   , erange(toEnrRange(rng, m, q))
@@ -230,6 +208,36 @@ ROI& shiftEnr(ROI &roi, double enr) {
   roi.setLowerEnr(roi.lowerEnr() + enr);
   roi.setUpperEnr(roi.upperEnr() + enr);
   return roi;
+}
+
+double integral(const Spectrum &sp, const BinRange &rng) {
+  double tot = 0;
+  for(int i = rng.lower(); i <= rng.upper(); ++i) {
+    tot += sp.binAt(i);
+  }
+  return tot;
+}
+
+double integral(const Spectrum &sp, const EnrRange &rng) {
+  BinRange brng = toBinRange(rng, sp.getM(), sp.getQ());
+  return integral(sp, brng);
+}
+
+double integral(const Spectrum &sp, const ROI &roi) {
+  return integral(sp, toBinRange(roi));
+}
+
+double cps(const Spectrum &sp, const BinRange &rng) {
+  return integral(sp, rng) / sp.getDT();
+}
+
+double cps(const Spectrum &sp, const EnrRange &rng) {
+  BinRange brng = toBinRange(rng, sp.getM(), sp.getQ());
+  return cps(sp, brng);
+}
+
+double cps(const Spectrum &sp, const ROI &roi) {
+  return cps(sp, toBinRange(roi)) / sp.getDT();
 }
 
 }

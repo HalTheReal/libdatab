@@ -129,29 +129,33 @@ GSList GSList::copy(const Epoch::DateTime from, const Epoch::DateTime &to) const
   return copy(fromSec, toSec);
 }
 
-GSList GSList::cut(int fromSec, int toSec) {
-  EventList cut = timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
-  Epoch::DateTime dt = dataGS;
-  if(fromSec == 0) {
-    dt.addSec(toSec);
+void GSList::erase(int fromSec, int toSec) {
+  fromSec = std::max(fromSec, 0);
+  toSec = std::max(toSec, 0);
+  if (fromSec > toSec) {
+    std::swap(fromSec, toSec);
   }
-  return GSList(cut, dataGS);
+  timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  if(fromSec == 0) {
+    dataGS.addSec(toSec);
+    timeShift(eventList, std::chrono::seconds(-toSec));
+  }
 }
 
-GSList GSList::cut(const Epoch::DateTime from, int toSec) {
-  int fromSec = toUnix(dataGS) - toUnix(from);
-  return cut(fromSec, toSec);
+void GSList::erase(const Epoch::DateTime from, int toSec) {
+  int fromSec = toUnix(from) - toUnix(dataGS);
+  return erase(fromSec, toSec);
 }
 
-GSList GSList::cut(int fromSec, const Epoch::DateTime &to) {
-  int toSec = toUnix(dataGS) - toUnix(to);
-  return cut(fromSec, toSec);
+void GSList::erase(int fromSec, const Epoch::DateTime &to) {
+  int toSec = toUnix(to) - toUnix(dataGS);
+  return erase(fromSec, toSec);
 }
 
-GSList GSList::cut(const Epoch::DateTime from, const Epoch::DateTime &to) {
-  int fromSec = toUnix(dataGS) - toUnix(from);
-  int toSec = toUnix(dataGS) - toUnix(to);
-  return cut(fromSec, toSec);
+void GSList::erase(const Epoch::DateTime from, const Epoch::DateTime &to) {
+  int fromSec = toUnix(from) - toUnix(dataGS);
+  int toSec = toUnix(to) - toUnix(dataGS);
+  return erase(fromSec, toSec);
 }
 
 GSList& GSList::merge(GSList &gsl) {
@@ -180,6 +184,10 @@ std::vector <int> GSList::toHistogram() const {
 
 Epoch::DateTime GSList::getDateTime() const {
   return dataGS;
+}
+
+void GSList::setDateTime(const Epoch::DateTime &dt) {
+  dataGS = dt;
 }
 
 void GSList::writeGSL(const char * nomeFile) const {

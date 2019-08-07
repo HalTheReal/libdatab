@@ -24,10 +24,10 @@ namespace Spectrometry {
       Spectrum(const std::vector <T> &hist);
 
       template <typename T>
-      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm);
+      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double tm);
 
       double binAt(int b1) const;
-      int channels() const;
+      std::size_t channels() const;
       double getM() const;
       double getQ() const;
       Epoch::DateTime getDateTime() const;
@@ -38,12 +38,12 @@ namespace Spectrometry {
       Spectrum& rebin(double gain, unsigned seed);
 
     private:
-      std::vector <float> bin;
-      int canali;
+      std::vector <double> bin;
+      std::size_t canali;
       double mCal;
       double qCal;
       Epoch::DateTime startTime;
-      float dT;
+      double dT;
   };
 
   template <typename T>
@@ -58,12 +58,13 @@ namespace Spectrometry {
   }
 
   template <typename T>
-    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, float tm)
+    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double tm)
       : Spectrum(hist)
   {
     startTime = start;
     dT = tm;
   }
+
 
   int energyToBin(double m, double q, double en);
   int energyToBin(const Spectrum &sp, double en);
