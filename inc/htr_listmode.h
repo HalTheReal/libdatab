@@ -138,16 +138,17 @@ namespace Spectrometry {
       GSList copy(int fromSec, const Epoch::DateTime &to) const;
       GSList copy(const Epoch::DateTime from, const Epoch::DateTime &to) const;
 
-      GSList cut(int fromSec, int toSec);
-      GSList cut(const Epoch::DateTime from, int toSec);
-      GSList cut(int fromSec, const Epoch::DateTime &to);
-      GSList cut(const Epoch::DateTime from, const Epoch::DateTime &to);
+      void erase(int fromSec, int toSec);
+      void erase(const Epoch::DateTime from, int toSec);
+      void erase(int fromSec, const Epoch::DateTime &to);
+      void erase(const Epoch::DateTime from, const Epoch::DateTime &to);
 
       GSList& merge(GSList &gsl);
       GSList& append(GSList &gsl);
 
       std::vector <int> toHistogram() const;
       Epoch::DateTime getDateTime() const;
+      void setDateTime(const Epoch::DateTime &dt);
 
       template <typename T = std::chrono::seconds>
       T getLT() const {
