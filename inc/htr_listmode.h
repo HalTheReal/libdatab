@@ -126,7 +126,6 @@ namespace Spectrometry {
   EventList readASCII(const char * filename);
   EventList readASCII(const std::string &filename);
 
-
   class GSList {
 
     public:
@@ -137,6 +136,11 @@ namespace Spectrometry {
       GSList copy(const Epoch::DateTime from, int toSec) const;
       GSList copy(int fromSec, const Epoch::DateTime &to) const;
       GSList copy(const Epoch::DateTime from, const Epoch::DateTime &to) const;
+
+      GSList splice(int fromSec, int toSec);
+      GSList splice(const Epoch::DateTime from, int toSec);
+      GSList splice(int fromSec, const Epoch::DateTime &to);
+      GSList splice(const Epoch::DateTime from, const Epoch::DateTime &to);
 
       void erase(int fromSec, int toSec);
       void erase(const Epoch::DateTime from, int toSec);
@@ -150,10 +154,9 @@ namespace Spectrometry {
       Epoch::DateTime getDateTime() const;
       void setDateTime(const Epoch::DateTime &dt);
 
-      template <typename T = std::chrono::seconds>
-      T getLT() const {
-        return std::chrono::duration_cast<T> (eventList.back().time());
-      }
+      std::chrono::seconds getLT() const;
+      std::chrono::milliseconds getLTMilliseconds() const;
+      std::chrono::nanoseconds getLTNanoseconds() const;
 
       void writeGSL(const char * nomeFile) const;
       void writeGSL(const std::string &nomeFile) const;
@@ -166,7 +169,7 @@ namespace Spectrometry {
   GSList readGSL(const char * nomeFile);
   GSList readGSL(const std::string &nomeFile);
 
-  Spectrometry::Spectrum toSpectrum();
+  Spectrum toSpectrum(const GSList &gsl);
 
   void writeSPE(const GSList &lst, const char * nomeFile);
   void writeSPE(const GSList &lst, const std::string &nomeFile);
