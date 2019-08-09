@@ -73,7 +73,7 @@ namespace Spectrometry {
   std::ostream& operator << (std::ostream &stream, const TimedEvent &evt);
   std::istream& operator >> (std::istream &stream, TimedEvent &evt);
 
-  using EventList = std::list<TimedEvent>;
+  using EventList = std::vector<TimedEvent>;
 
   bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2);
 
@@ -97,12 +97,14 @@ namespace Spectrometry {
     if (fromTime < toTime) {
       auto cutFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
       auto cutTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      cut.splice(cut.begin(), evl, cutFrom, cutTo);
+      cut = EventList(cutFrom, cutTo);
+      evl.erase(cutFrom, cutTo);
     }
     else {
       auto cutFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
       auto cutTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      cut.splice(cut.begin(), evl, cutFrom, cutTo);
+      cut = EventList(cutFrom, cutTo);
+      evl.erase(cutFrom, cutTo);
     }
     return cut;
   }
@@ -121,7 +123,7 @@ namespace Spectrometry {
     }
   }
 
-  void append(EventList &dest, EventList &toApp);
+  void append(EventList &dest, const EventList &toApp);
   std::vector <int> toHistogram(const EventList &evl, std::size_t channels);
   EventList readASCII(const char * filename);
   EventList readASCII(const std::string &filename);

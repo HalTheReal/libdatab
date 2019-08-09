@@ -61,13 +61,13 @@ bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2) {
 }
 
 void timeSort(EventList &evl) {
-  evl.sort(isBeforeEvent);
+  std::sort(evl.begin(), evl.end(), isBeforeEvent);
 }
 
-void append(EventList &dest, EventList &toApp) {
-  auto end = dest.back().time();
-  timeShift(toApp, end);
-  dest.merge(toApp, isBeforeEvent);
+void append(EventList &dest, const EventList &toApp) {
+  for(auto evt : toApp) {
+    dest.push_back(evt);
+  }
 }
 
 std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
@@ -204,14 +204,14 @@ GSList& GSList::merge(GSList &gsl) {
   else {
     timeShift(gsl.eventList, offset);
   }
-  eventList.merge(gsl.eventList, isBeforeEvent);
+  Spectrometry::append(eventList, gsl.eventList);
   return *this;
 }
 
 GSList& GSList::append(GSList &gsl) {
   std::chrono::seconds offset(gsl.getLT());
   timeShift(gsl.eventList, offset);
-  eventList.merge(gsl.eventList, isBeforeEvent);
+  Spectrometry::append(eventList, gsl.eventList);
   return *this;
 }
 
