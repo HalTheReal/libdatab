@@ -123,6 +123,20 @@ namespace Spectrometry {
     }
   }
 
+  template <typename T1, typename T2>
+  void timeErase(EventList &evl, const T1 &fromTime, const T2 &toTime) {
+    if (fromTime < toTime) {
+      auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      auto eraseTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      evl.erase(eraseFrom, eraseTo);
+    }
+    else {
+      auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      auto eraseTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      evl.erase(eraseFrom, eraseTo);
+    }
+  }
+
   void append(EventList &dest, const EventList &toApp);
   std::vector <int> toHistogram(const EventList &evl, std::size_t channels);
   EventList readASCII(const char * filename);
@@ -139,15 +153,15 @@ namespace Spectrometry {
       GSList copy(int fromSec, const Epoch::DateTime &to) const;
       GSList copy(const Epoch::DateTime from, const Epoch::DateTime &to) const;
 
-      GSList splice(int fromSec, int toSec);
-      GSList splice(const Epoch::DateTime from, int toSec);
-      GSList splice(int fromSec, const Epoch::DateTime &to);
-      GSList splice(const Epoch::DateTime from, const Epoch::DateTime &to);
-
       void erase(int fromSec, int toSec);
       void erase(const Epoch::DateTime from, int toSec);
       void erase(int fromSec, const Epoch::DateTime &to);
       void erase(const Epoch::DateTime from, const Epoch::DateTime &to);
+
+      GSList cut(int fromSec, int toSec);
+      GSList cut(const Epoch::DateTime from, int toSec);
+      GSList cut(int fromSec, const Epoch::DateTime &to);
+      GSList cut(const Epoch::DateTime from, const Epoch::DateTime &to);
 
       GSList& merge(GSList &gsl);
       GSList& append(GSList &gsl);
