@@ -236,6 +236,22 @@ namespace Spectrometry {
     return Spectrum(bin);
   }
 
+  Spectrum readSPE(const std::string &nomeFile) {
+    return readSPE(nomeFile.c_str());
+  }
+
+  Spectrum readSPT(const std::string &nomeFile) {
+    return readSPT(nomeFile.c_str());
+  }
+
+  Spectrum readLST(const std::string &nomeFile) {
+    return readLST(nomeFile.c_str());
+  }
+
+  Spectrum readTXT(const std::string &nomeFile) {
+    return readTXT(nomeFile.c_str());
+  }
+
   void writeSPE(const Spectrum &sp, const char * nomeFile) {
     std::ofstream outfile;
     outfile.open(nomeFile);
@@ -298,6 +314,18 @@ namespace Spectrometry {
       }
     }
     outfile.close();
+  }
+
+  void writeSPE(const Spectrum &sp, const std::string &str) {
+    return writeSPE(sp, str.c_str());
+  }
+
+  void writeSPT(const Spectrum &sp, const std::string &str) {
+    return writeSPT(sp, str.c_str());
+  }
+
+  void writeTXT(const Spectrum &sp, const std::string &str) {
+    return writeTXT(sp, str.c_str());
   }
 
   Spectrum medianFilter(const Spectrum &sp, unsigned width) {
