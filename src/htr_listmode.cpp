@@ -291,6 +291,13 @@ GSList readGSL(const char * nomeFile) {
   return GSList(std::move(listmode), dataGS);
 }
 
+Epoch::DateTime getCentroid(const GSList &gsl) {
+  Epoch::DateTime ret = gsl.getDateTime();
+  double LT = gsl.getLTMilliseconds().count() / 1000.0;
+  ret.addSec(std::round(LT / 2.0));
+  return ret;
+}
+
 GSList readGSL(const std::string &nomeFile) {
   return readGSL(nomeFile.c_str());
 }

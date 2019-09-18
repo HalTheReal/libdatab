@@ -83,6 +83,12 @@ namespace Spectrometry {
     return binToEnergy(sp.getM(), sp.getQ(), bin);
   }
 
+  Epoch::DateTime getCentroid(const Spectrum &sp) {
+    Epoch::DateTime ret = sp.getDateTime();
+    ret.addSec(std::round(sp.getDT() / 2));
+    return ret;
+  }
+
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2) {
     if (sp1.channels() != sp2.channels()) {
       throw std::invalid_argument("Channels must be the same");

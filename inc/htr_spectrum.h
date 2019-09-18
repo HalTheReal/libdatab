@@ -72,6 +72,8 @@ namespace Spectrometry {
   double binToEnergy(double m, double q, int bin);
   double binToEnergy(const Spectrum &sp, int bin);
 
+  Epoch::DateTime getCentroid(const Spectrum &sp);
+
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2);
   Spectrum subtract(const Spectrum &sp1, const Spectrum &sp2);
 

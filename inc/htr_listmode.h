@@ -182,6 +182,8 @@ namespace Spectrometry {
       Epoch::DateTime dataGS;
   };
 
+  Epoch::DateTime getCentroid(const GSList &gsl);
+
   GSList readGSL(const char * nomeFile);
   GSList readGSL(const std::string &nomeFile);
 
