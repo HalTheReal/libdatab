@@ -303,7 +303,7 @@ GSList readGSL(const std::string &nomeFile) {
 }
 
 Spectrum toSpectrum(const GSList &gsl) {
-  double LT = gsl.getLTMilliseconds().count() / 1000.0;
+  double LT = gsl.getLT().count();
   return Spectrometry::Spectrum(gsl.toHistogram(), gsl.getDateTime(), LT);
 }
 
