@@ -85,7 +85,8 @@ namespace Spectrometry {
 
   Epoch::DateTime getCentroid(const Spectrum &sp) {
     Epoch::DateTime ret = sp.getDateTime();
-    ret.addSec(std::round(sp.getDT() / 2));
+    int LT = static_cast<int>(std::round(sp.getDT()));
+    ret.addSec(LT / 2); // Divisione INTERA!
     return ret;
   }
 

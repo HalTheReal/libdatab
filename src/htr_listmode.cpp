@@ -293,8 +293,8 @@ GSList readGSL(const char * nomeFile) {
 
 Epoch::DateTime getCentroid(const GSList &gsl) {
   Epoch::DateTime ret = gsl.getDateTime();
-  double LT = gsl.getLTMilliseconds().count() / 1000.0;
-  ret.addSec(std::round(LT / 2.0));
+  int LT = gsl.getLT().count();
+  ret.addSec(LT / 2); // Divisione INTERA!
   return ret;
 }
 
