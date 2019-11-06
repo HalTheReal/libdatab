@@ -224,7 +224,7 @@ namespace Spectrometry {
       ++bin[energyTok];
     }
     file.close();
-    dT = timeTok * 16E-9;
+    dT = timeTok * 1E-9;
     Spectrum ret(bin, acqDate, dT);
     return ret;
   }
