@@ -72,6 +72,8 @@ namespace Spectrometry {
   double binToEnergy(double m, double q, int bin);
   double binToEnergy(const Spectrum &sp, int bin);
 
+  Epoch::DateTime getCentroid(const Spectrum &sp);
+
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2);
   Spectrum subtract(const Spectrum &sp1, const Spectrum &sp2);
 
@@ -80,9 +82,18 @@ namespace Spectrometry {
   Spectrum readLST(const char * nomeFile);
   Spectrum readTXT(const char * nomeFile);
 
+  Spectrum readSPE(const std::string &nomeFile);
+  Spectrum readSPT(const std::string &nomeFile);
+  Spectrum readLST(const std::string &nomeFile);
+  Spectrum readTXT(const std::string &nomeFile);
+
   void writeSPE(const Spectrum &sp, const char * nomeFile);
   void writeSPT(const Spectrum &sp, const char * nomeFile);
   void writeTXT(const Spectrum &sp, const char * nomeFile);
+
+  void writeSPE(const Spectrum &sp, const std::string &str);
+  void writeSPT(const Spectrum &sp, const std::string &str);
+  void writeTXT(const Spectrum &sp, const std::string &str);
 
   Spectrum medianFilter(const Spectrum &sp, unsigned width);
   Spectrum movingAvg(const Spectrum &sp, unsigned width);

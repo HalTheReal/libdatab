@@ -73,7 +73,7 @@ namespace Spectrometry {
   std::ostream& operator << (std::ostream &stream, const TimedEvent &evt);
   std::istream& operator >> (std::istream &stream, TimedEvent &evt);
 
-  using EventList = std::list<TimedEvent>;
+  using EventList = std::vector<TimedEvent>;
 
   bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2);
 
@@ -97,12 +97,14 @@ namespace Spectrometry {
     if (fromTime < toTime) {
       auto cutFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
       auto cutTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      cut.splice(cut.begin(), evl, cutFrom, cutTo);
+      cut = EventList(cutFrom, cutTo);
+      evl.erase(cutFrom, cutTo);
     }
     else {
       auto cutFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
       auto cutTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      cut.splice(cut.begin(), evl, cutFrom, cutTo);
+      cut = EventList(cutFrom, cutTo);
+      evl.erase(cutFrom, cutTo);
     }
     return cut;
   }
@@ -121,11 +123,24 @@ namespace Spectrometry {
     }
   }
 
-  void append(EventList &dest, EventList &toApp);
+  template <typename T1, typename T2>
+  void timeErase(EventList &evl, const T1 &fromTime, const T2 &toTime) {
+    if (fromTime < toTime) {
+      auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      auto eraseTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      evl.erase(eraseFrom, eraseTo);
+    }
+    else {
+      auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
+      auto eraseTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
+      evl.erase(eraseFrom, eraseTo);
+    }
+  }
+
+  void append(EventList &dest, const EventList &toApp);
   std::vector <int> toHistogram(const EventList &evl, std::size_t channels);
   EventList readASCII(const char * filename);
   EventList readASCII(const std::string &filename);
-
 
   class GSList {
 
@@ -143,6 +158,11 @@ namespace Spectrometry {
       void erase(int fromSec, const Epoch::DateTime &to);
       void erase(const Epoch::DateTime from, const Epoch::DateTime &to);
 
+      GSList cut(int fromSec, int toSec);
+      GSList cut(const Epoch::DateTime from, int toSec);
+      GSList cut(int fromSec, const Epoch::DateTime &to);
+      GSList cut(const Epoch::DateTime from, const Epoch::DateTime &to);
+
       GSList& merge(GSList &gsl);
       GSList& append(GSList &gsl);
 
@@ -150,10 +170,9 @@ namespace Spectrometry {
       Epoch::DateTime getDateTime() const;
       void setDateTime(const Epoch::DateTime &dt);
 
-      template <typename T = std::chrono::seconds>
-      T getLT() const {
-        return std::chrono::duration_cast<T> (eventList.back().time());
-      }
+      std::chrono::seconds getLT() const;
+      std::chrono::milliseconds getLTMilliseconds() const;
+      std::chrono::nanoseconds getLTNanoseconds() const;
 
       void writeGSL(const char * nomeFile) const;
       void writeGSL(const std::string &nomeFile) const;
@@ -163,10 +182,12 @@ namespace Spectrometry {
       Epoch::DateTime dataGS;
   };
 
+  Epoch::DateTime getCentroid(const GSList &gsl);
+
   GSList readGSL(const char * nomeFile);
   GSList readGSL(const std::string &nomeFile);
 
-  Spectrometry::Spectrum toSpectrum();
+  Spectrum toSpectrum(const GSList &gsl);
 
   void writeSPE(const GSList &lst, const char * nomeFile);
   void writeSPE(const GSList &lst, const std::string &nomeFile);

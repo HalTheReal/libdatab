@@ -61,13 +61,11 @@ bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2) {
 }
 
 void timeSort(EventList &evl) {
-  evl.sort(isBeforeEvent);
+  std::sort(evl.begin(), evl.end(), isBeforeEvent);
 }
 
-void append(EventList &dest, EventList &toApp) {
-  auto end = dest.back().time();
-  timeShift(toApp, end);
-  dest.merge(toApp, isBeforeEvent);
+void append(EventList &dest, const EventList &toApp) {
+  dest.insert(dest.end(), toApp.begin(), toApp.end());
 }
 
 std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
@@ -105,27 +103,33 @@ GSList::GSList(EventList evl, Epoch::DateTime start)
 {}
 
 GSList GSList::copy(int fromSec, int toSec) const {
+  fromSec = std::max(fromSec, 0);
+  toSec = std::max(toSec, 0);
+  if (fromSec > toSec) {
+    std::swap(fromSec, toSec);
+  }
   EventList copy = timeCopy(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
   Epoch::DateTime dt = dataGS;
   if(fromSec > 0) {
     dt.addSec(fromSec);
+    timeShift(copy, std::chrono::seconds(-fromSec));
   }
-  return GSList(copy, dataGS);
+  return GSList(copy, dt);
 }
 
 GSList GSList::copy(const Epoch::DateTime from, int toSec) const {
-  int fromSec = toUnix(dataGS) - toUnix(from);
+  int fromSec = toUnix(from) - toUnix(dataGS);
   return copy(fromSec, toSec);
 }
 
 GSList GSList::copy(int fromSec, const Epoch::DateTime &to) const {
-  int toSec = toUnix(dataGS) - toUnix(to);
+  int toSec = toUnix(to) - toUnix(dataGS);
   return copy(fromSec, toSec);
 }
 
 GSList GSList::copy(const Epoch::DateTime from, const Epoch::DateTime &to) const {
-  int fromSec = toUnix(dataGS) - toUnix(from);
-  int toSec = toUnix(dataGS) - toUnix(to);
+  int fromSec = toUnix(from) - toUnix(dataGS);
+  int toSec = toUnix(to) - toUnix(dataGS);
   return copy(fromSec, toSec);
 }
 
@@ -135,7 +139,7 @@ void GSList::erase(int fromSec, int toSec) {
   if (fromSec > toSec) {
     std::swap(fromSec, toSec);
   }
-  timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  timeErase(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
   if(fromSec == 0) {
     dataGS.addSec(toSec);
     timeShift(eventList, std::chrono::seconds(-toSec));
@@ -158,6 +162,37 @@ void GSList::erase(const Epoch::DateTime from, const Epoch::DateTime &to) {
   return erase(fromSec, toSec);
 }
 
+GSList GSList::cut(int fromSec, int toSec) {
+  fromSec = std::max(fromSec, 0);
+  toSec = std::max(toSec, 0);
+  if (fromSec > toSec) {
+    std::swap(fromSec, toSec);
+  }
+  EventList cutted = timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  Epoch::DateTime dt = dataGS;
+  if(fromSec > 0) {
+    dt.addSec(fromSec);
+    timeShift(cutted, std::chrono::seconds(-fromSec));
+  }
+  return GSList(cutted, dt);
+}
+
+GSList GSList::cut(const Epoch::DateTime from, int toSec) {
+  int fromSec = toUnix(from) - toUnix(dataGS);
+  return cut(fromSec, toSec);
+}
+
+GSList GSList::cut(int fromSec, const Epoch::DateTime &to) {
+  int toSec = toUnix(to) - toUnix(dataGS);
+  return cut(fromSec, toSec);
+}
+
+GSList GSList::cut(const Epoch::DateTime from, const Epoch::DateTime &to) {
+  int fromSec = toUnix(from) - toUnix(dataGS);
+  int toSec = toUnix(to) - toUnix(dataGS);
+  return cut(fromSec, toSec);
+}
+
 GSList& GSList::merge(GSList &gsl) {
   std::chrono::seconds offset(std::abs(Epoch::toUnix(dataGS) - Epoch::toUnix(gsl.dataGS)));
   if(dataGS > gsl.dataGS) {
@@ -167,14 +202,13 @@ GSList& GSList::merge(GSList &gsl) {
   else {
     timeShift(gsl.eventList, offset);
   }
-  eventList.merge(gsl.eventList, isBeforeEvent);
+  Spectrometry::append(eventList, gsl.eventList);
+  timeSort(eventList);
   return *this;
 }
 
 GSList& GSList::append(GSList &gsl) {
-  std::chrono::seconds offset(gsl.getLT());
-  timeShift(gsl.eventList, offset);
-  eventList.merge(gsl.eventList, isBeforeEvent);
+  Spectrometry::append(eventList, gsl.eventList);
   return *this;
 }
 
@@ -188,6 +222,22 @@ Epoch::DateTime GSList::getDateTime() const {
 
 void GSList::setDateTime(const Epoch::DateTime &dt) {
   dataGS = dt;
+}
+
+std::chrono::seconds GSList::getLT() const {
+  // duration_cast tronca SEMPRE! quindi aggiungo mezzo secondo prima della conversione
+  std::chrono::nanoseconds half(500000000);
+  return std::chrono::duration_cast<std::chrono::seconds> (eventList.back().time() + half);
+}
+
+std::chrono::milliseconds GSList::getLTMilliseconds() const {
+  // duration_cast tronca SEMPRE! quindi aggiungo mezzo millisecondo prima della conversione
+  std::chrono::nanoseconds half(500000);
+  return std::chrono::duration_cast<std::chrono::milliseconds> (eventList.back().time() + half);
+}
+
+std::chrono::nanoseconds GSList::getLTNanoseconds() const {
+  return eventList.back().time();
 }
 
 void GSList::writeGSL(const char * nomeFile) const {
@@ -241,12 +291,19 @@ GSList readGSL(const char * nomeFile) {
   return GSList(std::move(listmode), dataGS);
 }
 
+Epoch::DateTime getCentroid(const GSList &gsl) {
+  Epoch::DateTime ret = gsl.getDateTime();
+  int LT = gsl.getLT().count();
+  ret.addSec(LT / 2); // Divisione INTERA!
+  return ret;
+}
+
 GSList readGSL(const std::string &nomeFile) {
   return readGSL(nomeFile.c_str());
 }
 
-Spectrometry::Spectrum toSpectrum(const GSList &gsl) {
-  double LT = gsl.getLT<std::chrono::milliseconds>().count() / 1000.0;
+Spectrum toSpectrum(const GSList &gsl) {
+  double LT = gsl.getLT().count();
   return Spectrometry::Spectrum(gsl.toHistogram(), gsl.getDateTime(), LT);
 }
 

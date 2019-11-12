@@ -83,6 +83,13 @@ namespace Spectrometry {
     return binToEnergy(sp.getM(), sp.getQ(), bin);
   }
 
+  Epoch::DateTime getCentroid(const Spectrum &sp) {
+    Epoch::DateTime ret = sp.getDateTime();
+    int LT = static_cast<int>(std::round(sp.getDT()));
+    ret.addSec(LT / 2); // Divisione INTERA!
+    return ret;
+  }
+
   Spectrum sum(const Spectrum &sp1, const Spectrum &sp2) {
     if (sp1.channels() != sp2.channels()) {
       throw std::invalid_argument("Channels must be the same");
@@ -217,7 +224,7 @@ namespace Spectrometry {
       ++bin[energyTok];
     }
     file.close();
-    dT = timeTok * 16E-9;
+    dT = timeTok * 1E-9;
     Spectrum ret(bin, acqDate, dT);
     return ret;
   }
@@ -234,6 +241,22 @@ namespace Spectrometry {
     }
     file.close();
     return Spectrum(bin);
+  }
+
+  Spectrum readSPE(const std::string &nomeFile) {
+    return readSPE(nomeFile.c_str());
+  }
+
+  Spectrum readSPT(const std::string &nomeFile) {
+    return readSPT(nomeFile.c_str());
+  }
+
+  Spectrum readLST(const std::string &nomeFile) {
+    return readLST(nomeFile.c_str());
+  }
+
+  Spectrum readTXT(const std::string &nomeFile) {
+    return readTXT(nomeFile.c_str());
   }
 
   void writeSPE(const Spectrum &sp, const char * nomeFile) {
@@ -298,6 +321,18 @@ namespace Spectrometry {
       }
     }
     outfile.close();
+  }
+
+  void writeSPE(const Spectrum &sp, const std::string &str) {
+    return writeSPE(sp, str.c_str());
+  }
+
+  void writeSPT(const Spectrum &sp, const std::string &str) {
+    return writeSPT(sp, str.c_str());
+  }
+
+  void writeTXT(const Spectrum &sp, const std::string &str) {
+    return writeTXT(sp, str.c_str());
   }
 
   Spectrum medianFilter(const Spectrum &sp, unsigned width) {

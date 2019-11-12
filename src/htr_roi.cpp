@@ -237,7 +237,7 @@ double cps(const Spectrum &sp, const EnrRange &rng) {
 }
 
 double cps(const Spectrum &sp, const ROI &roi) {
-  return cps(sp, toBinRange(roi)) / sp.getDT();
+  return cps(sp, toBinRange(roi));
 }
 
 }
