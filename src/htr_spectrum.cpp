@@ -128,7 +128,7 @@ namespace Spectrometry {
     }
     std::vector <double> bin;
     Epoch::DateTime dataSpt;
-    double dT;
+    double liveT, realT;
     double q = 0, m = 1;
     std::string riga;
     while (file >> riga) {
@@ -141,26 +141,24 @@ namespace Spectrometry {
         Epoch::Date dt(dy, mn, yr);
         dataSpt = Epoch::DateTime(dt, tm);
       }
-      else if (riga.compare("$SPEC_ID:") == 0) {
-        file >> riga;
-      }
       else if (riga.compare("$MEAS_TIM:") == 0) {
-        file >> dT >> dT;
+        file >> liveT >> realT;
       }
       else if (riga.compare("$DATA:") == 0) {
         int fstChn, lstChn;
         file >> fstChn >> lstChn;
         bin.reserve(lstChn + 1);
+        for(std::size_t i = 0; i <= lstChn; ++i) {
+          file >> riga;
+          bin.push_back(std::stof(riga));
+        }
       }
       else if (riga.compare("$ENER_FIT:") == 0) {
         file >> q >> m;
       }
-      else {
-        bin.push_back(stof(riga));
-      }
     }
     file.close();
-    Spectrum ret(bin, dataSpt, dT);
+    Spectrum ret(bin, dataSpt, liveT);
     ret.calibrateWith(m, q);
     return ret;
   }
