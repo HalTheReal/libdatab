@@ -79,12 +79,10 @@ namespace Spectrometry {
 
   Spectrum readSPE(const char * nomeFile);
   Spectrum readSPT(const char * nomeFile);
-  Spectrum readLST(const char * nomeFile);
   Spectrum readTXT(const char * nomeFile);
 
   Spectrum readSPE(const std::string &nomeFile);
   Spectrum readSPT(const std::string &nomeFile);
-  Spectrum readLST(const std::string &nomeFile);
   Spectrum readTXT(const std::string &nomeFile);
 
   void writeSPE(const Spectrum &sp, const char * nomeFile);

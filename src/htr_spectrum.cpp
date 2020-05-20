@@ -194,39 +194,6 @@ namespace Spectrometry {
     return ret;
   }
 
-  Spectrum readLST(const char * nomeFile) {
-    std::ifstream file(nomeFile);
-    if (!file) {
-      throw std::runtime_error("Unable to open file!");
-    }
-    std::vector <int> bin(2048, 0);
-    Epoch::DateTime acqDate;
-    double dT;
-    std::string token;
-    do {
-      file >> token;
-      if (token.compare("#StartTime:") == 0) {
-        int yr, mn, dy;
-        char sep;
-        Epoch::Time tm;
-        file >> yr >> sep >> mn >> sep >> dy >> sep >> tm;
-        Epoch::Date dt(dy, mn, yr);
-        acqDate = Epoch::DateTime (dt, tm);
-      }
-    } while (token.compare("Gain") != 0);
-
-    long timeTok;
-    double gainTok;
-    int energyTok;
-    while (file >> timeTok >> energyTok >> gainTok) {
-      ++bin[energyTok];
-    }
-    file.close();
-    dT = timeTok * 1E-9;
-    Spectrum ret(bin, acqDate, dT);
-    return ret;
-  }
-
   Spectrum readTXT(const char * nomeFile) {
     std::ifstream file(nomeFile);
     if (!file) {
@@ -247,10 +214,6 @@ namespace Spectrometry {
 
   Spectrum readSPT(const std::string &nomeFile) {
     return readSPT(nomeFile.c_str());
-  }
-
-  Spectrum readLST(const std::string &nomeFile) {
-    return readLST(nomeFile.c_str());
   }
 
   Spectrum readTXT(const std::string &nomeFile) {
