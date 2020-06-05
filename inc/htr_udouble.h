@@ -14,12 +14,20 @@ class udouble {
     udouble & val(double newval);
     double unc() const;
     udouble & unc(double newunc);
+    udouble & operator +=(const udouble &rhs);
+    udouble & operator -=(const udouble &rhs);
+    udouble & operator *=(const udouble &rhs);
+    udouble & operator /=(const udouble &rhs);
   private:
     double value;
     double uncert;
     bool isValid();
 };
 
+udouble operator + (udouble lhs, const udouble &rhs);
+udouble operator - (udouble lhs, const udouble &rhs);
+udouble operator * (udouble lhs, const udouble &rhs);
+udouble operator / (udouble lhs, const udouble &rhs);
 std::ostream& operator << (std::ostream &stream, const udouble &ud);
 std::istream& operator >> (std::istream &stream, udouble &dt);
 
