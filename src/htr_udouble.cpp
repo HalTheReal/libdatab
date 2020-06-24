@@ -8,18 +8,7 @@ udouble::udouble()
 udouble::udouble(double val, double unc)
   : value(val)
   , uncert(fabs(unc))
-{
-  if(!isValid()) {
-    throw std::runtime_error("Invalid udouble");
-  }
-}
-
-bool udouble::isValid() {
-  if(uncert > value) {
-    return false;
-  }
-  return true;
-}
+{}
 
 double udouble::val() const {
   return value;
@@ -27,9 +16,6 @@ double udouble::val() const {
 
 udouble & udouble::val(double newval) {
   value = newval;
-  if(!isValid()) {
-    throw std::runtime_error("Invalid udouble");
-  }
   return *this;
 }
 
@@ -39,9 +25,6 @@ double udouble::unc() const {
 
 udouble & udouble::unc(double newunc) {
   uncert = newunc;
-  if(!isValid()) {
-    throw std::runtime_error("Invalid udouble");
-  }
   return *this;
 }
 

@@ -21,7 +21,6 @@ class udouble {
   private:
     double value;
     double uncert;
-    bool isValid();
 };
 
 udouble operator + (udouble lhs, const udouble &rhs);
