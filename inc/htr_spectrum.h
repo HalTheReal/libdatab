@@ -24,14 +24,18 @@ namespace Spectrometry {
       Spectrum(const std::vector <T> &hist);
 
       template <typename T>
-      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double tm);
+      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double livet);
+      
+      template <typename T>
+      Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double livet, double realt);
 
       double binAt(int b1) const;
       std::size_t channels() const;
       double getM() const;
       double getQ() const;
       Epoch::DateTime getDateTime() const;
-      double getDT() const;
+      double getRT() const;
+      double getLT() const;
 
       Spectrum& calibrateWith(double m, double q);
       Spectrum& rebin(double gain);
@@ -43,7 +47,8 @@ namespace Spectrometry {
       double mCal;
       double qCal;
       Epoch::DateTime startTime;
-      double dT;
+      double liveTime;
+      double realTime;
   };
 
   template <typename T>
@@ -58,13 +63,22 @@ namespace Spectrometry {
   }
 
   template <typename T>
-    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double tm)
+    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double livet)
       : Spectrum(hist)
   {
     startTime = start;
-    dT = tm;
+    liveTime = livet;
+    realTime = livet;
   }
-
+  
+    template <typename T>
+    Spectrum::Spectrum(const std::vector <T> &hist, const Epoch::DateTime &start, double livet, double realT)
+      : Spectrum(hist)
+  {
+    startTime = start;
+    liveTime = livet;
+    realTime = realT;
+  }
 
   int energyToBin(double m, double q, double en);
   int energyToBin(const Spectrum &sp, double en);

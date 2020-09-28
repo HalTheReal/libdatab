@@ -228,7 +228,7 @@ double integral(const Spectrum &sp, const ROI &roi) {
 }
 
 double cps(const Spectrum &sp, const BinRange &rng) {
-  return integral(sp, rng) / sp.getDT();
+  return integral(sp, rng) / sp.getLT();
 }
 
 double cps(const Spectrum &sp, const EnrRange &rng) {

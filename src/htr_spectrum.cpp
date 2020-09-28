@@ -7,7 +7,8 @@ namespace Spectrometry {
       , mCal(1)
       , qCal(0)
       , startTime()
-      , dT(0)
+      , liveTime(0)
+      , realTime(0)
   {}
 
   double Spectrum::getM() const {
@@ -63,8 +64,12 @@ namespace Spectrometry {
     return startTime;
   }
 
-  double Spectrum::getDT() const {
-    return dT;
+  double Spectrum::getLT() const {
+    return liveTime;
+  }
+  
+  double Spectrum::getRT() const {
+    return realTime;
   }
 
   int energyToBin(double m, double q, double en) {
@@ -85,7 +90,7 @@ namespace Spectrometry {
 
   Epoch::DateTime getCentroid(const Spectrum &sp) {
     Epoch::DateTime ret = sp.getDateTime();
-    int LT = static_cast<int>(std::round(sp.getDT()));
+    int LT = static_cast<int>(std::round(sp.getLT()));
     ret.addSec(LT / 2); // Divisione INTERA!
     return ret;
   }
@@ -94,12 +99,12 @@ namespace Spectrometry {
     if (sp1.channels() != sp2.channels()) {
       throw std::invalid_argument("Channels must be the same");
     }
-    double scale = sp1.getDT() / sp2.getDT();
+    double scale = sp1.getLT() / sp2.getLT();
     std::vector <double> newBins(sp1.channels(), 0);
     for(std::size_t i = 0; i < sp1.channels(); ++i) {
       newBins[i] = sp1.binAt(i) + scale * sp2.binAt(i);
     }
-    Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT());
+    Spectrum ret(newBins, sp1.getDateTime(), sp1.getLT(), sp1.getRT());
     ret.calibrateWith(sp1.getM(), sp1.getQ());
     return ret;
   }
@@ -108,7 +113,7 @@ namespace Spectrometry {
     if (sp1.channels() != sp2.channels()) {
       throw std::invalid_argument("Channels must be the same");
     }
-    double scale = sp1.getDT() / sp2.getDT();
+    double scale = sp1.getLT() / sp2.getLT();
     std::vector <double> newBins(sp1.channels(), 0);
     for(std::size_t i = 0; i < sp1.channels(); ++i) {
       newBins[i] = sp1.binAt(i) - scale * sp2.binAt(i);
@@ -116,7 +121,7 @@ namespace Spectrometry {
         newBins[i] = 0;
       }
     }
-    Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT());
+    Spectrum ret(newBins, sp1.getDateTime(), sp1.getLT(), sp1.getRT());
     ret.calibrateWith(sp1.getM(), sp1.getQ());
     return ret;
   }
@@ -129,7 +134,9 @@ namespace Spectrometry {
     for(std::size_t i = 0; i < sp1.channels(); ++i) {
       newBins[i] = sp1.binAt(i) + sp2.binAt(i);
     }
-    Spectrum ret(newBins, sp1.getDateTime(), sp1.getDT() + sp2.getDT());
+    double liveTime = sp1.getLT() + sp2.getLT();
+    double realTime = sp1.getRT() + sp2.getRT();
+    Spectrum ret(newBins, sp1.getDateTime(), liveTime, realTime);
     ret.calibrateWith(sp1.getM(), sp1.getQ());
     return ret;
   }
@@ -171,7 +178,7 @@ namespace Spectrometry {
       }
     }
     file.close();
-    Spectrum ret(bin, dataSpt, liveT);
+    Spectrum ret(bin, dataSpt, liveT, realT);
     ret.calibrateWith(m, q);
     return ret;
   }
@@ -182,10 +189,10 @@ namespace Spectrometry {
       throw std::runtime_error("Unable to open file!");
     }
     int channels;
-    double dT;
+    double LT;
     double qS, mS;
     std::string riga;
-    file >> channels >> dT >> riga >> qS >> mS;
+    file >> channels >> LT >> riga >> qS >> mS;
 
     Epoch::Time acqTime;
     char sep;
@@ -202,7 +209,7 @@ namespace Spectrometry {
       bin.push_back(events);
     }
     file.close();
-    Spectrum ret(bin, Epoch::DateTime(acqDate, acqTime), dT);
+    Spectrum ret(bin, Epoch::DateTime(acqDate, acqTime), LT);
     ret.calibrateWith(mS, qS);
     return ret;
   }
@@ -242,7 +249,7 @@ namespace Spectrometry {
       Epoch::DateTime dtt = sp.getDateTime();
       outfile << dtt.year() << '-' << dtt.month() << '-' << dtt.day() << ' ';
       outfile << toTime(dtt) << '\n';
-      outfile << "$MEAS_TIM:\n" << sp.getDT() << " " << sp.getDT() << '\n';
+      outfile << "$MEAS_TIM:\n" << sp.getLT() << " " << sp.getRT() << '\n';
       outfile << "$DATA:\n" << 0 << " " << sp.channels() - 1 << '\n';
       for (std::size_t i = 0; i < sp.channels(); ++i) {
         outfile << sp.binAt(i) << '\n';
@@ -257,7 +264,7 @@ namespace Spectrometry {
     std::ofstream outfile;
     outfile.open(nomeFile);
     if (outfile) {
-      outfile << sp.channels() << " " << sp.getDT();
+      outfile << sp.channels() << " " << sp.getLT();
       if (sp.getM() != 1) {
         outfile << " true ";
       }
@@ -322,7 +329,7 @@ namespace Spectrometry {
         bins[i] = Stats::median(lower, upper);
       }
     }
-    return Spectrum(bins, sp.getDateTime(), sp.getDT());
+    return Spectrum(bins, sp.getDateTime(), sp.getLT(), sp.getRT());
   }
 
   Spectrum movingAvg(const Spectrum &sp, unsigned width) {
@@ -338,7 +345,7 @@ namespace Spectrometry {
         bins[i] = Stats::mean(lower, upper);
       }
     }
-    return Spectrum(bins, sp.getDateTime(), sp.getDT());
+    return Spectrum(bins, sp.getDateTime(), sp.getLT(), sp.getRT());
   }
 
 }
