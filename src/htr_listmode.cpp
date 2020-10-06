@@ -102,6 +102,10 @@ GSList::GSList(EventList evl, Epoch::DateTime start)
   , dataGS(start)
 {}
 
+bool GSList::isEmpty() const {
+  return eventList.empty();
+}
+
 GSList GSList::copy(int fromSec, int toSec) const {
   fromSec = std::max(fromSec, 0);
   toSec = std::max(toSec, 0);
@@ -227,17 +231,22 @@ void GSList::setDateTime(const Epoch::DateTime &dt) {
 std::chrono::seconds GSList::getLT() const {
   // duration_cast tronca SEMPRE! quindi aggiungo mezzo secondo prima della conversione
   std::chrono::nanoseconds half(500000000);
-  return std::chrono::duration_cast<std::chrono::seconds> (eventList.back().time() + half);
+  return std::chrono::duration_cast<std::chrono::seconds> (getLTNanoseconds() + half);
 }
 
 std::chrono::milliseconds GSList::getLTMilliseconds() const {
   // duration_cast tronca SEMPRE! quindi aggiungo mezzo millisecondo prima della conversione
   std::chrono::nanoseconds half(500000);
-  return std::chrono::duration_cast<std::chrono::milliseconds> (eventList.back().time() + half);
+  return std::chrono::duration_cast<std::chrono::milliseconds> (getLTNanoseconds() + half);
 }
 
 std::chrono::nanoseconds GSList::getLTNanoseconds() const {
-  return eventList.back().time();
+  if (isEmpty()) {
+    return std::chrono::nanoseconds(0);
+  }
+  else {
+    return eventList.back().time();
+  }
 }
 
 void GSList::writeGSL(const char * nomeFile) const {
@@ -266,8 +275,14 @@ GSList readGSL(const char * nomeFile) {
   if (!file) {
     throw std::invalid_argument("Unable to open file!");
   }
-  Epoch::DateTime dataGS;
   std::string token;
+
+  // Parse header
+  std::string version;
+  file >> token >> version >> token;
+
+  // Parse StartTime
+  Epoch::DateTime dataGS;
   do {
     file >> token;
     if (token.compare("#StartTime:") == 0) {
@@ -279,13 +294,18 @@ GSList readGSL(const char * nomeFile) {
       dataGS = Epoch::DateTime(dt, tm);
     }
   } while (token.compare("Gain") != 0);
+
+  // Parse Listmode
+  int64_t multiplier = 1;
+  if (version.compare("1.0") == 0) {
+    multiplier = 16;
+  }
   int64_t timeTok;
   double gainTok;
   int energyTok;
   EventList listmode;
   while (file >> timeTok >> energyTok >> gainTok) {
-    listmode.push_back(TimedEvent(timeTok, energyTok));
-    //listmode.push_back(TimedEvent(timeTok * 16, energyTok));      // 1 ciclo clock = 16E-9 sec
+    listmode.push_back(TimedEvent(timeTok * multiplier, energyTok));
   }
   file.close();
   return GSList(std::move(listmode), dataGS);

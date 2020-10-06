@@ -148,6 +148,8 @@ namespace Spectrometry {
       GSList();
       GSList(EventList evl, Epoch::DateTime start);
 
+      bool isEmpty() const;
+
       GSList copy(int fromSec, int toSec) const;
       GSList copy(const Epoch::DateTime from, int toSec) const;
       GSList copy(int fromSec, const Epoch::DateTime &to) const;
