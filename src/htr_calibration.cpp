@@ -1,6 +1,45 @@
 #include "htr_calibration.h"
 
-MMZ::Line annealingCal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ) {
+double NaI(const Spectrometry::Spectrum &sp, double mC, double qC) {
+  std::vector <double> egy {1460, 2614};
+  double points = 0;
+  for (auto en : egy) {
+    unsigned middle = (en - qC) / mC;
+    unsigned lower = middle - 5;
+    unsigned upper = middle + 5;
+    if (lower >= 0 && upper < sp.channels()) {
+      for(unsigned i = lower; i <= upper; ++i) {
+        points += log(sp.binAt(i)) * sqrt(i);
+      }
+    }
+  }
+  return - points;
+}
+
+double CeBr3(const Spectrometry::Spectrum &sp, double mC, double qC) {
+  std::vector <double> egy {609, 2614};
+  double points = 0;
+  for (auto en : egy) {
+    unsigned middle = (en - qC) / mC;
+    unsigned lower = middle - 5;
+    unsigned upper = middle + 5;
+    if (lower >= 0 && upper < sp.channels()) {
+      for(unsigned i = lower; i <= upper; ++i) {
+        points += log(sp.binAt(i)) * sqrt(i);
+      }
+    }
+  }
+  return - points;
+}
+
+double stateChangeProb(double en1, double en2, double temp) {
+  if(en2 < en1) {
+    return 1;
+  }
+  return exp(-(en2 - en1) / temp);
+}
+
+MMZ::Line annealingCal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ, calFunction sysEnergy) {
   double temp = 4000;
   std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
   std::uniform_real_distribution <double> distChange(0, 1);
@@ -23,26 +62,11 @@ MMZ::Line annealingCal(const Spectrometry::Spectrum &sp, double minM, double max
   return MMZ::Line(mEst, qEst);
 }
 
-// Ottimizzata per spettri Gammastream
-double sysEnergy(const Spectrometry::Spectrum &sp, double mC, double qC) {
-  std::vector <double> egy {1460, 2614};
-  double points = 0;
-  for (auto en : egy) {
-    int middle = (en - qC) / mC;
-    int lower = middle - 5;
-    int upper = middle + 5;
-    if (lower >= 0 && upper < sp.channels()) {
-      for(int i = lower; i <= upper; ++i) {
-        points += log(sp.binAt(i)) * sqrt(i);
-      }
-    }
-  }
-  return - points;
+MMZ::Line NaICal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ) {
+  return annealingCal(sp, minM, maxM, minQ, maxQ, NaI);
 }
 
-double stateChangeProb(double en1, double en2, double temp) {
-  if(en2 < en1) {
-    return 1;
-  }
-  return exp(-(en2 - en1) / temp);
+MMZ::Line CeBr3Cal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ) {
+  return annealingCal(sp, minM, maxM, minQ, maxQ, CeBr3);
 }
+
