@@ -13,38 +13,14 @@
 #include <chrono>       //  std::duration
 #include <cmath>
 
+#include <htr_timedvalue.h>
 #include <htr_datetime.h>
 #include <htr_spectrum.h>
 #include <htr_tools.h>
 
 namespace Spectrometry {
 
-  class TimedEvent {
-    public:
-      TimedEvent();
-      TimedEvent(int64_t tstamp, unsigned energy);
-
-      template <typename T>
-      TimedEvent(const T &tstamp, unsigned energy)
-        : evTime(std::chrono::duration_cast<std::chrono::nanoseconds> (tstamp))
-        , evEnergy(energy)
-      {}
-
-      std::chrono::nanoseconds time() const;
-      unsigned energy() const;
-
-      template <typename T>
-      TimedEvent& setTime(const T &tstamp) {
-        evTime = std::chrono::duration_cast<std::chrono::nanoseconds> (tstamp);
-        return *this;
-      }
-
-      TimedEvent& setEnergy(unsigned energy);
-
-    private:
-      std::chrono::nanoseconds evTime;
-      unsigned evEnergy;
-  };
+  using TimedEvent = TimedValue<std::chrono::nanoseconds, unsigned>;
 
   template <typename T>
   void shift(TimedEvent &evt, const T &offset) {
@@ -62,7 +38,7 @@ namespace Spectrometry {
 
   template <typename T>
   bool isAfter(const TimedEvent &evt, const T &tstamp) {
-    return !isBefore(evt, tstamp);
+    return evt.time() > tstamp;
   }
 
   template <typename T>
