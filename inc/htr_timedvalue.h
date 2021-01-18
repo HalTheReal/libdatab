@@ -72,8 +72,25 @@ bool isSync(const TimedValue<T, V> &ev1, const S &tstamp) {
   return ev1.time() == tstamp;
 }
 
+template <typename T, typename V, typename S>
+void shift(TimedValue<T, V> &evt, const S &offset) {
+  evt.setTime(evt.time() + offset);
+}
+
 template <typename T, typename V>
 using ListMode = std::vector<TimedValue<T, V>>;
+
+template <typename T, typename V>
+void timeSort(ListMode<T, V> &lmd) {
+  std::sort(lmd.begin(), lmd.end(), isBefore<T, V, T, V>);
+}
+
+template <typename T, typename V, typename S>
+void timeShift(ListMode<T, V> &evl, const S &tstamp) {
+  for (auto &event : evl) {
+    shift(event, tstamp);
+  }
+}
 
 template <typename T, typename V, typename R, typename S>
 ListMode<T, V> timeCut(ListMode<T, V> &evl, const R &fromTime, const S &toTime) {

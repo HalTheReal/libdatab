@@ -2,36 +2,8 @@
 
 namespace Spectrometry {
 
-std::ostream& operator << (std::ostream &stream, const TimedEvent &evt) {
-  std::stringstream ss;
-  ss.copyfmt(stream);
-  ss << evt.time().count() << ' ' << evt.value();
-  stream << ss.str();
-  return stream;
-}
-
-std::istream& operator >> (std::istream &stream, TimedEvent &evt) {
-  int64_t tstamp;
-  unsigned energy;
-  stream >> tstamp >> energy;
-  if (!stream) {
-    return stream;
-  }
-  evt = TimedEvent(std::chrono::nanoseconds(tstamp), energy);
-  return stream;
-}
-
-bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2) {
-  return isBefore(ev1, ev2);
-}
-
-void timeSort(EventList &evl) {
-  std::sort(evl.begin(), evl.end(), isBeforeEvent);
-}
-
-void append(EventList &dest, const EventList &toApp) {
-  dest.insert(dest.end(), toApp.begin(), toApp.end());
-}
+using GammaEvent = TimedValue<std::chrono::nanoseconds, unsigned>;
+using EventList = std::vector<GammaEvent>;
 
 std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
   std::vector <int> hist(channels, 0);
@@ -41,20 +13,6 @@ std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
     }
   }
   return hist;
-}
-
-EventList readASCII(const char * filename) {
-  EventList evtList;
-  TimedEvent evt;
-  std::ifstream file(filename);
-  while(file >> evt) {
-    evtList.push_back(evt);
-  }
-  return evtList;
-}
-
-EventList readASCII(const std::string &filename) {
-  return readASCII(filename.c_str());
 }
 
 GSList::GSList()
@@ -171,13 +129,13 @@ GSList& GSList::merge(GSList &gsl) {
   else {
     timeShift(gsl.eventList, offset);
   }
-  Spectrometry::append(eventList, gsl.eventList);
+  eventList.insert(eventList.end(), gsl.eventList.begin(), gsl.eventList.end());
   timeSort(eventList);
   return *this;
 }
 
 GSList& GSList::append(GSList &gsl) {
-  Spectrometry::append(eventList, gsl.eventList);
+  eventList.insert(eventList.end(), gsl.eventList.begin(), gsl.eventList.end());
   return *this;
 }
 
@@ -270,7 +228,7 @@ GSList readGSL(const char * nomeFile) {
   int energyTok;
   EventList listmode;
   while (file >> timeTok >> energyTok >> gainTok) {
-    listmode.push_back(TimedEvent(std::chrono::nanoseconds(timeTok * multiplier), energyTok));
+    listmode.push_back(GammaEvent(std::chrono::nanoseconds(timeTok * multiplier), energyTok));
   }
   file.close();
   return GSList(std::move(listmode), dataGS);

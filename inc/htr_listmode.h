@@ -4,12 +4,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <list>
 #include <iomanip>      //  setw, setprecision
 #include <exception>
-#include <utility>      //  std::pair
-#include <algorithm>    //  std::sort
 #include <chrono>       //  std::duration
 #include <cmath>
 
@@ -20,109 +16,13 @@
 
 namespace Spectrometry {
 
-  using TimedEvent = TimedValue<std::chrono::nanoseconds, unsigned>;
-
-  template <typename T>
-  void shift(TimedEvent &evt, const T &offset) {
-    evt.setTime(evt.time() + offset);
-  }
-
-  bool isBefore(const TimedEvent &ev1, const TimedEvent &ev2);
-  bool isAfter(const TimedEvent &ev1, const TimedEvent &ev2);
-  bool isSync(const TimedEvent &ev1, const TimedEvent &ev2);
-
-  template <typename T>
-  bool isBefore(const TimedEvent &evt, const T &tstamp) {
-    return evt.time() < tstamp;
-  }
-
-  template <typename T>
-  bool isAfter(const TimedEvent &evt, const T &tstamp) {
-    return evt.time() > tstamp;
-  }
-
-  template <typename T>
-  bool isSync(const TimedEvent &evt, const T &tstamp) {
-    return evt.time() == tstamp;
-  }
-
-  std::ostream& operator << (std::ostream &stream, const TimedEvent &evt);
-  std::istream& operator >> (std::istream &stream, TimedEvent &evt);
-
-  using EventList = std::vector<TimedEvent>;
-
-  bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2);
-
-  void timeSort(EventList &evl);
-
-  template <typename T>
-  void timeShift(EventList &evl, const T &tstamp) {
-    for (auto &event : evl) {
-      shift(event, tstamp);
-    }
-  }
-
-  template <typename T>
-  bool isBeforeTime(const TimedEvent &ev1, const T &tstamp) {
-    return isBefore(ev1, tstamp);
-  }
-
-  template <typename T1, typename T2>
-  EventList timeCut(EventList &evl, const T1 &fromTime, const T2 &toTime) {
-    EventList cut;
-    if (fromTime < toTime) {
-      auto cutFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      auto cutTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      cut = EventList(cutFrom, cutTo);
-      evl.erase(cutFrom, cutTo);
-    }
-    else {
-      auto cutFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      auto cutTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      cut = EventList(cutFrom, cutTo);
-      evl.erase(cutFrom, cutTo);
-    }
-    return cut;
-  }
-
-  template <typename T1, typename T2>
-  EventList timeCopy(const EventList &evl, const T1 &fromTime, const T2 &toTime) {
-    if (fromTime < toTime) {
-      auto copyFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      auto copyTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      return EventList(copyFrom, copyTo);
-    }
-    else {
-      auto copyFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      auto copyTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      return EventList(copyFrom, copyTo);
-    }
-  }
-
-  template <typename T1, typename T2>
-  void timeErase(EventList &evl, const T1 &fromTime, const T2 &toTime) {
-    if (fromTime < toTime) {
-      auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      auto eraseTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      evl.erase(eraseFrom, eraseTo);
-    }
-    else {
-      auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T2>);
-      auto eraseTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T1>);
-      evl.erase(eraseFrom, eraseTo);
-    }
-  }
-
-  void append(EventList &dest, const EventList &toApp);
-  std::vector <int> toHistogram(const EventList &evl, std::size_t channels);
-  EventList readASCII(const char * filename);
-  EventList readASCII(const std::string &filename);
+  std::vector <int> toHistogram(const ListMode<std::chrono::nanoseconds, unsigned> &evl, std::size_t channels);
 
   class GSList {
 
     public:
       GSList();
-      GSList(EventList evl, Epoch::DateTime start);
+      GSList(ListMode<std::chrono::nanoseconds, unsigned> evl, Epoch::DateTime start);
 
       bool isEmpty() const;
 
@@ -156,7 +56,7 @@ namespace Spectrometry {
       void writeGSL(const std::string &nomeFile) const;
 
     private:
-      EventList eventList;
+      ListMode<std::chrono::nanoseconds, unsigned> eventList;
       Epoch::DateTime dataGS;
   };
 
