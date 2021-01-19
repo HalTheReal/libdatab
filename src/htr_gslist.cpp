@@ -2,14 +2,11 @@
 
 namespace Spectrometry {
 
-using GammaEvent = TimedValue<std::chrono::nanoseconds, unsigned>;
-using EventList = std::vector<GammaEvent>;
-
-std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
+std::vector <int> toHistogram(const std::vector<TimeEnergy> &evl, std::size_t channels) {
   std::vector <int> hist(channels, 0);
   for (auto &evt : evl) {
-    if (evt.value() < channels) {
-      ++hist[evt.value()];
+    if (evt.data() < channels) {
+      ++hist[evt.data()];
     }
   }
   return hist;
@@ -20,7 +17,7 @@ GSList::GSList()
   , dataGS()
 {}
 
-GSList::GSList(EventList evl, Epoch::DateTime start)
+GSList::GSList(std::vector<TimeEnergy> evl, Epoch::DateTime start)
   : eventList(evl)
   , dataGS(start)
 {}
@@ -35,7 +32,7 @@ GSList GSList::copy(int fromSec, int toSec) const {
   if (fromSec > toSec) {
     std::swap(fromSec, toSec);
   }
-  EventList copy = timeCopy(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  std::vector<TimeEnergy> copy = timeCopy(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
   Epoch::DateTime dt = dataGS;
   if(fromSec > 0) {
     dt.addSec(fromSec);
@@ -95,7 +92,7 @@ GSList GSList::cut(int fromSec, int toSec) {
   if (fromSec > toSec) {
     std::swap(fromSec, toSec);
   }
-  EventList cutted = timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  std::vector<TimeEnergy> cutted = timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
   Epoch::DateTime dt = dataGS;
   if(fromSec > 0) {
     dt.addSec(fromSec);
@@ -183,7 +180,7 @@ void GSList::writeGSL(const char * nomeFile) const {
     outfile << "#Fields: Time\tEnergy\tGain" << '\n';
     for (auto &evt : this->eventList) {
       outfile << std::right << std::setw(9) << evt.time().count() << '\t';
-      outfile << std::setw(6) << evt.value() << '\t';
+      outfile << std::setw(6) << evt.data() << '\t';
       outfile << "1.000" << '\n';
     }
   }
@@ -226,9 +223,9 @@ GSList readGSL(const char * nomeFile) {
   int64_t timeTok;
   double gainTok;
   int energyTok;
-  EventList listmode;
+  std::vector<TimeEnergy> listmode;
   while (file >> timeTok >> energyTok >> gainTok) {
-    listmode.push_back(GammaEvent(std::chrono::nanoseconds(timeTok * multiplier), energyTok));
+    listmode.push_back(TimeEnergy(std::chrono::nanoseconds(timeTok * multiplier), energyTok));
   }
   file.close();
   return GSList(std::move(listmode), dataGS);

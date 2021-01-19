@@ -1,131 +1,133 @@
-#ifndef HTR_LISTMODE
-#define HTR_LISTMODE
+#ifndef HTR_TIMEDATA
+#define HTR_TIMEDATA
 
 #include <vector>
 #include <algorithm>    //  std::sort
 
+namespace Epoch {
+
 template <typename T, typename V>
-class TimedValue {
+class TimeData {
   public:
-    TimedValue();
-    TimedValue(const T& tstamp, const V& val);
+    TimeData();
+    TimeData(const T& time, const V& data);
 
     T time() const;
-    TimedValue & setTime(const T& tstamp);
-    V value() const;
-    TimedValue & setValue(const V& val);
+    TimeData & setTime(const T& time);
+    V data() const;
+    TimeData & setData(const V& data);
 
   private:
     T timestamp;
-    V data;
+    V value;
 };
 
 template <typename T, typename V>
-TimedValue<T, V>::TimedValue()
+TimeData<T, V>::TimeData()
   : timestamp()
-  , data()
+  , value()
 {}
 
 template <typename T, typename V>
-TimedValue<T, V>::TimedValue(const T& tstamp, const V& val)
-  : timestamp(tstamp)
-  , data(val)
+TimeData<T, V>::TimeData(const T& time, const V& data)
+  : timestamp(time)
+  , value(data)
 {}
 
 template <typename T, typename V>
-T TimedValue<T, V>::time() const {
+T TimeData<T, V>::time() const {
   return timestamp;
 }
 
 template <typename T, typename V>
-V TimedValue<T, V>::value() const {
-  return data;
+V TimeData<T, V>::data() const {
+  return value;
 }
 
 template <typename T1, typename V1, typename T2, typename V2>
-bool isBefore(const TimedValue<T1, V1> &ev1, const TimedValue<T2, V2> &ev2) {
+bool isBefore(const TimeData<T1, V1> &ev1, const TimeData<T2, V2> &ev2) {
   return ev1.time() < ev2.time();
 }
 
 template <typename T1, typename V1, typename T2, typename V2>
-bool isAfter(const TimedValue<T1, V1> &ev1, const TimedValue<T2, V2> &ev2) {
+bool isAfter(const TimeData<T1, V1> &ev1, const TimeData<T2, V2> &ev2) {
   return ev1.time() > ev2.time();
 }
 
 template <typename T1, typename V1, typename T2, typename V2>
-bool isSync(const TimedValue<T1, V1> &ev1, const TimedValue<T2, V2> &ev2) {
+bool isSync(const TimeData<T1, V1> &ev1, const TimeData<T2, V2> &ev2) {
   return ev1.time() == ev2.time();
 }
 
 template <typename T, typename V, typename S>
-bool isBefore(const TimedValue<T, V> &ev1, const S &tstamp) {
-  return ev1.time() < tstamp;
+bool isBefore(const TimeData<T, V> &ev1, const S &time) {
+  return ev1.time() < time;
 }
 
 template <typename T, typename V, typename S>
-bool isAfter(const TimedValue<T, V> &ev1, const S &tstamp) {
-  return ev1.time() > tstamp;
+bool isAfter(const TimeData<T, V> &ev1, const S &time) {
+  return ev1.time() > time;
 }
 
 template <typename T, typename V, typename S>
-bool isSync(const TimedValue<T, V> &ev1, const S &tstamp) {
-  return ev1.time() == tstamp;
+bool isSync(const TimeData<T, V> &ev1, const S &time) {
+  return ev1.time() == time;
 }
 
 template <typename T, typename V, typename S>
-void shift(TimedValue<T, V> &evt, const S &offset) {
+void shift(TimeData<T, V> &evt, const S &offset) {
   evt.setTime(evt.time() + offset);
 }
 
 template <typename T, typename V>
-using ListMode = std::vector<TimedValue<T, V>>;
+using TDVector = std::vector<TimeData<T, V>>;
 
 template <typename T, typename V>
-void timeSort(ListMode<T, V> &lmd) {
+void timeSort(TDVector<T, V> &lmd) {
   std::sort(lmd.begin(), lmd.end(), isBefore<T, V, T, V>);
 }
 
 template <typename T, typename V, typename S>
-void timeShift(ListMode<T, V> &evl, const S &tstamp) {
+void timeShift(TDVector<T, V> &evl, const S &time) {
   for (auto &event : evl) {
-    shift(event, tstamp);
+    shift(event, time);
   }
 }
 
 template <typename T, typename V, typename R, typename S>
-ListMode<T, V> timeCut(ListMode<T, V> &evl, const R &fromTime, const S &toTime) {
-  ListMode<T, V> cut;
+TDVector<T, V> timeCut(TDVector<T, V> &evl, const R &fromTime, const S &toTime) {
+  TDVector<T, V> cut;
   if (fromTime < toTime) {
     auto cutFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T, V, R>);
     auto cutTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T, V, S>);
-    cut = ListMode<T, V>(cutFrom, cutTo);
+    cut = TDVector<T, V>(cutFrom, cutTo);
     evl.erase(cutFrom, cutTo);
   }
   else {
     auto cutFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T, V, S>);
     auto cutTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T, V, R>);
-    cut = ListMode<T, V>(cutFrom, cutTo);
+    cut = TDVector<T, V>(cutFrom, cutTo);
     evl.erase(cutFrom, cutTo);
   }
   return cut;
 }
 
 template <typename T, typename V, typename R, typename S>
-ListMode<T, V> timeCopy(const ListMode<T, V> &evl, const R &fromTime, const S &toTime) {
+TDVector<T, V> timeCopy(const TDVector<T, V> &evl, const R &fromTime, const S &toTime) {
   if (fromTime < toTime) {
     auto copyFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T, V, R>);
     auto copyTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T, V, S>);
-    return ListMode<T, V>(copyFrom, copyTo);
+    return TDVector<T, V>(copyFrom, copyTo);
   }
   else {
     auto copyFrom = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T, V, S>);
     auto copyTo = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T, V, R>);
-    return ListMode<T, V>(copyFrom, copyTo);
+    return TDVector<T, V>(copyFrom, copyTo);
   }
 }
 
 template <typename T, typename V, typename R, typename S>
-void timeErase(ListMode<T, V> &evl, const R &fromTime, const S &toTime) {
+void timeErase(TDVector<T, V> &evl, const R &fromTime, const S &toTime) {
   if (fromTime < toTime) {
     auto eraseFrom = std::lower_bound(evl.begin(), evl.end(), fromTime, isBefore<T, V, R>);
     auto eraseTo = std::lower_bound(evl.begin(), evl.end(), toTime, isBefore<T, V, S>);
@@ -138,4 +140,5 @@ void timeErase(ListMode<T, V> &evl, const R &fromTime, const S &toTime) {
   }
 }
 
+}
 #endif

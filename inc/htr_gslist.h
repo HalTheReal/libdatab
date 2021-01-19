@@ -9,20 +9,21 @@
 #include <chrono>       //  std::duration
 #include <cmath>
 
-#include <htr_listmode.h>
+#include <htr_timedata.h>
 #include <htr_datetime.h>
 #include <htr_spectrum.h>
 #include <htr_tools.h>
 
 namespace Spectrometry {
 
-  std::vector <int> toHistogram(const ListMode<std::chrono::nanoseconds, unsigned> &evl, std::size_t channels);
+  using TimeEnergy = Epoch::TimeData<std::chrono::nanoseconds, unsigned>;
+  std::vector <int> toHistogram(const std::vector<TimeEnergy> &evl, std::size_t channels);
 
   class GSList {
 
     public:
       GSList();
-      GSList(ListMode<std::chrono::nanoseconds, unsigned> evl, Epoch::DateTime start);
+      GSList(std::vector<TimeEnergy> evl, Epoch::DateTime start);
 
       bool isEmpty() const;
 
@@ -56,7 +57,7 @@ namespace Spectrometry {
       void writeGSL(const std::string &nomeFile) const;
 
     private:
-      ListMode<std::chrono::nanoseconds, unsigned> eventList;
+      std::vector<TimeEnergy> eventList;
       Epoch::DateTime dataGS;
   };
 
