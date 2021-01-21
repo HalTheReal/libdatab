@@ -40,8 +40,20 @@ T TimeData<T, V>::time() const {
 }
 
 template <typename T, typename V>
+TimeData<T,V>& TimeData<T, V>::setTime(const T& time) {
+  timestamp = time;
+  return *this;
+}
+
+template <typename T, typename V>
 V TimeData<T, V>::data() const {
   return value;
+}
+
+template <typename T, typename V>
+TimeData<T,V>& TimeData<T, V>::setData(const V& data) {
+  value = data;
+  return *this;
 }
 
 template <typename T1, typename V1, typename T2, typename V2>
