@@ -17,7 +17,7 @@ double NaI(const Spectrometry::Spectrum &sp, double mC, double qC) {
 }
 
 double CeBr3(const Spectrometry::Spectrum &sp, double mC, double qC) {
-  std::vector <double> egy {609, 2614};
+  std::vector <double> egy {583, 1460};
   double points = 0;
   for (auto en : egy) {
     unsigned middle = (en - qC) / mC;
