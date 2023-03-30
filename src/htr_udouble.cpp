@@ -5,21 +5,15 @@ udouble::udouble()
   , uncert(0)
 {}
 
+udouble::udouble(double val)
+  : value(val)
+  , uncert(0)
+{}
+
 udouble::udouble(double val, double unc)
   : value(val)
   , uncert(fabs(unc))
-{
-  if(!isValid()) {
-    throw std::runtime_error("Invalid udouble");
-  }
-}
-
-bool udouble::isValid() {
-  if(uncert > value) {
-    return false;
-  }
-  return true;
-}
+{}
 
 double udouble::val() const {
   return value;
@@ -27,9 +21,6 @@ double udouble::val() const {
 
 udouble & udouble::val(double newval) {
   value = newval;
-  if(!isValid()) {
-    throw std::runtime_error("Invalid udouble");
-  }
   return *this;
 }
 
@@ -39,10 +30,85 @@ double udouble::unc() const {
 
 udouble & udouble::unc(double newunc) {
   uncert = newunc;
-  if(!isValid()) {
-    throw std::runtime_error("Invalid udouble");
-  }
   return *this;
+}
+
+udouble & udouble::operator +=(const udouble &rhs) {
+  value += rhs.val();
+  uncert = sqrt(pow(uncert, 2) + pow(rhs.unc(), 2));
+  return *this;
+}
+
+udouble & udouble::operator -=(const udouble &rhs) {
+  value -= rhs.val();
+  uncert = sqrt(pow(uncert, 2) + pow(rhs.unc(), 2));
+  return *this;
+}
+
+udouble & udouble::operator *=(const udouble &rhs) {
+  uncert = pow(rhs.val(), 2) * pow(uncert, 2) + pow(value, 2) * pow(rhs.unc(), 2);
+  uncert = sqrt(uncert);
+  value *= rhs.val();
+  return *this;
+}
+
+udouble & udouble::operator /=(const udouble &rhs) {
+  uncert =  pow(uncert, 2) / pow(rhs.val(), 2) +
+            pow(value, 2) * pow(rhs.unc(), 2) / pow(rhs.val(), 4);
+  uncert = sqrt(uncert);
+  value /= rhs.val();
+  return *this;
+}
+
+udouble udouble::operator -() const {
+    return udouble(-value, uncert);
+}
+
+udouble operator + (udouble lhs, const udouble &rhs) {
+  lhs += rhs;
+  return lhs;
+}
+
+udouble operator - (udouble lhs, const udouble &rhs) {
+  lhs -= rhs;
+  return lhs;
+}
+
+udouble operator * (udouble lhs, const udouble &rhs) {
+  lhs *= rhs;
+  return lhs;
+}
+
+udouble operator / (udouble lhs, const udouble &rhs) {
+  lhs /= rhs;
+  return lhs;
+}
+
+bool operator == (const udouble &lhs, const udouble &rhs) {
+    if (lhs.val() == rhs.val()) {
+        return true;
+    }
+    return false;
+}
+
+bool operator != (const udouble &lhs, const udouble &rhs) {
+    return !(lhs == rhs);
+}
+
+bool operator < (const udouble &lhs, const udouble &rhs) {
+    return lhs.val() < rhs.val();
+}
+
+bool operator <= (const udouble &lhs, const udouble &rhs) {
+    return (lhs < rhs || lhs == rhs);
+}
+
+bool operator > (const udouble &lhs, const udouble &rhs) {
+    return !(lhs <= rhs);
+}
+
+bool operator >= (const udouble &lhs, const udouble &rhs) {
+    return !(lhs < rhs);
 }
 
 std::istream& operator >> (std::istream &stream, udouble &ud) {
@@ -72,4 +138,10 @@ std::ostream& operator << (std::ostream &stream, const udouble &ud) {
   ss << ud.unc();
   stream << ss.str();
   return stream;
+}
+
+udouble sqrt(const udouble &ud) {
+    double newVal = sqrt(ud.val());
+    double newUnc = ud.unc() / (2 * sqrt(ud.val()));
+    return udouble(newVal, newUnc);
 }

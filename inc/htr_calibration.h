@@ -4,9 +4,15 @@
 #include "htr_spectrum.h"
 #include "htr_function.h"
 
-MMZ::Line annealingCal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ);
-double sysEnergy(const Spectrometry::Spectrum &sp, double mC, double qC);
+typedef double (*calFunction)(const Spectrometry::Spectrum &, double, double);
+double NaI(const Spectrometry::Spectrum &sp, double mC, double qC);
+double CeBr3(const Spectrometry::Spectrum &sp, double mC, double qC);
+
 double stateChangeProb(double en1, double en2, double temp);
+
+MMZ::Line annealingCal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ, calFunction sysEnergy);
+MMZ::Line NaICal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ);
+MMZ::Line CeBr3Cal(const Spectrometry::Spectrum &sp, double minM, double maxM, double minQ, double maxQ);
 
 #endif
 

@@ -1,95 +1,15 @@
-#include "htr_listmode.h"
+#include "htr_gslist.h"
 
 namespace Spectrometry {
 
-TimedEvent::TimedEvent()
-  : evTime(0)
-  , evEnergy(0)
-{}
-
-TimedEvent::TimedEvent(int64_t tstamp, unsigned energy)
-  : evTime(tstamp)
-  , evEnergy(energy)
-{}
-
-std::chrono::nanoseconds TimedEvent::time() const {
-  return evTime;
-}
-
-unsigned TimedEvent::energy() const {
-  return evEnergy;
-}
-
-TimedEvent& TimedEvent::setEnergy(unsigned energy) {
-  evEnergy = energy;
-  return *this;
-}
-
-bool isBefore(const TimedEvent &ev1, const TimedEvent &ev2) {
-  return ev1.time() < ev2.time();
-}
-
-bool isAfter(const TimedEvent &ev1, const TimedEvent &ev2) {
-  return ev1.time() > ev2.time();
-}
-
-bool isSync(const TimedEvent &ev1, const TimedEvent &ev2) {
-  return ev1.time() == ev2.time();
-}
-
-std::ostream& operator << (std::ostream &stream, const TimedEvent &evt) {
-  std::stringstream ss;
-  ss.copyfmt(stream);
-  ss << evt.time().count() << ' ' << evt.energy();
-  stream << ss.str();
-  return stream;
-}
-
-std::istream& operator >> (std::istream &stream, TimedEvent &evt) {
-  int64_t tstamp;
-  unsigned energy;
-  stream >> tstamp >> energy;
-  if (!stream) {
-    return stream;
-  }
-  evt = TimedEvent(std::chrono::nanoseconds(tstamp), energy);
-  return stream;
-}
-
-bool isBeforeEvent(const TimedEvent &ev1, const TimedEvent &ev2) {
-  return isBefore(ev1, ev2);
-}
-
-void timeSort(EventList &evl) {
-  std::sort(evl.begin(), evl.end(), isBeforeEvent);
-}
-
-void append(EventList &dest, const EventList &toApp) {
-  dest.insert(dest.end(), toApp.begin(), toApp.end());
-}
-
-std::vector <int> toHistogram(const EventList &evl, std::size_t channels) {
+std::vector <int> toHistogram(const std::vector<TimeEnergy> &evl, std::size_t channels) {
   std::vector <int> hist(channels, 0);
   for (auto &evt : evl) {
-    if (evt.energy() < channels) {
-      ++hist[evt.energy()];
+    if (evt.data() < channels) {
+      ++hist[evt.data()];
     }
   }
   return hist;
-}
-
-EventList readASCII(const char * filename) {
-  EventList evtList;
-  TimedEvent evt;
-  std::ifstream file(filename);
-  while(file >> evt) {
-    evtList.push_back(evt);
-  }
-  return evtList;
-}
-
-EventList readASCII(const std::string &filename) {
-  return readASCII(filename.c_str());
 }
 
 GSList::GSList()
@@ -97,10 +17,14 @@ GSList::GSList()
   , dataGS()
 {}
 
-GSList::GSList(EventList evl, Epoch::DateTime start)
+GSList::GSList(std::vector<TimeEnergy> evl, Epoch::DateTime start)
   : eventList(evl)
   , dataGS(start)
 {}
+
+bool GSList::isEmpty() const {
+  return eventList.empty();
+}
 
 GSList GSList::copy(int fromSec, int toSec) const {
   fromSec = std::max(fromSec, 0);
@@ -108,7 +32,7 @@ GSList GSList::copy(int fromSec, int toSec) const {
   if (fromSec > toSec) {
     std::swap(fromSec, toSec);
   }
-  EventList copy = timeCopy(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  std::vector<TimeEnergy> copy = timeCopy(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
   Epoch::DateTime dt = dataGS;
   if(fromSec > 0) {
     dt.addSec(fromSec);
@@ -168,7 +92,7 @@ GSList GSList::cut(int fromSec, int toSec) {
   if (fromSec > toSec) {
     std::swap(fromSec, toSec);
   }
-  EventList cutted = timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
+  std::vector<TimeEnergy> cutted = timeCut(eventList, std::chrono::seconds(fromSec), std::chrono::seconds(toSec));
   Epoch::DateTime dt = dataGS;
   if(fromSec > 0) {
     dt.addSec(fromSec);
@@ -202,13 +126,13 @@ GSList& GSList::merge(GSList &gsl) {
   else {
     timeShift(gsl.eventList, offset);
   }
-  Spectrometry::append(eventList, gsl.eventList);
+  eventList.insert(eventList.end(), gsl.eventList.begin(), gsl.eventList.end());
   timeSort(eventList);
   return *this;
 }
 
 GSList& GSList::append(GSList &gsl) {
-  Spectrometry::append(eventList, gsl.eventList);
+  eventList.insert(eventList.end(), gsl.eventList.begin(), gsl.eventList.end());
   return *this;
 }
 
@@ -227,17 +151,22 @@ void GSList::setDateTime(const Epoch::DateTime &dt) {
 std::chrono::seconds GSList::getLT() const {
   // duration_cast tronca SEMPRE! quindi aggiungo mezzo secondo prima della conversione
   std::chrono::nanoseconds half(500000000);
-  return std::chrono::duration_cast<std::chrono::seconds> (eventList.back().time() + half);
+  return std::chrono::duration_cast<std::chrono::seconds> (getLTNanoseconds() + half);
 }
 
 std::chrono::milliseconds GSList::getLTMilliseconds() const {
   // duration_cast tronca SEMPRE! quindi aggiungo mezzo millisecondo prima della conversione
   std::chrono::nanoseconds half(500000);
-  return std::chrono::duration_cast<std::chrono::milliseconds> (eventList.back().time() + half);
+  return std::chrono::duration_cast<std::chrono::milliseconds> (getLTNanoseconds() + half);
 }
 
 std::chrono::nanoseconds GSList::getLTNanoseconds() const {
-  return eventList.back().time();
+  if (isEmpty()) {
+    return std::chrono::nanoseconds(0);
+  }
+  else {
+    return eventList.back().time();
+  }
 }
 
 void GSList::writeGSL(const char * nomeFile) const {
@@ -251,7 +180,7 @@ void GSList::writeGSL(const char * nomeFile) const {
     outfile << "#Fields: Time\tEnergy\tGain" << '\n';
     for (auto &evt : this->eventList) {
       outfile << std::right << std::setw(9) << evt.time().count() << '\t';
-      outfile << std::setw(6) << evt.energy() << '\t';
+      outfile << std::setw(6) << evt.data() << '\t';
       outfile << "1.000" << '\n';
     }
   }
@@ -266,8 +195,14 @@ GSList readGSL(const char * nomeFile) {
   if (!file) {
     throw std::invalid_argument("Unable to open file!");
   }
-  Epoch::DateTime dataGS;
   std::string token;
+
+  // Parse header
+  std::string version;
+  file >> token >> version >> token;
+
+  // Parse StartTime
+  Epoch::DateTime dataGS;
   do {
     file >> token;
     if (token.compare("#StartTime:") == 0) {
@@ -279,13 +214,18 @@ GSList readGSL(const char * nomeFile) {
       dataGS = Epoch::DateTime(dt, tm);
     }
   } while (token.compare("Gain") != 0);
+
+  // Parse Listmode
+  int64_t multiplier = 1;
+  if (version.compare("1.0") == 0) {
+    multiplier = 16;
+  }
   int64_t timeTok;
   double gainTok;
   int energyTok;
-  EventList listmode;
+  std::vector<TimeEnergy> listmode;
   while (file >> timeTok >> energyTok >> gainTok) {
-    listmode.push_back(TimedEvent(timeTok, energyTok));
-    //listmode.push_back(TimedEvent(timeTok * 16, energyTok));      // 1 ciclo clock = 16E-9 sec
+    listmode.push_back(TimeEnergy(std::chrono::nanoseconds(timeTok * multiplier), energyTok));
   }
   file.close();
   return GSList(std::move(listmode), dataGS);
