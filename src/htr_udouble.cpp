@@ -5,6 +5,11 @@ udouble::udouble()
   , uncert(0)
 {}
 
+udouble::udouble(double val)
+  : value(val)
+  , uncert(0)
+{}
+
 udouble::udouble(double val, double unc)
   : value(val)
   , uncert(fabs(unc))
@@ -55,6 +60,10 @@ udouble & udouble::operator /=(const udouble &rhs) {
   return *this;
 }
 
+udouble udouble::operator -() const {
+    return udouble(-value, uncert);
+}
+
 udouble operator + (udouble lhs, const udouble &rhs) {
   lhs += rhs;
   return lhs;
@@ -73,6 +82,33 @@ udouble operator * (udouble lhs, const udouble &rhs) {
 udouble operator / (udouble lhs, const udouble &rhs) {
   lhs /= rhs;
   return lhs;
+}
+
+bool operator == (const udouble &lhs, const udouble &rhs) {
+    if (lhs.val() == rhs.val()) {
+        return true;
+    }
+    return false;
+}
+
+bool operator != (const udouble &lhs, const udouble &rhs) {
+    return !(lhs == rhs);
+}
+
+bool operator < (const udouble &lhs, const udouble &rhs) {
+    return lhs.val() < rhs.val();
+}
+
+bool operator <= (const udouble &lhs, const udouble &rhs) {
+    return (lhs < rhs || lhs == rhs);
+}
+
+bool operator > (const udouble &lhs, const udouble &rhs) {
+    return !(lhs <= rhs);
+}
+
+bool operator >= (const udouble &lhs, const udouble &rhs) {
+    return !(lhs < rhs);
 }
 
 std::istream& operator >> (std::istream &stream, udouble &ud) {
@@ -102,4 +138,10 @@ std::ostream& operator << (std::ostream &stream, const udouble &ud) {
   ss << ud.unc();
   stream << ss.str();
   return stream;
+}
+
+udouble sqrt(const udouble &ud) {
+    double newVal = sqrt(ud.val());
+    double newUnc = ud.unc() / (2 * sqrt(ud.val()));
+    return udouble(newVal, newUnc);
 }
