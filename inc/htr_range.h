@@ -84,7 +84,7 @@ Range<T>& shift(Range<T> &rng, R inf) {
 }
 
 template <typename T>
-bool isWithin(Range<T> &rng, T &el) {
+bool isWithin(const Range<T> &rng, const T &el) {
   if (el > rng.upper() || el < rng.lower()) {
     return false;
   }
