@@ -21,11 +21,11 @@ double Function::operator()(double in) const {
   return myEval(in);
 }
 
-unsigned Function::parNum() const {
+std::size_t Function::parNum() const {
   return parameters.size();
 }
 
-double Function::par(unsigned idx) const {
+double Function::par(std::size_t idx) const {
   return parameters[idx];
 }
 

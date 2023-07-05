@@ -17,8 +17,8 @@ class Function {
     Function(const std::vector <double> &prs);    // Mandatorio per classi derivate
     virtual ~Function();
     double operator()(double in) const;
-    unsigned parNum() const;
-    double par(unsigned idx) const;
+    std::size_t parNum() const;
+    double par(std::size_t idx) const;
   private:
     std::vector <double> parameters;
     virtual double myEval(double xx) const = 0;   // Mandatorio per classi derivate
@@ -71,7 +71,7 @@ FunctionGenerator<Fn>::FunctionGenerator(const Fn &lower, const Fn &upper)
 {
   // check lower.parNum() == upper.parNum() ? non serve perchè Fn dev'essere lo stesso tipo
   // serve se confronto due polinomi di grado diverso
-  for(int i = 0; i < lower.parNum(); ++i) {
+  for(std::size_t i = 0; i < lower.parNum(); ++i) {
     distributions.push_back(std::uniform_real_distribution <double>(lower.par(i), upper.par(i)));
   }
 }
@@ -79,7 +79,7 @@ FunctionGenerator<Fn>::FunctionGenerator(const Fn &lower, const Fn &upper)
 template <typename Fn>
 Fn FunctionGenerator<Fn>::generate() {
   std::vector <double> newPars(distributions.size());
-  for(int i = 0; i < distributions.size(); ++i) {
+  for(std::size_t i = 0; i < distributions.size(); ++i) {
     newPars[i] = distributions[i](generator);
   }
   return Fn(newPars);
@@ -101,7 +101,7 @@ struct sort_second_pred {
 
 template <typename Fn>
 bool isWithin(const Fn &test, const Fn &lower, const Fn &upper) {
-  for( int i = 0; i < test.parNum(); ++i) {
+  for(std::size_t i = 0; i < test.parNum(); ++i) {
     if(test.par(i) < lower.par(i)) {
       return false;
     }
@@ -114,14 +114,14 @@ bool isWithin(const Fn &test, const Fn &lower, const Fn &upper) {
 
 template <typename Fn>
 Fn fnMix(const std::vector<std::pair<Fn, double>> &shuf, size_t n) {
-  int nPars = shuf.begin()->first.parNum();
+  unsigned nPars = shuf.begin()->first.parNum();
   std::vector<double> newPars(nPars, 0);
-  for (int i = 0; i < n-1; ++i) {
-    for(int j = 0; j < nPars; ++j) {
+  for (std::size_t i = 0; i < n-1; ++i) {
+    for(std::size_t j = 0; j < nPars; ++j) {
       newPars[j] += shuf[i].first.par(j);
     }
   }
-  for(int i = 0; i < nPars; ++i) {
+  for(std::size_t i = 0; i < nPars; ++i) {
     newPars[i] /= (n - 1);              // Calcolo centroide G
     newPars[i] *= 2;                    // 2G
     newPars[i] -= shuf[n].first.par(i); // 2G - shuf[end]

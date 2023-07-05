@@ -40,9 +40,9 @@ namespace Spectrometry {
       std::uniform_real_distribution <double> distribution(Emin, Emax);
       for (int j = 0; j < bin[i]; ++j) {
         double rnd = distribution(generator);
-        int idx = ceil(rnd / gain);
-        if (idx >= 0 && idx < canali) {
-          ++newBin[idx];
+        rnd = ceil(rnd / gain);
+        if (rnd >= 0 && rnd < canali) {
+          ++newBin[rnd];
         }
       }
     }
@@ -168,7 +168,7 @@ namespace Spectrometry {
         int fstChn, lstChn;
         file >> fstChn >> lstChn;
         bin.reserve(lstChn + 1);
-        for(std::size_t i = 0; i <= lstChn; ++i) {
+        for(int i = 0; i <= lstChn; ++i) {
           file >> riga;
           bin.push_back(std::stof(riga));
         }
