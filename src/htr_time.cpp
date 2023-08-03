@@ -2,23 +2,116 @@
 
 namespace Epoch {
 
+  TimeZone::TimeZone()
+    : hours(0)
+    , minutes(0)
+  {}
+  
+  TimeZone::TimeZone(int hr, unsigned mnt)
+    : hours(hr)
+    , minutes(mnt)
+  {
+    if (!isValid()) {
+      throw std::runtime_error("Invalid TimeZone");
+    }
+  }
+
+  bool TimeZone::isValid() const {
+    if(minutes > 59) {
+      return false;
+    }
+    return true;
+  }
+
+  int TimeZone::hour() const {
+    return hours;
+  }
+
+  int TimeZone::mnt() const {
+    return minutes;
+  }
+
+  bool TimeZone::isAfterUTC() const {
+    return hours >= 0;
+  }
+
+  bool operator == (const TimeZone &tz1, const TimeZone &tz2) {
+    return toInt(tz1) == toInt(tz2);
+  }
+
+  bool operator != (const TimeZone &tz1, const TimeZone &tz2) {
+    return toInt(tz1) != toInt(tz2);
+  }
+
+  bool operator < (const TimeZone &tz1, const TimeZone &tz2) {
+    return toInt(tz1) < toInt(tz2);
+  }
+
+  bool operator <= (const TimeZone &tz1, const TimeZone &tz2) {
+    return toInt(tz1) <= toInt(tz2);
+  }
+
+  bool operator > (const TimeZone &tz1, const TimeZone &tz2) {
+    return toInt(tz1) > toInt(tz2);
+  }
+
+  bool operator >= (const TimeZone &tz1, const TimeZone &tz2) {
+    return toInt(tz1) >= toInt(tz2);
+  }
+ 
+  int toInt(const TimeZone& tz) {
+    int sec;
+    if (tz.isAfterUTC()) {
+      sec = tz.hour() * 3600 + tz.mnt() * 60;
+    }
+    else {
+      sec = tz.hour() * 3600 - tz.mnt() * 60;
+    }
+    return sec;
+  }
+
+  std::string to_string(const TimeZone &tz) {
+    std::stringstream ss;
+    if (tz.isAfterUTC()) {
+      ss << '+';
+      ss << std::setfill('0') << std::setw(2) << tz.hour();
+    }
+    else {
+      ss << '-';
+      ss << std::setfill('0') << std::setw(2) << - tz.hour();
+    }
+    ss << ':';
+    ss << std::setfill('0') << std::setw(2) << tz.mnt();
+    return ss.str();
+  }
+
+  std::ostream& operator << (std::ostream &stream, const TimeZone &tz) {
+    if(!stream.good()) {
+      return stream;
+    }
+    stream << to_string(tz);
+    return stream;
+  }
+
   Time::Time()
     : hours(0)
     , minutes(0)
     , seconds(0)
+    , timezone()
   {}
 
-  Time::Time(int hs, int ms, int ss)
+  Time::Time(int hs, int ms, int ss, TimeZone tz)
     : hours(hs)
     , minutes(ms)
     , seconds(ss)
+    , timezone(tz)
   {
     if (!isValid()) {
       throw std::runtime_error("Invalid Time");
     }
   }
 
-  Time::Time(int secs)
+  Time::Time(int secs, TimeZone tz)
     : Time()
   {
     int usable = secs - ((secs / 86400) * 86400);
@@ -30,6 +123,7 @@ namespace Epoch {
     minutes = usable / 60;
     usable -= minutes * 60;
     seconds = usable;
+    timezone = tz;
   }
 
   bool Time::isValid() const {
@@ -54,20 +148,35 @@ namespace Epoch {
     return seconds;
   }
 
+  TimeZone Time::zone() const {
+   return timezone;
+  }
+
   Time& Time::addSec(int secs) {
-    int base = toInt(*this);
-    Time add(base + secs);
-    hours = add.hour();
-    minutes = add.mnt();
-    seconds = add.sec();
+    int base = 0;
+    base += seconds;
+    base += minutes * 60;
+    base += hours * 60 * 60;
+    *this = Time(base + secs, timezone);
     return *this;
   }
 
+  Time toUTC(Time tm) {
+    int offset = toInt(tm.zone());
+    int base = toInt(tm);
+    return Time(offset + base);
+  }
+
+  int toInt(const Time &tm) {
+    int ret = 0;
+    ret += tm.sec();
+    ret += tm.mnt() * 60;
+    ret += tm.hour() * 60 * 60;
+    return ret;
+  }
+
   bool operator == (const Time &tm1, const Time &tm2) {
-    if (tm1.hour() == tm2.hour() && tm1.mnt() == tm2.mnt() && tm1.sec() == tm2.sec()) {
-      return true;
-    }
-    return false;
+    return toInt(toUTC(tm1)) == toInt(toUTC(tm2));
   }
 
   bool operator != (const Time &tm1, const Time &tm2) {
@@ -75,25 +184,7 @@ namespace Epoch {
   }
 
   bool operator < (const Time &tm1, const Time &tm2) {
-    if (tm1.hour() < tm2.hour()) {
-      return true;
-    }
-    if (tm1.hour() > tm2.hour()) {
-      return false;
-    }
-    if (tm1.mnt() < tm2.mnt()) {
-      return true;
-    }
-    if (tm1.mnt() > tm2.mnt()) {
-      return false;
-    }
-    if (tm1.sec() < tm2.sec()) {
-      return true;
-    }
-    if (tm1.sec() > tm2.sec()) {
-      return false;
-    }
-    return false;
+    return toInt(toUTC(tm1)) < toInt(toUTC(tm2));
   }
 
   bool operator <= (const Time &tm1, const Time &tm2) {
@@ -108,32 +199,24 @@ namespace Epoch {
     return !(tm1 < tm2);
   }
 
-  int toInt(const Time &tm) {
-    int ret = 0;
-    ret += tm.sec();
-    ret += tm.mnt() * 60;
-    ret += tm.hour() * 60 * 60;
-    return ret;
-  }
-
-  std::ostream& operator << (std::ostream &stream, const Time &tm) {
+ std::ostream& operator << (std::ostream &stream, const Time &tm) {
     stream << to_string(tm);
     return stream;
   }
 
   std::istream& operator >> (std::istream &stream, Time &tm) {
-    char s1, s2;
-    int hour, min, sec;
-    stream >> hour >> s1 >> min >> s2 >> sec;
+    char s1, s2, s3;
+    int hour, min, sec, htz, mtz;
+    stream >> hour >> s1 >> min >> s2 >> sec >> htz >> s3 >> mtz;
     if (!stream) {
       return stream;
     }
-    if (s1 != s2) {
+    if (s1 != s2 || s1 != s3) {
       stream.setstate(std::ios_base::failbit);
       return stream;
     }
     try {
-      tm = Time(hour, min, sec);
+      tm = Time(hour, min, sec, TimeZone(htz, mtz));
     }
     catch (const std::exception &e) {
       stream.setstate(std::ios_base::failbit);
@@ -143,18 +226,12 @@ namespace Epoch {
 
   std::string to_string(const Time &tm, char sep) {
     std::stringstream ss;
-    if (tm.hour() < 10) {
-      ss << '0';
-    }
-    ss << tm.hour() << sep;
-    if (tm.mnt() < 10) {
-      ss << '0';
-    }
-    ss << tm.mnt() << sep;
-    if (tm.sec() < 10) {
-      ss << '0';
-    }
-    ss << tm.sec();
+    ss << std::setfill('0') << std::setw(2) << tm.hour();
+    ss << sep;
+    ss << std::setfill('0') << std::setw(2) << tm.mnt();
+    ss << sep;
+    ss << std::setfill('0') << std::setw(2) << tm.sec();
+    ss << to_string(tm.zone());
     return ss.str();
   }
 
