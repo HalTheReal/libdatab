@@ -180,7 +180,12 @@ namespace Epoch {
   }
 
   bool operator == (const Time &tm1, const Time &tm2) {
-    return toInt(toUTC(tm1)) == toInt(toUTC(tm2));
+    if (tm1.zone() == tm2.zone()) {
+      return toInt(tm1) == toInt(tm2);
+    }
+    else {
+      return toInt(toUTC(tm1)) == toInt(toUTC(tm2));
+    }
   }
 
   bool operator != (const Time &tm1, const Time &tm2) {
@@ -188,7 +193,12 @@ namespace Epoch {
   }
 
   bool operator < (const Time &tm1, const Time &tm2) {
-    return toInt(toUTC(tm1)) < toInt(toUTC(tm2));
+    if (tm1.zone() == tm2.zone()) {
+      return toInt(tm1) < toInt(tm2);
+    }
+    else {
+      return toInt(toUTC(tm1)) < toInt(toUTC(tm2));
+    }
   }
 
   bool operator <= (const Time &tm1, const Time &tm2) {

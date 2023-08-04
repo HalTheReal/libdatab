@@ -130,7 +130,9 @@ namespace Epoch {
   }
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2) {
-    if (toTime(dtt1) == toTime(dtt2) && toDate(dtt1) == toDate(dtt2)) {
+    auto d1 = toUTC(dtt1);
+    auto d2 = toUTC(dtt2);
+    if (toTime(d1) == toTime(d2) && toDate(d1) == toDate(d2)) {
       return true;
     }
     return false;
@@ -141,13 +143,15 @@ namespace Epoch {
   }
 
   bool operator < (const DateTime &dtt1, const DateTime &dtt2) {
-    if (toDate(dtt1) < toDate(dtt2)) {
+    auto d1 = toUTC(dtt1);
+    auto d2 = toUTC(dtt2);
+    if (toDate(d1) < toDate(d2)) {
       return true;
     }
-    if (toDate(dtt1) > toDate(dtt2)) {
+    if (toDate(d1) > toDate(d2)) {
       return false;
     }
-    if (toTime(dtt1) < toTime(dtt2)) {
+    if (toTime(d1) < toTime(d2)) {
       return true;
     }
     // Se arrivo qui le date sono == ma l'orario
