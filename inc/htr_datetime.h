@@ -18,6 +18,7 @@ namespace Epoch {
     public:
       DateTime();
       DateTime(int dy, int mn, int yr, int hr, int mi, int sc);
+      DateTime(int dy, int mn, int yr, int hr, int mi, int sc, const TimeZone &tz);
       DateTime(const Date &dt, const Time &tm);
 
       DateTime& addDay(int toAdd);
@@ -28,18 +29,20 @@ namespace Epoch {
       int hour() const;
       int mnt() const;
       int sec() const;
+      TimeZone zone() const;
       
     private:
       Date dateNow;
       Time timeNow;
-
   };
 
   Date toDate(const DateTime &dtt);
   Time toTime(const DateTime &dtt);
+  DateTime toTimeZone(DateTime dtt, const TimeZone &tz); 
+  DateTime toUTC(DateTime dtt); 
 
   int toUnix(DateTime dtt);
-  std::string to_string(const DateTime &dtt, char dtSep = '/', char tmSep = ':');
+  std::string to_string(const DateTime &dtt);
   DateTime strToDateTime(const std::string &str);
 
   bool operator == (const DateTime &dtt1, const DateTime &dtt2);

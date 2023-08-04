@@ -11,6 +11,11 @@ namespace Epoch {
     : dateNow(dy, mn, yr)
     , timeNow(hr, mi, sc)
   {}
+  
+  DateTime::DateTime(int dy, int mn, int yr, int hr, int mi, int sc, const TimeZone &tz)
+    : dateNow(dy, mn, yr)
+    , timeNow(hr, mi, sc, tz)
+  {}
 
   DateTime::DateTime(const Date &dt, const Time &tm)
     : dateNow(dt)
@@ -40,6 +45,10 @@ namespace Epoch {
   int DateTime::sec() const {
     return timeNow.sec();
   }
+  
+  TimeZone DateTime::zone() const {
+    return timeNow.zone();
+  }
 
   DateTime& DateTime::addDay(int toAdd) {
     dateNow.addDay(toAdd);
@@ -61,9 +70,25 @@ namespace Epoch {
     return *this;
   }
 
+  DateTime toTimeZone(DateTime dtt, const TimeZone &tz) {
+    if (dtt.zone() < tz) {
+      int offset = toInt(tz) - toInt(dtt.zone());
+      dtt.addSec(offset);
+    }
+    else if (dtt.zone() > tz) {
+      int offset = toInt(dtt.zone()) - toInt(tz);
+      dtt.addSec(- offset);
+    }
+    return DateTime(dtt.day(), dtt.month(), dtt.year(), dtt.hour(), dtt.mnt(), dtt.sec(), tz);
+  }
+
+  DateTime toUTC(DateTime dtt) {
+    return toTimeZone(dtt, Epoch::UTC);
+  }
+
   int toUnix(DateTime dtt) {
     DateTime uxZero(1, 1, 1970, 0, 0, 0);
-    int midnightOffset = 86400 - toInt(toTime(dtt));
+    int midnightOffset = 86400 - toInt(toUTC(toTime(dtt)));
     dtt.addSec(midnightOffset);
     int dayToZero = 0;
     while (dtt > uxZero) {
@@ -82,14 +107,14 @@ namespace Epoch {
   }
 
   Time toTime(const DateTime &dtt) {
-    return (Time(dtt.hour(), dtt.mnt(), dtt.sec()));
+    return (Time(dtt.hour(), dtt.mnt(), dtt.sec(), dtt.zone()));
   }
 
-  std::string to_string(const DateTime &dtt, char dtSep, char tmSep) {
-    std::string dtStr = to_string(toDate(dtt), dtSep);
-    std::string tmStr = to_string(toTime(dtt), tmSep);
+  std::string to_string(const DateTime &dtt) {
+    std::string dtStr = to_string(toDate(dtt));
+    std::string tmStr = to_string(toTime(dtt));
     std::stringstream ss;
-    ss << dtStr << ' ' << tmStr;
+    ss << dtStr << 'T' << tmStr;
     return ss.str();
   }
 
@@ -199,10 +224,19 @@ namespace Epoch {
 }
 
 int width(const Range<Epoch::DateTime> &rng) {
-  Range<Epoch::Date> dRange(Epoch::toDate(rng.lower()), Epoch::toDate(rng.upper()));
-  Range<Epoch::Time> tRange(Epoch::toTime(rng.lower()), Epoch::toTime(rng.upper()));
+  Epoch::Date utcDateLower = Epoch::toDate(toUTC(rng.lower()));
+  Epoch::Date utcDateUpper = Epoch::toDate(toUTC(rng.upper()));
+  Epoch::Time utcTimeLower = Epoch::toTime(toUTC(rng.lower()));
+  Epoch::Time utcTimeUpper = Epoch::toTime(toUTC(rng.upper()));
+
+  Range<Epoch::Date> dRange(utcDateLower, utcDateUpper);
+  Range<Epoch::Time> tRange(utcTimeLower, utcTimeUpper);
   int days = width(dRange);
   int secs = width(tRange);
+  // Midnight reverse crossing
+  if (utcTimeLower > utcTimeUpper) {
+    secs -= 12 * 60 * 60;
+  }
   secs += days * 24 * 60 * 60;
   return secs;
 }

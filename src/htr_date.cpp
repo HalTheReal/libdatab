@@ -193,11 +193,11 @@ namespace Epoch {
     return stream;
   }
 
-  std::string to_string(const Date &dt, char sep) {
+  std::string to_string(const Date &dt) {
     std::stringstream ss;
-    ss << dt.day() << sep;
-    ss << dt.month() << sep;
-    ss << dt.year();
+    ss << dt.year() << '-';
+    ss << dt.month() << '-';
+    ss << dt.day();
     return ss.str();
   }
 

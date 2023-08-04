@@ -161,10 +161,14 @@ namespace Epoch {
     return *this;
   }
 
-  Time toUTC(Time tm) {
-    int offset = toInt(tm.zone());
+  Time toTimeZone(Time tm, const TimeZone& tz) {
+    int offset = toInt(tm.zone()) - toInt(tz);
     int base = toInt(tm);
-    return Time(offset + base);
+    return Time(base - offset, tz);
+  }
+
+  Time toUTC(Time tm) {
+    return toTimeZone(tm, UTC);
   }
 
   int toInt(const Time &tm) {
@@ -224,12 +228,12 @@ namespace Epoch {
     return stream;
   }
 
-  std::string to_string(const Time &tm, char sep) {
+  std::string to_string(const Time &tm) {
     std::stringstream ss;
     ss << std::setfill('0') << std::setw(2) << tm.hour();
-    ss << sep;
+    ss << ':';
     ss << std::setfill('0') << std::setw(2) << tm.mnt();
-    ss << sep;
+    ss << ':';
     ss << std::setfill('0') << std::setw(2) << tm.sec();
     ss << to_string(tm.zone());
     return ss.str();
@@ -247,8 +251,8 @@ namespace Epoch {
 }
 
 int width(const Range<Epoch::Time> &rng) {
-  int upper = toInt(rng.upper());
-  int lower = toInt(rng.lower());
+  int upper = toInt(toUTC(rng.upper()));
+  int lower = toInt(toUTC(rng.lower()));
   return upper - lower;
 }
 

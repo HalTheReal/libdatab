@@ -65,6 +65,7 @@ namespace Epoch {
       bool isValid() const;
   };
 
+  Time toTimeZone(Time tm, const TimeZone& tz);
   Time toUTC(Time tm);
   int toInt(const Time &tm);
 
@@ -78,7 +79,7 @@ namespace Epoch {
   std::ostream& operator << (std::ostream &stream, const Time &tm);
   std::istream& operator >> (std::istream &stream, Time &tm);
 
-  std::string to_string(const Time &tm, char sep = ':');
+  std::string to_string(const Time &tm);
   Time strToTime(const std::string &str);
 
 }
