@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>    // Eccezioni
 #include <iostream>     // std::cout
+#include <iomanip>
 #include <math.h>       // fmod
 #include <htr_range.h>
 #include <htr_tools.h>

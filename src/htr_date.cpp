@@ -195,9 +195,11 @@ namespace Epoch {
 
   std::string to_string(const Date &dt) {
     std::stringstream ss;
-    ss << dt.year() << '-';
-    ss << dt.month() << '-';
-    ss << dt.day();
+    ss << std::setfill('0') << std::setw(4) << dt.year();
+    ss << '-';
+    ss << std::setfill('0') << std::setw(2) << dt.month();
+    ss << '-';
+    ss << std::setfill('0') << std::setw(2) << dt.day();
     return ss.str();
   }
 
