@@ -149,7 +149,15 @@ Fn CRSFit(const Fn &fL, const Fn &fH,
       break;
     }
     auto shuffled = NSol;                                                // Vettore da mescolare
-    std::random_shuffle(shuffled.begin() + 1, shuffled.end());  // Mescolo il vettore senza toccare il primo elemento, cioè LE!
+
+#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(shuffled.begin() + 1, shuffled.end(), g);  // Mescolo il vettore senza toccare il primo elemento, cioè LE!
+#else
+    std::random_shuffle(shuffled.begin() + 1, shuffled.end());
+#endif // __cplusplus >= 201703L
+
     auto newFn = fnMix(shuffled, fL.parNum() + 1);              // Servono almeno parNum + 1 punti per convergere velocemente
     if(isWithin(newFn, fL, fH)) {
       double fitness = fitF(xx, ob, newFn);
